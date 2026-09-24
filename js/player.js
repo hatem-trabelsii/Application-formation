@@ -142,7 +142,7 @@
       } else {
         const sec = s.sec;
         const bullets = sec.bullets && sec.bullets.length ? `<ul class="vp-bullets">${sec.bullets.map(b => `<li>${U.md(b)}</li>`).join('')}</ul>` : '';
-        const text = !bullets ? `<div class="vp-text">${U.md(sec.p || '')}</div>` : '';
+        const text = !bullets && sec.p ? `<div class="vp-text">${U.md(sec.p)}</div>` : '';
         const code = sec.code ? `<pre class="vp-code">${U.highlight(sec.code.src.split('\n').slice(0, 18).join('\n'), sec.code.lang)}</pre>` : '';
         const kicker = `${U.esc(this.o.lesson.title)} · ${si}/${this.slides.length - 1}`;
         html = `<div class="vp-slide"><div class="kicker">${kicker}</div><h2>${U.md(sec.h)}</h2><div class="cols">${bullets || text ? `<div>${bullets}${text}</div>` : ''}${code ? `<div>${code}</div>` : ''}</div></div>`;

@@ -31,7 +31,7 @@
 
   function highlight(src, lang) {
     lang = (lang || 'text').toLowerCase();
-    if (lang === 'ts' || lang === 'jsx' || lang === 'javascript' || lang === 'typescript') lang = 'js';
+    if (['ts', 'tsx', 'jsx', 'javascript', 'typescript', 'node'].includes(lang)) lang = 'js';
     if (lang === 'sh' || lang === 'shell' || lang === 'powershell') lang = 'bash';
     if (lang === 'dockerfile') lang = 'docker';
     if (lang === 'kotlin' || lang === 'csharp' || lang === 'cs') lang = 'java';

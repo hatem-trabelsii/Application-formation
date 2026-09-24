@@ -62,7 +62,7 @@
     if (c.kind === 'cert') {
       t.push(`<span class="tag ${vendorClass(c.vendor)}">${esc(c.vendor)}</span>`);
       t.push(`<span class="tag lvl-${(c.level || '').toLowerCase()}">${esc(c.level)}</span>`);
-      t.push(`<span class="tag code">${esc(c.code)}</span>`);
+      t.push(`<span class="tag tag-code">${esc(c.code)}</span>`);
     } else {
       t.push(`<span class="tag">${esc(c.category)}</span>`);
     }
@@ -102,8 +102,9 @@
 
   /* ================= Vues ================= */
   let cleanup = null;
+  // opts.inner : re-rendu à l'intérieur d'une même vue (quiz, cartes, lab) — on conserve ses minuteurs et écouteurs
   function setView(html, opts = {}) {
-    if (cleanup) { try { cleanup(); } catch (e) { console.error(e); } cleanup = null; }
+    if (cleanup && !opts.inner) { try { cleanup(); } catch (e) { console.error(e); } cleanup = null; }
     app.innerHTML = html;
     if (!opts.keepScroll) window.scrollTo(0, 0);
     updateNav();
@@ -490,6 +491,7 @@
     const c = byId[cid]; if (!c) return notFound();
     const lab = c.labs.find(x => x.id === labId); if (!lab) return notFound();
     const st = Store.labState(c.id, lab.id);
+    setView('');   // termine proprement la vue précédente (ex. lecteur vidéo) avant les re-rendus internes
     const render = () => {
       const n = lab.steps.filter((_, i) => st.steps[i]).length;
       const pct = Math.round(100 * n / lab.steps.length);
@@ -518,7 +520,7 @@
             <button class="btn ${st.done ? 'ok' : ''}" id="labDone">${st.done ? '✓ Lab terminé' : 'Valider le lab'}</button>
             <a class="btn ghost" href="#/cours/${c.id}">Retour au cours</a>
           </div>
-        </div>`, { keepScroll: true });
+        </div>`, { keepScroll: true, inner: true });
       $$('.lab-step input', app).forEach(i => i.addEventListener('change', () => { st.steps[i.dataset.i] = i.checked; Store.save(); render(); }));
       $('#labDone').addEventListener('click', () => { st.done = st.done ? null : Date.now(); Store.save(); if (st.done) toast('Bravo, lab validé !'); render(); });
     };
@@ -605,7 +607,7 @@
             </div>
           </div>
           <p class="muted small" style="text-align:center">Raccourcis : touches <kbd>A</kbd>–<kbd>D</kbd> pour répondre, <kbd>Entrée</kbd> pour continuer.</p>
-        </div>`, { keepScroll: true });
+        </div>`, { keepScroll: true, inner: true });
       $$('.opt', app).forEach(b => b.addEventListener('click', () => {
         if (mode === 'train' && answered) return;
         answers[i] = Number(b.dataset.k); render();
@@ -729,7 +731,7 @@
             <button class="r3" data-r="3">✓ Je savais <kbd>3</kbd></button>
           </div>
           <p class="muted small" style="text-align:center;margin-top:16px"><a href="${back}">Quitter la session</a></p>
-        </div>`, { keepScroll: true });
+        </div>`, { keepScroll: true, inner: true });
       $('#fc').addEventListener('click', flip);
       $$('.fc-rate button', app).forEach(b => b.addEventListener('click', () => rate(Number(b.dataset.r))));
     };

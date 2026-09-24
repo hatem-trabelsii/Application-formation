@@ -131,7 +131,7 @@ main { min-height: calc(100vh - 120px); }
 .tag.lvl-associate { color: #2563eb; background: #eef4ff; border-color: #c7dcff; }
 .tag.lvl-professional, .tag.lvl-expert { color: #7c3aed; background: #f4eeff; border-color: #ddd0ff; }
 .tag.lvl-specialty { color: #dc2626; background: #fff0f0; border-color: #fecaca; }
-.tag.code { background: var(--surface); }
+.tag.tag-code { background: var(--surface); }
 :root[data-theme="dark"] .tag.aws { background: #3a2410; border-color: #6b3d12; color: #fdba74; }
 :root[data-theme="dark"] .tag.azure { background: #142445; border-color: #1e3a8a; color: #93c5fd; }
 :root[data-theme="dark"] .tag.pmi { background: #3b1228; border-color: #831843; color: #f9a8d4; }
