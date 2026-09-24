@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ArchiPath Academy</title>
+  <meta name="description" content="Plateforme de formation locale : parcours Architecte Cloud & DevOps en 5 phases (avril 2026 → février 2028).">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="logo" href="#/"><span class="logo-mark">A</span>ArchiPath <span class="muted" style="font-weight:500">Academy</span></a>
+    <form class="search" id="searchForm" role="search">
+      <input id="searchInput" type="search" placeholder="Rechercher une formation, une notion (VPC, pod, pipeline…)" autocomplete="off" aria-label="Rechercher">
+    </form>
+    <button class="icon-btn menu-toggle" id="menuBtn" aria-label="Menu">☰</button>
+    <nav class="nav" id="nav">
+      <a href="#/" data-nav="/">Accueil</a>
+      <a href="#/catalogue" data-nav="/catalogue">Catalogue</a>
+      <a href="#/roadmap" data-nav="/roadmap">Roadmap</a>
+      <a href="#/revisions" data-nav="/revisions">Révisions <span class="badge-count hidden" id="dueBadge">0</span></a>
+      <a href="#/notes" data-nav="/notes">Notes</a>
+      <a href="#/parametres" data-nav="/parametres" title="Paramètres">⚙️</a>
+      <button class="icon-btn" id="themeBtn" title="Thème clair / sombre">🌙</button>
+    </nav>
+  </header>
+
+  <main id="app">
+    <noscript><div class="container">JavaScript est nécessaire pour utiliser ArchiPath Academy.</div></noscript>
+  </main>
+
+  <footer class="footer">ArchiPath Academy · 100 % local, sans compte · progression enregistrée dans ce navigateur (pensez à l'exporter depuis ⚙️ Paramètres)</footer>
+
+  <!-- Moteur -->
+  <script src="js/utils.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/player.js"></script>
+
+  <!-- Données : phases puis une formation par fichier -->
+  <script src="data/phases.js"></script>
+  <!-- Phase 1 -->
+  <script src="data/courses/aws-clf.js"></script>
+  <script src="data/courses/az-900.js"></script>
+  <script src="data/courses/git.js"></script>
+  <script src="data/courses/java.js"></script>
+  <script src="data/courses/maven-npm.js"></script>
+  <script src="data/courses/spring-boot.js"></script>
+  <!-- Phase 2 -->
+  <script src="data/courses/aws-saa.js"></script>
+  <script src="data/courses/aws-dva.js"></script>
+  <script src="data/courses/az-204.js"></script>
+  <script src="data/courses/gitlab-ci.js"></script>
+  <script src="data/courses/sonarqube.js"></script>
+  <script src="data/courses/python.js"></script>
+  <script src="data/courses/docker.js"></script>
+  <script src="data/courses/kubernetes.js"></script>
+  <script src="data/courses/jenkins.js"></script>
+  <!-- Phase 3 -->
+  <script src="data/courses/aws-sysops.js"></script>
+  <script src="data/courses/aws-devops-pro.js"></script>
+  <script src="data/courses/az-400.js"></script>
+  <script src="data/courses/terraform.js"></script>
+  <script src="data/courses/ansible.js"></script>
+  <script src="data/courses/datadog.js"></script>
+  <script src="data/courses/cloudwatch.js"></script>
+  <!-- Phase 4 -->
+  <script src="data/courses/aws-sap.js"></script>
+  <script src="data/courses/aws-security.js"></script>
+  <script src="data/courses/az-305.js"></script>
+  <script src="data/courses/junit.js"></script>
+  <script src="data/courses/react.js"></script>
+  <script src="data/courses/nodejs.js"></script>
+  <!-- Phase 5 -->
+  <script src="data/courses/pmp.js"></script>
+  <script src="data/courses/togaf.js"></script>
+
+  <!-- Application -->
+  <script src="js/app.js"></script>
+</body>
+</html>
