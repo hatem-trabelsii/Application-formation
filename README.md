@@ -4,8 +4,12 @@ Plateforme de formation **100 % locale, sans compte**, inspirée d'Udemy, pour l
 
 ## Lancer
 
-- **Le plus simple** : double-cliquez sur `index.html`. Il fonctionne dans Chrome, Edge ou Firefox, même hors ligne.
-- **Avec un serveur local** (facultatif) : `./start.sh` (macOS/Linux) ou `start.bat` (Windows), puis ouvrez http://localhost:8000.
+1. **Récupérez les fichiers sur votre ordinateur.** Sur GitHub : bouton **Code › Download ZIP** sur la branche `claude/local-cloud-training-platform-e7bo51`, puis décompressez l'archive. Ou bien : `git clone` du dépôt.
+2. **Double-cliquez sur `index.html`.** C'est tout : ça fonctionne dans Chrome, Edge ou Firefox, même hors ligne, sans serveur.
+
+Facultatif : `start.bat` (Windows) ou `./start.sh` (macOS/Linux) démarre un petit serveur sur http://localhost:8000. Laissez sa fenêtre ouverte tant que vous utilisez le site. Sans Python, le script ouvre directement `index.html`.
+
+> « localhost n'autorise pas la connexion » (ERR_CONNECTION_REFUSED) veut dire qu'aucun serveur ne tourne sur votre machine : lancez `start.bat` / `start.sh` depuis le dossier décompressé et gardez la fenêtre ouverte, ou ouvrez simplement `index.html`.
 
 ## Ce que contient le site
 
