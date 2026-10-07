@@ -1,0 +1,676 @@
+<title>Portefeuille Applicatif</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,500..800&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout : poste d'aiguillage. Rail de navigation à gauche, tableau de signalisation des 20 applis en tête, détail dans un tiroir latéral. */
+:root{
+  --bg:#F3F4F7; --surface:#FFFFFF; --surface-2:#EBEDF2; --line:#D9DCE5; --fg:#161B2B; --muted:#5D6478;
+  --accent:#2343A8; --accent-soft:#E3E8F8; --accent-fg:#FFFFFF;
+  --ok:#1B7F52; --ok-soft:#DDF2E7; --warn:#A86C00; --warn-soft:#FBEFD5; --crit:#BE2B37; --crit-soft:#FBE2E4;
+  --info:#4A5A84; --info-soft:#E6E9F1;
+  --rail:#161B2B; --rail-fg:#C9CEDC; --rail-active:#FFFFFF;
+  --f-display:"Archivo","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  --r:8px; --shadow:0 1px 2px rgba(22,27,43,.06),0 4px 16px rgba(22,27,43,.06);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1320; --surface:#171C2C; --surface-2:#1F2537; --line:#2B3248; --fg:#E7EAF3; --muted:#9AA2B9;
+  --accent:#7D95F0; --accent-soft:#232C4D; --accent-fg:#0F1320;
+  --ok:#4CC38A; --ok-soft:#173527; --warn:#E9AE3E; --warn-soft:#3A2D12; --crit:#F0707A; --crit-soft:#41191E;
+  --info:#A8B4D6; --info-soft:#232A3E; --rail:#0A0D17; --rail-fg:#8F98B2; --rail-active:#FFFFFF;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25); color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#0F1320; --surface:#171C2C; --surface-2:#1F2537; --line:#2B3248; --fg:#E7EAF3; --muted:#9AA2B9;
+  --accent:#7D95F0; --accent-soft:#232C4D; --accent-fg:#0F1320;
+  --ok:#4CC38A; --ok-soft:#173527; --warn:#E9AE3E; --warn-soft:#3A2D12; --crit:#F0707A; --crit-soft:#41191E;
+  --info:#A8B4D6; --info-soft:#232A3E; --rail:#0A0D17; --rail-fg:#8F98B2; --rail-active:#FFFFFF;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25); color-scheme:dark;}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 var(--f-body);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{display:grid;grid-template-columns:232px minmax(0,1fr);min-height:100%}
+/* Rail */
+.rail{background:var(--rail);color:var(--rail-fg);padding:20px 14px;display:flex;flex-direction:column;gap:20px;position:sticky;top:0;height:100vh}
+.brand{display:flex;gap:10px;align-items:center;color:var(--rail-active);padding:0 6px}
+.brand svg{flex:none}
+.brand b{font:700 17px/1.1 var(--f-display);font-stretch:85%;letter-spacing:.01em;display:block}
+.brand small{font-size:11px;color:var(--rail-fg);letter-spacing:.04em}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav button{all:unset;cursor:pointer;display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:6px;font-weight:500;color:var(--rail-fg)}
+.nav button:hover{background:rgba(255,255,255,.06);color:var(--rail-active)}
+.nav button[aria-current="page"]{background:rgba(255,255,255,.1);color:var(--rail-active)}
+.nav button:focus-visible{outline:2px solid #7D95F0}
+.nav svg{width:18px;height:18px;flex:none}
+.nav .count{margin-left:auto;font:600 11px var(--f-mono);background:rgba(255,255,255,.1);padding:1px 7px;border-radius:10px}
+.rail-foot{margin-top:auto;font-size:12px;display:flex;flex-direction:column;gap:6px;padding:0 6px}
+.mode-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--warn);margin-right:6px}
+.mode-dot.live{background:var(--ok)}
+/* Main */
+main{min-width:0;padding-block:24px 48px;padding-inline:32px}
+.top{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:flex-end;justify-content:space-between;margin-bottom:22px}
+.top h1{margin:0;font:800 30px/1.1 var(--f-display);font-stretch:80%;letter-spacing:-.005em;text-wrap:balance}
+.eyebrow{font:600 11px var(--f-body);text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:4px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);padding:7px 12px;border-radius:6px;cursor:pointer;font-weight:600;font-size:13px}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;border-color:transparent}
+.btn.danger{color:var(--crit)}
+.btn svg{width:15px;height:15px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.panel-h{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 16px 0}
+.panel-h h2{margin:0;font:700 15px var(--f-display);font-stretch:90%;letter-spacing:.01em}
+.panel-h .hint{font-size:12px;color:var(--muted)}
+.panel-b{padding:14px 16px 16px}
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;cursor:pointer;text-align:left}
+.kpi:hover{border-color:var(--accent)}
+.kpi .l{font-size:12px;color:var(--muted);font-weight:500}
+.kpi .v{font:800 28px/1.15 var(--f-display);font-stretch:85%;font-variant-numeric:tabular-nums}
+.kpi .s{font-size:11.5px;color:var(--muted)}
+.kpi.crit .v{color:var(--crit)} .kpi.warn .v{color:var(--warn)} .kpi.ok .v{color:var(--ok)}
+/* Signal board */
+.board{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.sig{all:unset;cursor:pointer;display:grid;grid-template-columns:auto 1fr;gap:2px 10px;align-items:center;padding:10px 12px;border-radius:6px;background:var(--surface-2);border:1px solid transparent}
+.sig:hover{border-color:var(--accent)}
+.sig:focus-visible{outline:2px solid var(--accent)}
+.lamp{grid-row:span 2;width:14px;height:14px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px var(--ok-soft)}
+.lamp.Vigilance{background:var(--warn);box-shadow:0 0 0 3px var(--warn-soft)}
+.lamp.Incident{background:var(--crit);box-shadow:0 0 0 3px var(--crit-soft);animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 6px var(--crit-soft)}}
+@media (prefers-reduced-motion:reduce){.lamp.Incident{animation:none}}
+.sig .c{font:700 13px var(--f-mono);letter-spacing:.02em}
+.sig .n{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.grid2{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:16px;margin-top:16px}
+.stack{display:flex;flex-direction:column;gap:16px;min-width:0}
+/* lists */
+.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.list li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
+.list li:first-child{border-top:0}
+.list .t{min-width:0}
+.list .t b{font-weight:600;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.list .t span{font-size:12px;color:var(--muted)}
+.link{all:unset;cursor:pointer}
+.link:hover b{color:var(--accent)}
+.empty{color:var(--muted);font-size:13px;padding:6px 0}
+/* chips */
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--info-soft);color:var(--info);white-space:nowrap}
+.chip.ok{background:var(--ok-soft);color:var(--ok)} .chip.warn{background:var(--warn-soft);color:var(--warn)} .chip.crit{background:var(--crit-soft);color:var(--crit)} .chip.acc{background:var(--accent-soft);color:var(--accent)}
+.code{font:700 12px var(--f-mono);letter-spacing:.02em;color:var(--muted)}
+.date{font:500 12px var(--f-mono);font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap}
+.date.late{color:var(--crit)}
+.prio{width:4px;height:28px;border-radius:2px;background:var(--line)}
+.prio.Critique{background:var(--crit)} .prio.Haute{background:var(--warn)} .prio.Moyenne{background:var(--accent)} .prio.Basse{background:var(--muted)}
+/* bars */
+.bars{display:flex;flex-direction:column;gap:9px}
+.bar{display:grid;grid-template-columns:118px minmax(0,1fr) 28px;gap:10px;align-items:center;font-size:12.5px}
+.bar .track{height:12px;border-radius:3px;background:var(--surface-2);display:flex;overflow:hidden}
+.bar .track i{display:block;height:100%}
+.bar .num{font:600 12px var(--f-mono);text-align:right}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:10px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+/* toolbar */
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;align-items:center}
+.toolbar input,.toolbar select,.field input,.field select,.field textarea{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:7px 10px;min-width:0}
+.toolbar input{flex:1 1 220px}
+.toolbar .seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{all:unset;cursor:pointer;padding:6px 10px;font-size:12.5px;font-weight:600;color:var(--muted);background:var(--surface)}
+.seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
+/* table */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:980px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;background:var(--surface-2);position:sticky;top:0;cursor:pointer;user-select:none;white-space:nowrap}
+th[aria-sort="ascending"]::after{content:" ↑"} th[aria-sort="descending"]::after{content:" ↓"}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--accent-soft)}
+tbody tr:last-child td{border-bottom:0}
+td .nm{font-weight:600}
+td .ds{font-size:12px;color:var(--muted)}
+.dots{display:inline-flex;gap:3px}
+.dots i{width:7px;height:7px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--warn)}
+.dots.d5 i.on,.dots.d4 i.on{background:var(--crit)}
+/* kanban */
+.kanban{display:grid;grid-template-columns:repeat(5,minmax(230px,1fr));gap:12px;overflow-x:auto;padding-bottom:8px}
+.col{background:var(--surface-2);border-radius:var(--r);padding:10px;display:flex;flex-direction:column;gap:8px;min-height:240px}
+.col.drop{outline:2px dashed var(--accent);outline-offset:-2px}
+.col-h{display:flex;justify-content:space-between;align-items:center;font:700 12px var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);padding:2px 4px 4px}
+.col-h .n{font-family:var(--f-mono)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:10px 11px;cursor:grab;display:flex;flex-direction:column;gap:7px;border-left:3px solid var(--line);text-align:left}
+.card:hover{border-color:var(--accent)}
+.card.Critique{border-left-color:var(--crit)} .card.Haute{border-left-color:var(--warn)} .card.Moyenne{border-left-color:var(--accent)} .card.Basse{border-left-color:var(--muted)}
+.card .ti{font-weight:600;font-size:13px;line-height:1.35}
+.card .meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:space-between}
+.card.dragging{opacity:.5}
+/* roadmap */
+.road{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+.road-g{display:grid;min-width:960px}
+.road-g > div{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:8px 8px;min-height:44px;font-size:12px;display:flex;flex-wrap:wrap;gap:4px;align-content:flex-start}
+.road-g .hd{background:var(--surface-2);font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-size:11px;min-height:0;position:sticky;top:0}
+.road-g .hd.now{color:var(--accent)}
+.road-g .rl{position:sticky;left:0;background:var(--surface);z-index:1;flex-direction:column;gap:0;cursor:pointer}
+.road-g .rl b{font-weight:600;font-size:13px}
+.ev{all:unset;cursor:pointer;font-size:11.5px;line-height:1.3;padding:3px 7px;border-radius:4px;background:var(--accent-soft);color:var(--accent);font-weight:600;max-width:100%}
+.ev.ms{background:var(--fg);color:var(--bg)}
+.ev.cao{background:var(--warn-soft);color:var(--warn)}
+.ev.eos{background:var(--crit-soft);color:var(--crit)}
+.ev.tk.late{outline:1px solid var(--crit)}
+/* drawer & modal */
+.scrim{position:fixed;inset:0;background:rgba(10,13,23,.45);z-index:30}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(560px,100%);background:var(--surface);z-index:31;box-shadow:var(--shadow);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.drawer-h{padding:18px 20px 14px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:flex-start}
+.drawer-h h3{margin:0;font:800 22px/1.15 var(--f-display);font-stretch:85%}
+.drawer-b{padding:16px 20px 24px;overflow:auto;display:flex;flex-direction:column;gap:18px}
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field.full{grid-column:1/-1}
+.field label{font-size:11.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.field textarea{min-height:72px;resize:vertical}
+.sec-t{font:700 13px var(--f-display);font-stretch:90%;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 8px}
+.modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(520px,calc(100% - 32px));max-height:calc(100% - 32px);overflow:auto;background:var(--surface);border-radius:10px;z-index:31;box-shadow:var(--shadow);padding:20px}
+.modal h3{margin:0 0 14px;font:800 20px var(--f-display);font-stretch:85%}
+.modal .foot{display:flex;justify-content:space-between;gap:8px;margin-top:16px;flex-wrap:wrap}
+.confirm{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--crit);flex-wrap:wrap}
+.toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:9px 16px;border-radius:6px;font-weight:600;font-size:13px;z-index:40;box-shadow:var(--shadow)}
+.banner{background:var(--accent-soft);color:var(--fg);border-radius:var(--r);padding:12px 14px;margin-bottom:16px;font-size:13px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+/* Notion page */
+.prose{max-width:72ch}
+.prose h2{font:800 20px var(--f-display);font-stretch:85%;margin:24px 0 8px}
+.prose p,.prose li{line-height:1.6}
+.prose code{font:500 12.5px var(--f-mono);background:var(--surface-2);padding:1px 5px;border-radius:4px}
+.cmp{width:100%;min-width:620px}
+.cmp td,.cmp th{cursor:default}
+.cmp th{position:static}
+.yes{color:var(--ok);font-weight:700} .part{color:var(--warn);font-weight:700} .no{color:var(--crit);font-weight:700}
+.steps{counter-reset:s;list-style:none;padding:0;display:flex;flex-direction:column;gap:10px}
+.steps li{counter-increment:s;display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px}
+.steps li::before{content:counter(s);font:700 13px var(--f-mono);width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center}
+.loading{padding:60px 0;text-align:center;color:var(--muted)}
+/* responsive */
+@media (max-width:1180px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.grid2{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:820px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .rail{position:sticky;top:env(safe-area-inset-top,0px);height:auto;z-index:20;flex-direction:row;align-items:center;padding:10px 16px;gap:10px;overflow-x:auto}
+  .brand small,.rail-foot{display:none}
+  .brand b{font-size:15px}
+  .nav{flex-direction:row}
+  .nav button span.lbl{display:none}
+  .nav .count{display:none}
+  main{padding-inline:16px}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .fields{grid-template-columns:minmax(0,1fr)}
+  .top h1{font-size:25px}
+}
+</style>
+
+<div class="app">
+  <aside class="rail">
+    <div class="brand">
+      <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><rect x="9" y="1" width="12" height="28" rx="6" fill="#2B3248"/><circle cx="15" cy="8" r="3.4" fill="#BE2B37"/><circle cx="15" cy="15" r="3.4" fill="#E9AE3E"/><circle cx="15" cy="22" r="3.4" fill="#4CC38A"/></svg>
+      <div><b>Portefeuille Applicatif</b><small>Périmètre architecte solution</small></div>
+    </div>
+    <nav class="nav" aria-label="Vues">
+      <button data-view="synthese" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg><span class="lbl">Synthèse</span></button>
+      <button data-view="portefeuille"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg><span class="lbl">Applications</span><span class="count" id="c-apps">0</span></button>
+      <button data-view="tableau"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="5" height="16" rx="1"/><rect x="10" y="4" width="5" height="11" rx="1"/><rect x="17" y="4" width="4" height="7" rx="1"/></svg><span class="lbl">Tableau</span><span class="count" id="c-open">0</span></button>
+      <button data-view="feuille"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h8M7 12h10M13 19h8"/><circle cx="3" cy="5" r="1"/><circle cx="7" cy="12" r="1"/><circle cx="13" cy="19" r="1"/></svg><span class="lbl">Feuille de route</span></button>
+      <button data-view="notion"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3h7v7M21 3l-9 9M19 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5"/></svg><span class="lbl">Export Notion</span></button>
+    </nav>
+    <div class="rail-foot">
+      <div><span class="mode-dot" id="mode-dot"></span><span id="mode-lbl">Démarrage…</span></div>
+      <div id="today-lbl"></div>
+    </div>
+  </aside>
+  <main id="main"><div class="loading">Chargement du portefeuille…</div></main>
+</div>
+<div id="layer"></div>
+
+<script>
+const SEED = /*SEED*/null;
+const STATUTS = ["À faire","En cours","En revue","Bloqué","Terminé"];
+const TYPES = ["Évolution","Incident","Dette technique","Sécurité","Gouvernance / CAO","Décision d'architecture"];
+const PRIOS = ["Critique","Haute","Moyenne","Basse"];
+const SANTES = ["OK","Vigilance","Incident"];
+const CYCLES = ["Projet","Build","Run","Décommissionnement"];
+const CRITS = ["Critique","Élevée","Moyenne","Faible"];
+const HEBERG = ["Cloud AWS","Cloud Azure","On-premise","Hybride","SaaS"];
+const CAOS = ["À passer","En cours","Validé","Non requis"];
+const SSIS = ["Conforme","Écarts","À évaluer"];
+const MONTHS = ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
+
+const S = { apps:new Map(), tickets:new Map(), mode:"init", canWrite:true, view:"synthese", loaded:{apps:false,tickets:false},
+  f:{q:"",domaine:"",cycle:"",sante:""}, sort:{k:"sante",d:1}, kb:{app:"",type:"",prio:"",q:""}, db:null, downloads:null };
+
+const $ = (s,r=document)=>r.querySelector(s);
+const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const TODAY = (()=>{const d=new Date();d.setHours(0,0,0,0);return d})();
+const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const pd = s => { if(!s||!/^\d{4}-\d{2}-\d{2}$/.test(s)) return null; const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d) };
+const days = s => { const d=pd(s); return d? Math.round((d-TODAY)/864e5) : null };
+const fdate = s => { const d=pd(s); return d? `${String(d.getDate()).padStart(2,"0")} ${MONTHS[d.getMonth()]} ${String(d.getFullYear()).slice(2)}` : "—" };
+const rel = s => { const n=days(s); if(n===null) return ""; if(n===0) return "aujourd'hui"; if(n<0) return `en retard de ${-n} j`; return `dans ${n} j` };
+const santeCls = s => s==="Incident"?"crit":s==="Vigilance"?"warn":"ok";
+const statutCls = s => s==="Bloqué"?"crit":s==="Terminé"?"ok":s==="En revue"?"acc":s==="En cours"?"acc":"";
+const caoCls = s => s==="Validé"?"ok":s==="À passer"?"warn":s==="En cours"?"acc":"";
+const ssiCls = s => s==="Conforme"?"ok":s==="Écarts"?"crit":"warn";
+const apps = () => [...S.apps.values()].sort((a,b)=>a.nom.localeCompare(b.nom,"fr"));
+const tickets = () => [...S.tickets.values()];
+const appOf = id => S.apps.get(id);
+const openT = () => tickets().filter(t=>t.statut!=="Terminé");
+const uid = p => p + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+
+/* ---------- persistence ---------- */
+const LS_KEY = "portefeuille-applicatif-v1";
+function lsLoad(){ try{ const raw=localStorage.getItem(LS_KEY); return raw?JSON.parse(raw):null }catch(e){ return null } }
+function lsSave(){ try{ localStorage.setItem(LS_KEY, JSON.stringify({apps:[...S.apps.values()],tickets:[...S.tickets.values()]})) }catch(e){} }
+function loadLocal(data){ S.apps.clear(); S.tickets.clear(); (data.apps||[]).forEach(a=>S.apps.set(a.id,a)); (data.tickets||[]).forEach(t=>S.tickets.set(t.id,t)); }
+
+async function put(kind, obj){
+  const map = kind==="apps"?S.apps:S.tickets;
+  const prev = map.get(obj.id);
+  map.set(obj.id, obj); render();
+  if(S.mode==="db"){
+    try{ await S.db.collection(kind).doc(obj.id).set(obj) }
+    catch(e){ if(prev) map.set(obj.id,prev); else map.delete(obj.id); render();
+      toast(e&&e.code==="invalid_argument"?"Lecture seule : vous ne pouvez pas modifier ce portefeuille.":"Enregistrement impossible. Réessayez dans un instant."); if(e&&e.code==="invalid_argument"){S.canWrite=false;render()} return false }
+  } else lsSave();
+  return true;
+}
+async function del(kind, id){
+  const map = kind==="apps"?S.apps:S.tickets; const prev=map.get(id);
+  map.delete(id); render();
+  if(S.mode==="db"){ try{ await S.db.collection(kind).doc(id).delete() }catch(e){ map.set(id,prev); render(); toast("Suppression impossible."); return false } }
+  else lsSave();
+  return true;
+}
+async function loadExamples(){
+  if(S.mode==="db"){
+    toast("Chargement des exemples…");
+    for(const a of SEED.apps){ await S.db.collection("apps").doc(a.id).set(a) }
+    for(const t of SEED.tickets){ await S.db.collection("tickets").doc(t.id).set(t) }
+    toast("Exemples chargés");
+  } else { loadLocal(SEED); lsSave(); render(); }
+}
+
+async function boot(){
+  $("#today-lbl").textContent = "Aujourd'hui : " + fdate(iso(TODAY));
+  const hash=(location.hash||"").slice(1); if(["synthese","portefeuille","tableau","feuille","notion"].includes(hash)) S.view=hash;
+  let db=null;
+  if(window.claude && typeof window.claude.use==="function"){
+    try{ db = await window.claude.use("db") }catch(e){ db=null }
+    try{ S.downloads = await window.claude.use("downloads") }catch(e){}
+    try{ const u = await window.claude.use("user"); if(u){ const c = await u.can("data.write"); if(c===false) S.canWrite=false } }catch(e){}
+  }
+  if(db){
+    S.db=db; S.mode="db"; setMode(true);
+    const sub = kind => db.collection(kind).onSnapshot(snap=>{
+      const map = kind==="apps"?S.apps:S.tickets; map.clear();
+      snap.docs.forEach(d=>{ const v=d.data(); if(v) map.set(d.id,{...v,id:d.id}) });
+      S.loaded[kind]=true; render();
+    }, e=>{ toast("Connexion aux données interrompue. Rechargez la page."); });
+    sub("apps"); sub("tickets");
+  } else {
+    S.mode="local"; setMode(false);
+    loadLocal(lsLoad() || SEED); S.loaded={apps:true,tickets:true}; render();
+  }
+}
+function setMode(live){
+  $("#mode-dot").classList.toggle("live",live);
+  $("#mode-lbl").textContent = live ? (S.canWrite?"Données partagées":"Lecture seule") : "Données locales (navigateur)";
+}
+
+/* ---------- UI helpers ---------- */
+let toastT;
+function toast(msg){ let el=$(".toast"); if(!el){ el=document.createElement("div"); el.className="toast"; el.setAttribute("role","status"); document.body.append(el) } el.textContent=msg; clearTimeout(toastT); toastT=setTimeout(()=>el.remove(),2600) }
+function chip(txt,cls=""){ return `<span class="chip ${cls}">${esc(txt)}</span>` }
+function opts(list,cur,empty){ return (empty!==undefined?`<option value="">${esc(empty)}</option>`:"") + list.map(v=>`<option ${v===cur?"selected":""}>${esc(v)}</option>`).join("") }
+function go(view){ S.view=view; try{history.replaceState(null,"","#"+view)}catch(e){} render(); window.scrollTo(0,0) }
+document.querySelectorAll(".nav button").forEach(b=>b.addEventListener("click",()=>go(b.dataset.view)));
+
+/* ---------- render ---------- */
+function render(){
+  document.querySelectorAll(".nav button").forEach(b=>{ if(b.dataset.view===S.view) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current") });
+  $("#c-apps").textContent=S.apps.size; $("#c-open").textContent=openT().length;
+  const m=$("#main");
+  if(!(S.loaded.apps&&S.loaded.tickets)){ m.innerHTML=`<div class="loading">Chargement du portefeuille…</div>`; return }
+  if(S.apps.size===0 && S.view!=="notion"){ m.innerHTML=emptyView(); bindEmpty(); return }
+  const v={synthese:vSynthese,portefeuille:vPortefeuille,tableau:vTableau,feuille:vFeuille,notion:vNotion}[S.view];
+  v(m);
+}
+function header(eyebrow,title,actions=""){ return `<div class="top"><div><div class="eyebrow">${esc(eyebrow)}</div><h1>${esc(title)}</h1></div><div class="actions">${actions}</div></div>` }
+const I = {
+  plus:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>`,
+  dl:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>`
+};
+function emptyView(){
+  return header("Portefeuille vide","Aucune application pour l'instant") + `<div class="panel"><div class="panel-b">
+  <p style="margin-top:0;max-width:62ch">Ajoutez vos 20 applications une par une, ou chargez un portefeuille d'exemple (20 applications fictives et 30 tickets) pour voir le tableau de bord en action, puis remplacez-les par les vôtres.</p>
+  <div class="actions">${S.canWrite?`<button class="btn primary" id="e-new">${I.plus} Ajouter une application</button><button class="btn" id="e-seed">Charger les exemples</button>`:`<span class="empty">Vous consultez ce portefeuille en lecture seule.</span>`}</div></div></div>`;
+}
+function bindEmpty(){ $("#e-new")?.addEventListener("click",()=>openApp(null)); $("#e-seed")?.addEventListener("click",loadExamples) }
+function exampleBanner(){
+  const n = apps().filter(a=>a.exemple).length;
+  if(!n) return "";
+  return `<div class="banner"><span><b>Données d'exemple.</b> ${n} application${n>1?"s":""} fictive${n>1?"s":""} sont affichées. Ouvrez chaque fiche pour y saisir vos vraies applications ; le badge disparaît dès que vous enregistrez une fiche.</span></div>`;
+}
+
+/* Synthèse */
+function vSynthese(m){
+  const A=apps(), T=openT();
+  const inc=A.filter(a=>a.sante==="Incident"), vig=A.filter(a=>a.sante==="Vigilance");
+  const late=T.filter(t=>days(t.echeance)!==null&&days(t.echeance)<0);
+  const blocked=T.filter(t=>t.statut==="Bloqué");
+  const cao=A.filter(a=>a.cao==="À passer"||a.cao==="En cours");
+  const eos=A.filter(a=>{const n=days(a.finSupport);return n!==null&&n<=365});
+  const k=(cls,l,v,s,act)=>`<button class="kpi ${cls}" data-act="${act}"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></button>`;
+  const soon=T.filter(t=>{const n=days(t.echeance);return n!==null&&n<=14}).sort((a,b)=>(a.echeance||"").localeCompare(b.echeance||"")).slice(0,8);
+  const jal=A.filter(a=>{const n=days(a.jalonDate);return n!==null&&n>=-7&&n<=60}).sort((a,b)=>a.jalonDate.localeCompare(b.jalonDate)).slice(0,6);
+  const order={Incident:0,Vigilance:1,OK:2};
+  const board=[...A].sort((a,b)=>order[a.sante]-order[b.sante]||a.code.localeCompare(b.code));
+  const doms=[...new Set(A.map(a=>a.domaine))].sort((a,b)=>A.filter(x=>x.domaine===b).length-A.filter(x=>x.domaine===a).length||a.localeCompare(b,"fr"));
+  const maxD=Math.max(1,...doms.map(d=>A.filter(a=>a.domaine===d).length));
+  const typeCount=TYPES.map(t=>[t,T.filter(x=>x.type===t).length]).filter(x=>x[1]);
+  m.innerHTML = header("Vue d'ensemble · "+A.length+" applications","Synthèse du périmètre",
+     S.canWrite?`<button class="btn" id="b-newt">${I.plus} Ticket</button><button class="btn primary" id="b-newa">${I.plus} Application</button>`:"")
+  + exampleBanner()
+  + `<div class="kpis">
+      ${k(inc.length?"crit":"ok","Applications en incident",inc.length,vig.length+" en vigilance","incident")}
+      ${k("","Tickets ouverts",T.length,tickets().length-T.length+" terminés","open")}
+      ${k(blocked.length?"crit":"","Tickets bloqués",blocked.length,"à débloquer en priorité","blocked")}
+      ${k(late.length?"warn":"ok","Échéances dépassées",late.length,"tickets en retard","late")}
+      ${k(cao.length?"warn":"","Passages CAO",cao.length,"à passer ou en cours","cao")}
+      ${k(eos.length?"warn":"","Fins de support",eos.length,"dans les 12 prochains mois","eos")}
+    </div>
+    <section class="panel"><div class="panel-h"><h2>Tableau de signalisation</h2><span class="hint">Cliquez une application pour ouvrir sa fiche</span></div>
+      <div class="panel-b"><div class="board">${board.map(a=>`<button class="sig" data-app="${esc(a.id)}" title="${esc(a.nom)} : ${esc(a.sante)}"><span class="lamp ${esc(a.sante)}" aria-hidden="true"></span><span class="c">${esc(a.code)}</span><span class="n">${esc(a.nom)}</span></button>`).join("")}</div>
+      <div class="legend"><span><i style="background:var(--ok)"></i>Nominal</span><span><i style="background:var(--warn)"></i>Vigilance</span><span><i style="background:var(--crit)"></i>Incident en cours</span></div></div></section>
+    <div class="grid2">
+      <div class="stack">
+        <section class="panel"><div class="panel-h"><h2>À traiter sous 14 jours</h2><button class="btn ghost" data-go="tableau">Tout le tableau →</button></div>
+          <div class="panel-b"><ul class="list">${soon.length?soon.map(tRow).join(""):`<li><span></span><span class="empty">Aucune échéance proche.</span><span></span></li>`}</ul></div></section>
+        <section class="panel"><div class="panel-h"><h2>Prochains jalons</h2><button class="btn ghost" data-go="feuille">Feuille de route →</button></div>
+          <div class="panel-b"><ul class="list">${jal.length?jal.map(a=>`<li><span class="code">${esc(a.code)}</span><button class="link t" data-app="${esc(a.id)}"><b>${esc(a.jalon)}</b><span>${esc(a.nom)} · ${esc(a.cycle)}</span></button><span class="date ${days(a.jalonDate)<0?"late":""}">${fdate(a.jalonDate)}</span></li>`).join(""):`<li><span></span><span class="empty">Aucun jalon dans les 60 jours.</span><span></span></li>`}</ul></div></section>
+      </div>
+      <div class="stack">
+        <section class="panel"><div class="panel-h"><h2>Santé par domaine</h2></div><div class="panel-b">
+          <div class="bars">${doms.map(d=>{const L=A.filter(a=>a.domaine===d);const c=s=>L.filter(a=>a.sante===s).length;const w=n=>(n/maxD*100)+"%";
+            return `<div class="bar"><span>${esc(d)}</span><span class="track"><i style="width:${w(c("OK"))};background:var(--ok)"></i><i style="width:${w(c("Vigilance"))};background:var(--warn)"></i><i style="width:${w(c("Incident"))};background:var(--crit)"></i></span><span class="num">${L.length}</span></div>`}).join("")}</div>
+        </div></section>
+        <section class="panel"><div class="panel-h"><h2>Tickets ouverts par type</h2></div><div class="panel-b">
+          <div class="bars">${typeCount.length?typeCount.map(([t,n])=>`<div class="bar"><span>${esc(t)}</span><span class="track"><i style="width:${n/Math.max(...typeCount.map(x=>x[1]))*100}%;background:var(--accent)"></i></span><span class="num">${n}</span></div>`).join(""):`<span class="empty">Aucun ticket ouvert.</span>`}</div>
+        </div></section>
+        <section class="panel"><div class="panel-h"><h2>Obsolescence à 12 mois</h2></div><div class="panel-b">
+          <ul class="list">${eos.length?eos.sort((a,b)=>a.finSupport.localeCompare(b.finSupport)).map(a=>`<li><span class="code">${esc(a.code)}</span><button class="link t" data-app="${esc(a.id)}"><b>${esc(a.nom)}</b><span>${esc(a.techno)}</span></button><span class="date ${days(a.finSupport)<90?"late":""}">${fdate(a.finSupport)}</span></li>`).join(""):`<li><span></span><span class="empty">Aucune fin de support proche.</span><span></span></li>`}</ul>
+        </div></section>
+      </div>
+    </div>`;
+  bindCommon(m);
+  $("#b-newa")?.addEventListener("click",()=>openApp(null));
+  $("#b-newt")?.addEventListener("click",()=>openTicket(null));
+  m.querySelectorAll(".kpi").forEach(b=>b.addEventListener("click",()=>{
+    const a=b.dataset.act;
+    if(a==="incident"){ S.f={q:"",domaine:"",cycle:"",sante:""}; S.f.sante="Incident"; S.sort={k:"sante",d:1}; go("portefeuille") }
+    else if(a==="open"){ S.kb={app:"",type:"",prio:"",q:""}; go("tableau") }
+    else if(a==="blocked"||a==="late"){ S.kb={app:"",type:"",prio:"",q:""}; go("tableau") }
+    else if(a==="cao"){ S.sort={k:"cao",d:1}; go("portefeuille") }
+    else if(a==="eos"){ S.sort={k:"finSupport",d:1}; go("portefeuille") }
+  }));
+}
+function tRow(t){ const a=appOf(t.appId); const n=days(t.echeance);
+  return `<li><span class="prio ${esc(t.priorite)}" title="Priorité ${esc(t.priorite)}"></span><button class="link t" data-ticket="${esc(t.id)}"><b>${esc(t.titre)}</b><span>${a?esc(a.code)+" · ":""}${esc(t.type)} · ${chip(t.statut,statutCls(t.statut))}</span></button><span class="date ${n!==null&&n<0?"late":""}" title="${rel(t.echeance)}">${fdate(t.echeance)}</span></li>` }
+function bindCommon(root){
+  root.querySelectorAll("[data-app]").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();openApp(b.dataset.app)}));
+  root.querySelectorAll("[data-ticket]").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();openTicket(b.dataset.ticket)}));
+  root.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.go)));
+}
+
+/* Portefeuille */
+const COLS=[["code","Code"],["nom","Application"],["domaine","Domaine"],["cycle","Cycle de vie"],["sante","Santé"],["criticite","Criticité"],["hebergement","Hébergement"],["cao","CAO"],["ssi","SSI"],["dette","Dette"],["ouverts","Tickets"],["finSupport","Fin de support"]];
+function vPortefeuille(m){
+  const f=S.f, doms=[...new Set(apps().map(a=>a.domaine))].sort((a,b)=>a.localeCompare(b,"fr"));
+  let L=apps().filter(a=>(!f.domaine||a.domaine===f.domaine)&&(!f.cycle||a.cycle===f.cycle)&&(!f.sante||a.sante===f.sante)
+    &&(!f.q||[a.code,a.nom,a.description,a.techno,a.equipe].join(" ").toLowerCase().includes(f.q.toLowerCase())));
+  const rank={sante:{Incident:0,Vigilance:1,OK:2},criticite:{Critique:0,"Élevée":1,Moyenne:2,Faible:3},cycle:{Projet:0,Build:1,Run:2,"Décommissionnement":3},cao:{"À passer":0,"En cours":1,"Validé":2,"Non requis":3}};
+  const val=(a,k)=>k==="ouverts"?openT().filter(t=>t.appId===a.id).length:rank[k]?(rank[k][a[k]]??9):(a[k]??"");
+  const {k,d}=S.sort; L.sort((x,y)=>{const a=val(x,k),b=val(y,k);return (typeof a==="number"&&typeof b==="number"?a-b:String(a).localeCompare(String(b),"fr"))*d||x.nom.localeCompare(y.nom,"fr")});
+  m.innerHTML = header("Portefeuille","Applications du périmètre",
+    (S.canWrite?`<button class="btn primary" id="b-newa">${I.plus} Application</button>`:""))
+  + `<div class="toolbar">
+      <input id="f-q" type="search" placeholder="Rechercher un code, un nom, une techno, une équipe…" value="${esc(f.q)}" aria-label="Rechercher">
+      <select id="f-dom" aria-label="Domaine">${opts(doms,f.domaine,"Tous les domaines")}</select>
+      <select id="f-cyc" aria-label="Cycle de vie">${opts(CYCLES,f.cycle,"Tous les cycles")}</select>
+      <div class="seg" role="group" aria-label="Santé">${["","OK","Vigilance","Incident"].map(s=>`<button data-sante="${s}" aria-pressed="${f.sante===s}">${s||"Toutes"}</button>`).join("")}</div>
+      <span class="hint" style="color:var(--muted);font-size:12px">${L.length} / ${S.apps.size}</span>
+    </div>
+    <div class="tablewrap"><table><thead><tr>${COLS.map(([key,l])=>`<th data-k="${key}" ${S.sort.k===key?`aria-sort="${S.sort.d===1?"ascending":"descending"}"`:""}>${l}</th>`).join("")}</tr></thead>
+    <tbody>${L.map(a=>{const o=openT().filter(t=>t.appId===a.id);const b=o.filter(t=>t.statut==="Bloqué").length;const n=days(a.finSupport);
+      return `<tr data-row="${esc(a.id)}">
+      <td><span class="code">${esc(a.code)}</span></td>
+      <td><div class="nm">${esc(a.nom)}${a.exemple?` <span class="chip" style="font-size:10px">exemple</span>`:""}</div><div class="ds">${esc(a.description)}</div></td>
+      <td>${esc(a.domaine)}</td><td>${chip(a.cycle,a.cycle==="Décommissionnement"?"warn":a.cycle==="Run"?"":"acc")}</td>
+      <td>${chip(a.sante,santeCls(a.sante))}</td><td>${esc(a.criticite)}<div class="ds">DICP ${esc(a.dicp||"—")}</div></td>
+      <td>${esc(a.hebergement)}</td><td>${chip(a.cao,caoCls(a.cao))}</td><td>${chip(a.ssi,ssiCls(a.ssi))}</td>
+      <td><span class="dots d${+a.dette||0}" title="Dette technique ${+a.dette||0}/5">${[1,2,3,4,5].map(i=>`<i class="${i<=(+a.dette||0)?"on":""}"></i>`).join("")}</span></td>
+      <td><span style="font-family:var(--f-mono)">${o.length}</span>${b?` ${chip(b+" bloqué"+(b>1?"s":""),"crit")}`:""}</td>
+      <td><span class="date ${n!==null&&n<180?"late":""}">${fdate(a.finSupport)}</span></td></tr>`}).join("")||`<tr><td colspan="12" class="empty">Aucune application ne correspond à ces filtres.</td></tr>`}</tbody></table></div>`;
+  $("#b-newa")?.addEventListener("click",()=>openApp(null));
+  const q=$("#f-q"); q.addEventListener("input",()=>{S.f.q=q.value; const pos=q.selectionStart; vPortefeuille(m); const n=$("#f-q"); n.focus(); n.setSelectionRange(pos,pos)});
+  $("#f-dom").addEventListener("change",e=>{S.f.domaine=e.target.value;render()});
+  $("#f-cyc").addEventListener("change",e=>{S.f.cycle=e.target.value;render()});
+  m.querySelectorAll("[data-sante]").forEach(b=>b.addEventListener("click",()=>{S.f.sante=b.dataset.sante;render()}));
+  m.querySelectorAll("th[data-k]").forEach(th=>th.addEventListener("click",()=>{const k=th.dataset.k; S.sort = S.sort.k===k?{k,d:-S.sort.d}:{k,d:1}; render()}));
+  m.querySelectorAll("tr[data-row]").forEach(tr=>tr.addEventListener("click",()=>openApp(tr.dataset.row)));
+}
+
+/* Tableau Kanban */
+function vTableau(m){
+  const kb=S.kb;
+  const L=tickets().filter(t=>(!kb.app||t.appId===kb.app)&&(!kb.type||t.type===kb.type)&&(!kb.prio||t.priorite===kb.prio)&&(!kb.q||(t.titre+" "+(t.cle||"")+" "+(t.porteur||"")).toLowerCase().includes(kb.q.toLowerCase())));
+  const pr={Critique:0,Haute:1,Moyenne:2,Basse:3};
+  m.innerHTML = header("Tableau","Tickets du périmètre", S.canWrite?`<button class="btn primary" id="b-newt">${I.plus} Ticket</button>`:"")
+  + `<div class="toolbar">
+      <input id="k-q" type="search" placeholder="Rechercher un ticket, une clé, un porteur…" value="${esc(kb.q)}" aria-label="Rechercher un ticket">
+      <select id="k-app" aria-label="Application"><option value="">Toutes les applications</option>${apps().map(a=>`<option value="${esc(a.id)}" ${kb.app===a.id?"selected":""}>${esc(a.code)} · ${esc(a.nom)}</option>`).join("")}</select>
+      <select id="k-type" aria-label="Type">${opts(TYPES,kb.type,"Tous les types")}</select>
+      <select id="k-prio" aria-label="Priorité">${opts(PRIOS,kb.prio,"Toutes priorités")}</select>
+    </div>
+    <div class="kanban">${STATUTS.map(s=>{const C=L.filter(t=>t.statut===s).sort((a,b)=>pr[a.priorite]-pr[b.priorite]||(a.echeance||"9").localeCompare(b.echeance||"9"));
+      return `<div class="col" data-col="${esc(s)}"><div class="col-h"><span>${esc(s)}</span><span class="n">${C.length}</span></div>
+      ${C.map(t=>{const a=appOf(t.appId);const n=days(t.echeance);return `<div class="card ${esc(t.priorite)}" draggable="${S.canWrite}" data-ticket="${esc(t.id)}" tabindex="0" role="button" aria-label="${esc(t.titre)}">
+        <div class="meta"><span class="code">${esc(t.cle||"")}</span>${chip(t.type,t.type==="Incident"||t.type==="Sécurité"?"crit":t.type==="Gouvernance / CAO"?"warn":"")}</div>
+        <div class="ti">${esc(t.titre)}</div>
+        <div class="meta"><span style="font-size:12px;color:var(--muted)">${a?esc(a.nom):"Sans application"}</span><span class="date ${s!=="Terminé"&&n!==null&&n<0?"late":""}">${fdate(t.echeance)}</span></div></div>`}).join("")}
+      </div>`}).join("")}</div>
+    <p style="color:var(--muted);font-size:12px">Glissez une carte d'une colonne à l'autre pour changer son statut. Le liseré gauche indique la priorité.</p>`;
+  $("#b-newt")?.addEventListener("click",()=>openTicket(null));
+  const q=$("#k-q"); q.addEventListener("input",()=>{S.kb.q=q.value;const p=q.selectionStart;vTableau(m);const n=$("#k-q");n.focus();n.setSelectionRange(p,p)});
+  $("#k-app").addEventListener("change",e=>{S.kb.app=e.target.value;render()});
+  $("#k-type").addEventListener("change",e=>{S.kb.type=e.target.value;render()});
+  $("#k-prio").addEventListener("change",e=>{S.kb.prio=e.target.value;render()});
+  m.querySelectorAll(".card").forEach(c=>{
+    c.addEventListener("click",()=>openTicket(c.dataset.ticket));
+    c.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openTicket(c.dataset.ticket)}});
+    c.addEventListener("dragstart",e=>{e.dataTransfer.setData("text/plain",c.dataset.ticket);c.classList.add("dragging")});
+    c.addEventListener("dragend",()=>c.classList.remove("dragging"));
+  });
+  m.querySelectorAll(".col").forEach(col=>{
+    col.addEventListener("dragover",e=>{if(!S.canWrite)return;e.preventDefault();col.classList.add("drop")});
+    col.addEventListener("dragleave",()=>col.classList.remove("drop"));
+    col.addEventListener("drop",e=>{e.preventDefault();col.classList.remove("drop");const id=e.dataTransfer.getData("text/plain");const t=S.tickets.get(id);
+      if(t&&t.statut!==col.dataset.col){ put("tickets",{...t,statut:col.dataset.col,exemple:false}).then(ok=>ok&&toast(`${t.cle||"Ticket"} → ${col.dataset.col}`)) }});
+  });
+}
+
+/* Feuille de route */
+function vFeuille(m){
+  const start=new Date(TODAY.getFullYear(),TODAY.getMonth(),1);
+  const months=[...Array(9)].map((_,i)=>new Date(start.getFullYear(),start.getMonth()+i,1));
+  const key=d=>d.getFullYear()*12+d.getMonth();
+  const k0=key(months[0]), kN=key(months[months.length-1]);
+  const A=apps().filter(a=>a.cycle!=="Décommissionnement"||true);
+  const evs=a=>{const E=[];
+    const add=(s,html)=>{const d=pd(s);if(!d)return;const k=key(d);if(k<k0||k>kN)return;E.push([k,s,html])};
+    add(a.jalonDate,`<button class="ev ms" data-app="${esc(a.id)}" title="Jalon · ${fdate(a.jalonDate)}">◆ ${esc(a.jalon)}</button>`);
+    if(a.cao==="À passer"||a.cao==="En cours") add(a.caoDate,`<button class="ev cao" data-app="${esc(a.id)}" title="CAO · ${fdate(a.caoDate)}">CAO ${fdate(a.caoDate).slice(0,2)}</button>`);
+    add(a.finSupport,`<button class="ev eos" data-app="${esc(a.id)}" title="Fin de support · ${fdate(a.finSupport)}">Fin de support</button>`);
+    openT().filter(t=>t.appId===a.id).forEach(t=>{const n=days(t.echeance);add(t.echeance,`<button class="ev tk ${n<0?"late":""}" data-ticket="${esc(t.id)}" title="${esc(t.titre)} · ${fdate(t.echeance)}">${esc(t.cle||"")}</button>`)});
+    return E};
+  const cols=`minmax(170px,1.3fr) repeat(${months.length},minmax(88px,1fr))`;
+  const late=A.flatMap(a=>openT().filter(t=>t.appId===a.id&&days(t.echeance)<0&&key(pd(t.echeance))<k0));
+  m.innerHTML = header("Feuille de route · "+months.length+" mois","Jalons, CAO et échéances")
+  + `<div class="legend" style="margin:0 0 12px"><span><i style="background:var(--fg)"></i>Jalon projet</span><span><i style="background:var(--warn)"></i>Passage CAO</span><span><i style="background:var(--crit)"></i>Fin de support</span><span><i style="background:var(--accent)"></i>Échéance de ticket</span>${late.length?`<span style="color:var(--crit)">${late.length} ticket(s) en retard avant ${MONTHS[months[0].getMonth()]}</span>`:""}</div>
+  <div class="road"><div class="road-g" style="grid-template-columns:${cols}">
+    <div class="hd rl" style="z-index:2">Application</div>${months.map((d,i)=>`<div class="hd ${i===0?"now":""}">${MONTHS[d.getMonth()]} ${String(d.getFullYear()).slice(2)}</div>`).join("")}
+    ${A.map(a=>{const E=evs(a);return `<div class="rl" data-app="${esc(a.id)}"><b><span class="lamp ${esc(a.sante)}" style="display:inline-block;width:8px;height:8px;box-shadow:none;margin-right:6px;vertical-align:1px"></span>${esc(a.nom)}</b><span class="code">${esc(a.code)} · ${esc(a.cycle)}</span></div>`
+      + months.map(d=>`<div>${E.filter(e=>e[0]===key(d)).sort((x,y)=>x[1].localeCompare(y[1])).map(e=>e[2]).join("")}</div>`).join("")}).join("")}
+  </div></div>`;
+  bindCommon(m);
+}
+
+/* Notion */
+function csvCell(v){ v=String(v??""); return /[",\n;]/.test(v)?`"${v.replace(/"/g,'""')}"`:v }
+function toCSV(rows,cols){ return "﻿"+[cols.map(c=>csvCell(c[1])).join(","),...rows.map(r=>cols.map(c=>csvCell(typeof c[0]==="function"?c[0](r):r[c[0]])).join(","))].join("\n") }
+function notionDate(s){ return pd(s)?s:"" }
+const APP_COLS=[["nom","Nom"],["code","Code"],["domaine","Domaine"],["description","Description"],["cycle","Cycle de vie"],["sante","Santé"],["criticite","Criticité"],["dicp","DICP"],["hebergement","Hébergement"],["techno","Technologies"],["equipe","Équipe"],["cao","Statut CAO"],[a=>notionDate(a.caoDate),"Date CAO"],["ssi","Conformité SSI"],["dette","Dette technique (1-5)"],["version","Version"],["jalon","Prochain jalon"],[a=>notionDate(a.jalonDate),"Date jalon"],[a=>notionDate(a.finSupport),"Fin de support"],["notes","Notes"]];
+const T_COLS=[["titre","Titre"],["cle","Clé"],[t=>appOf(t.appId)?.nom||"","Application"],["type","Type"],["statut","Statut"],["priorite","Priorité"],[t=>notionDate(t.echeance),"Échéance"],["porteur","Porteur"],["description","Description"]];
+async function saveFile(name,content){
+  if(S.downloads){ try{ await S.downloads.save({filename:name,data:content}); toast(name+" enregistré"); return }catch(e){ if(e&&e.code==="declined") return; } }
+  try{ const url=URL.createObjectURL(new Blob([content],{type:"text/csv"})); const a=document.createElement("a"); a.href=url; a.download=name; document.body.append(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1000) }catch(e){ toast("Téléchargement indisponible ici.") }
+}
+function vNotion(m){
+  m.innerHTML = header("Reproduire dans Notion","Le même système dans Notion",
+    `<button class="btn" id="x-apps">${I.dl} Applications.csv</button><button class="btn primary" id="x-t">${I.dl} Tickets.csv</button>`)
+  + `<div class="prose">
+    <p>Oui, ce tableau de bord se reconstruit dans Notion avec deux bases de données reliées. Les données, les vues et les filtres sont identiques. Le rendu visuel est celui de Notion : pas de lampes animées ni de couleurs personnalisées, mais des étiquettes colorées, des graphiques natifs et un tableau Kanban.</p>
+    <h2>Ce qui se retrouve à l'identique</h2>
+  </div>
+  <div class="tablewrap" style="max-width:860px"><table class="cmp"><thead><tr><th>Ici</th><th>Dans Notion</th><th></th></tr></thead><tbody>
+    <tr><td>Fiches des 20 applications</td><td>Base « Applications », une page par application</td><td class="yes">Identique</td></tr>
+    <tr><td>Tickets reliés à une application</td><td>Base « Tickets » + propriété <i>Relation</i> vers Applications</td><td class="yes">Identique</td></tr>
+    <tr><td>Tableau Kanban glisser-déposer</td><td>Vue <i>Tableau</i> groupée par Statut</td><td class="yes">Identique</td></tr>
+    <tr><td>Tableau filtrable et triable</td><td>Vue <i>Table</i> avec filtres et tris enregistrés</td><td class="yes">Identique</td></tr>
+    <tr><td>Feuille de route</td><td>Vue <i>Chronologie</i> sur Date jalon et Échéance</td><td class="yes">Identique</td></tr>
+    <tr><td>Nombre de tickets ouverts et bloqués par appli</td><td>Propriétés <i>Rollup</i> avec filtre sur le statut</td><td class="yes">Identique</td></tr>
+    <tr><td>Indicateurs (incidents, retards, CAO)</td><td>Vues <i>Graphique</i> (chiffre, barres, anneau) sur une page « Synthèse »</td><td class="part">Proche</td></tr>
+    <tr><td>Tableau de signalisation des 20 lampes</td><td>Vue <i>Galerie</i> avec Santé en étiquette colorée, ou formule à pastilles 🟢🟠🔴</td><td class="part">Proche</td></tr>
+    <tr><td>Couleurs, polices, animations sur mesure</td><td>Thème Notion imposé</td><td class="no">Non</td></tr>
+  </tbody></table></div>
+  <div class="prose">
+    <h2>Mise en place en 15 minutes</h2>
+    <ol class="steps">
+      <li><div>Dans Notion, créez une page <b>Portefeuille Applicatif</b>. Tapez <code>/import</code> puis choisissez <b>CSV</b> et importez <b>Applications.csv</b>. Faites de même avec <b>Tickets.csv</b>.</div></li>
+      <li><div>Dans la base Applications, convertissez les colonnes : <i>Domaine, Cycle de vie, Santé, Criticité, Hébergement, Statut CAO, Conformité SSI</i> en <b>Sélection</b> ; <i>Date CAO, Date jalon, Fin de support</i> en <b>Date</b> ; <i>Dette technique</i> en <b>Nombre</b>. Colorez Santé : OK en vert, Vigilance en orange, Incident en rouge.</div></li>
+      <li><div>Dans la base Tickets, convertissez <i>Statut</i> en type <b>Statut</b> (À faire / En cours, En revue, Bloqué / Terminé), <i>Type</i> et <i>Priorité</i> en <b>Sélection</b>, <i>Échéance</i> en <b>Date</b>, puis <i>Application</i> en <b>Relation</b> vers la base Applications : Notion relie chaque ticket à son application par le nom.</div></li>
+      <li><div>Dans Applications, ajoutez deux <b>Rollups</b> sur la relation Tickets : « Tickets ouverts » (compter, statut différent de Terminé) et « Tickets bloqués » (compter, statut = Bloqué). Ajoutez une formule <code>if(prop("Santé") == "Incident", "🔴", if(prop("Santé") == "Vigilance", "🟠", "🟢")) + " " + prop("Code")</code> pour retrouver les lampes.</div></li>
+      <li><div>Créez les vues : Applications en <b>Table</b> (triée par Santé) et en <b>Galerie</b> (le tableau de signalisation) ; Tickets en <b>Tableau</b> groupé par Statut (le Kanban) et en <b>Chronologie</b> sur Échéance ; Applications en <b>Chronologie</b> sur Date jalon (la feuille de route).</div></li>
+      <li><div>Sur la page d'accueil, ajoutez des vues <b>Graphique</b> liées : un chiffre « Applications en incident », des barres « Santé par domaine » empilées par Santé, un anneau « Tickets ouverts par type », et une vue liée « Échéance dans les 14 jours » filtrée sur Échéance.</div></li>
+    </ol>
+    <p>Le guide complet avec chaque propriété, chaque formule et chaque filtre est dans le dépôt : <code>portefeuille-applicatif/notion/GUIDE-NOTION.md</code>, avec les deux CSV prêts à importer.</p>
+  </div>`;
+  $("#x-apps").addEventListener("click",()=>saveFile("Applications.csv",toCSV(apps(),APP_COLS)));
+  $("#x-t").addEventListener("click",()=>saveFile("Tickets.csv",toCSV(tickets(),T_COLS)));
+}
+
+/* ---------- drawers & modals ---------- */
+function closeLayer(){ $("#layer").innerHTML=""; document.removeEventListener("keydown",escClose) }
+function escClose(e){ if(e.key==="Escape") closeLayer() }
+function field(id,label,val,type="text",full=false,list=null){
+  const ro=S.canWrite?"":"disabled";
+  if(list) return `<div class="field ${full?"full":""}"><label for="${id}">${label}</label><select id="${id}" ${ro}>${opts(list,val)}</select></div>`;
+  if(type==="textarea") return `<div class="field full"><label for="${id}">${label}</label><textarea id="${id}" ${ro}>${esc(val)}</textarea></div>`;
+  return `<div class="field ${full?"full":""}"><label for="${id}">${label}</label><input id="${id}" type="${type}" value="${esc(val)}" ${ro} ${type==="number"?'min="1" max="5"':""}></div>`;
+}
+function openApp(id){
+  const a = id?appOf(id):{id:"",code:"",nom:"",domaine:"",description:"",cycle:"Run",sante:"OK",criticite:"Moyenne",dicp:"",hebergement:"Cloud AWS",techno:"",equipe:"",cao:"À passer",caoDate:"",dette:1,version:"",jalon:"",jalonDate:"",ssi:"À évaluer",finSupport:"",notes:""};
+  if(!a) return;
+  const T=tickets().filter(t=>t.appId===a.id).sort((x,y)=>(x.statut==="Terminé")-(y.statut==="Terminé")||(x.echeance||"9").localeCompare(y.echeance||"9"));
+  $("#layer").innerHTML = `<div class="scrim" id="scrim"></div><aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="dr-t">
+    <div class="drawer-h"><div style="flex:1;min-width:0"><div class="eyebrow">${id?esc(a.code)+" · "+esc(a.domaine):"Nouvelle application"}</div><h3 id="dr-t">${id?esc(a.nom):"Ajouter une application"}</h3>
+      ${id?`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">${chip(a.sante,santeCls(a.sante))}${chip(a.cycle)}${chip("CAO "+a.cao,caoCls(a.cao))}${chip("SSI "+a.ssi,ssiCls(a.ssi))}</div>`:""}</div>
+      <button class="btn ghost" id="dr-x" aria-label="Fermer">✕</button></div>
+    <div class="drawer-b">
+      <section><p class="sec-t">Identité</p><div class="fields">
+        ${field("a-code","Code (trigramme)",a.code)}${field("a-nom","Nom",a.nom)}
+        ${field("a-dom","Domaine",a.domaine)}${field("a-equipe","Équipe / responsable",a.equipe)}
+        ${field("a-desc","Description",a.description,"text",true)}
+      </div></section>
+      <section><p class="sec-t">État et risques</p><div class="fields">
+        ${field("a-sante","Santé",a.sante,"",false,SANTES)}${field("a-cycle","Cycle de vie",a.cycle,"",false,CYCLES)}
+        ${field("a-crit","Criticité",a.criticite,"",false,CRITS)}${field("a-dicp","DICP (D-I-C-P)",a.dicp)}
+        ${field("a-ssi","Conformité SSI",a.ssi,"",false,SSIS)}${field("a-dette","Dette technique (1 à 5)",a.dette,"number")}
+      </div></section>
+      <section><p class="sec-t">Architecture et gouvernance</p><div class="fields">
+        ${field("a-heb","Hébergement",a.hebergement,"",false,HEBERG)}${field("a-tech","Technologies",a.techno)}
+        ${field("a-ver","Version en production",a.version)}${field("a-eos","Fin de support",a.finSupport,"date")}
+        ${field("a-cao","Statut CAO",a.cao,"",false,CAOS)}${field("a-caod","Date CAO",a.caoDate,"date")}
+        ${field("a-jal","Prochain jalon",a.jalon)}${field("a-jald","Date du jalon",a.jalonDate,"date")}
+        ${field("a-notes","Notes d'architecture",a.notes,"textarea")}
+      </div></section>
+      ${S.canWrite?`<div class="actions" style="justify-content:space-between"><div id="a-delwrap">${id?`<button class="btn danger" id="a-del">Supprimer</button>`:""}</div><div class="actions"><button class="btn" id="a-cancel">Annuler</button><button class="btn primary" id="a-save">Enregistrer</button></div></div>`:""}
+      ${id?`<section><div style="display:flex;justify-content:space-between;align-items:center"><p class="sec-t" style="margin:0">Tickets (${T.length})</p>${S.canWrite?`<button class="btn" id="a-newt">${I.plus} Ticket</button>`:""}</div>
+        <ul class="list" style="margin-top:6px">${T.length?T.map(tRow).join(""):`<li><span></span><span class="empty">Aucun ticket pour cette application.</span><span></span></li>`}</ul></section>`:""}
+    </div></aside>`;
+  document.addEventListener("keydown",escClose);
+  $("#scrim").onclick=closeLayer; $("#dr-x").onclick=closeLayer; $("#a-cancel")?.addEventListener("click",closeLayer);
+  $("#layer").querySelectorAll("[data-ticket]").forEach(b=>b.addEventListener("click",()=>openTicket(b.dataset.ticket)));
+  $("#a-newt")?.addEventListener("click",()=>openTicket(null,a.id));
+  $("#a-del")?.addEventListener("click",()=>{
+    const n=T.length;
+    $("#a-delwrap").innerHTML=`<div class="confirm">Supprimer ${esc(a.nom)}${n?` et ses ${n} tickets`:""} ? <button class="btn danger" id="a-del2">Confirmer</button><button class="btn" id="a-del0">Non</button></div>`;
+    $("#a-del0").onclick=()=>openApp(id);
+    $("#a-del2").onclick=async()=>{ closeLayer(); for(const t of T) await del("tickets",t.id); await del("apps",id); toast(a.nom+" supprimée") };
+  });
+  $("#a-save")?.addEventListener("click",async()=>{
+    const g=k=>$("#"+k).value.trim();
+    const code=g("a-code").toUpperCase(), nom=g("a-nom");
+    if(!code||!nom){ toast("Renseignez au moins le code et le nom."); return }
+    const obj={...a,id:a.id||code.toLowerCase().replace(/[^a-z0-9_-]/g,"")||uid("app"),code,nom,domaine:g("a-dom")||"Non classé",equipe:g("a-equipe"),description:g("a-desc"),
+      sante:g("a-sante"),cycle:g("a-cycle"),criticite:g("a-crit"),dicp:g("a-dicp"),ssi:g("a-ssi"),dette:Math.min(5,Math.max(1,+g("a-dette")||1)),
+      hebergement:g("a-heb"),techno:g("a-tech"),version:g("a-ver"),finSupport:g("a-eos"),cao:g("a-cao"),caoDate:g("a-caod"),jalon:g("a-jal"),jalonDate:g("a-jald"),notes:g("a-notes"),exemple:false};
+    if(!a.id && S.apps.has(obj.id)){ toast("Le code "+code+" existe déjà."); return }
+    closeLayer(); if(await put("apps",obj)) toast(nom+" enregistrée");
+  });
+}
+function openTicket(id,appId){
+  const t = id?S.tickets.get(id):{id:"",titre:"",appId:appId||(S.kb.app||apps()[0]?.id||""),type:"Évolution",statut:"À faire",priorite:"Moyenne",echeance:"",porteur:"",description:""};
+  if(!t) return;
+  const ro=S.canWrite?"":"disabled";
+  $("#layer").innerHTML = `<div class="scrim" id="scrim"></div><div class="modal" role="dialog" aria-modal="true" aria-labelledby="md-t">
+    <div class="eyebrow">${id?esc(t.cle||""):"Nouveau ticket"}</div><h3 id="md-t">${id?esc(t.titre):"Créer un ticket"}</h3>
+    <div class="fields">
+      ${field("t-titre","Titre",t.titre,"text",true)}
+      <div class="field full"><label for="t-app">Application</label><select id="t-app" ${ro}>${apps().map(a=>`<option value="${esc(a.id)}" ${a.id===t.appId?"selected":""}>${esc(a.code)} · ${esc(a.nom)}</option>`).join("")}</select></div>
+      ${field("t-type","Type",t.type,"",false,TYPES)}${field("t-statut","Statut",t.statut,"",false,STATUTS)}
+      ${field("t-prio","Priorité",t.priorite,"",false,PRIOS)}${field("t-ech","Échéance",t.echeance,"date")}
+      ${field("t-port","Porteur",t.porteur,"text",true)}
+      ${field("t-desc","Description",t.description,"textarea")}
+    </div>
+    ${S.canWrite?`<div class="foot"><div id="t-delwrap">${id?`<button class="btn danger" id="t-del">Supprimer</button>`:""}</div><div class="actions"><button class="btn" id="t-cancel">Annuler</button><button class="btn primary" id="t-save">Enregistrer</button></div></div>`:`<div class="foot"><span></span><button class="btn" id="t-cancel">Fermer</button></div>`}
+  </div>`;
+  document.addEventListener("keydown",escClose);
+  $("#scrim").onclick=closeLayer; $("#t-cancel").onclick=closeLayer;
+  $("#t-titre")?.focus();
+  $("#t-del")?.addEventListener("click",()=>{ $("#t-delwrap").innerHTML=`<div class="confirm">Supprimer ce ticket ? <button class="btn danger" id="t-del2">Confirmer</button></div>`;
+    $("#t-del2").onclick=async()=>{ closeLayer(); if(await del("tickets",id)) toast("Ticket supprimé") } });
+  $("#t-save")?.addEventListener("click",async()=>{
+    const g=k=>$("#"+k).value.trim(); const titre=g("t-titre"), app=g("t-app");
+    if(!titre){ toast("Donnez un titre au ticket."); return }
+    if(!app){ toast("Ajoutez d'abord une application."); return }
+    const a=appOf(app);
+    let cle=t.cle;
+    if(!id || t.appId!==app){ const nums=tickets().map(x=>+(String(x.cle||"").split("-")[1]||0)); cle=`${a.code}-${Math.max(0,...nums)+1}` }
+    const obj={...t,id:t.id||uid("t"),cle,titre,appId:app,type:g("t-type"),statut:g("t-statut"),priorite:g("t-prio"),echeance:g("t-ech"),porteur:g("t-port"),description:g("t-desc"),cree:t.cree||iso(new Date()),exemple:false};
+    closeLayer(); if(await put("tickets",obj)) toast((id?"Ticket enregistré : ":"Ticket créé : ")+cle);
+  });
+}
+
+boot();
+</script>
