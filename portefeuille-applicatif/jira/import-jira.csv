@@ -1,0 +1,51 @@
+Issue Id,Parent,Issue Type,Summary,Description,Status,Priority,Due Date,Labels,Code application,Domaine,Cycle de vie,Santé,Criticité,DICP,Hébergement,Technologies,Équipe,Statut CAO,Date CAO,Conformité SSI,Dette technique,Version,Prochain jalon,Date jalon,Fin de support,Catégorie,Porteur
+1,,Epic,ATL · Atlas,Référentiel des gares et points d'arrêt,En cours,Medium,2026-11-20,application,ATL,Gares & Réseau,Run,OK,Élevée,3-3-3-2,Cloud AWS,Java 17 · PostgreSQL,Squad Référentiels,Validé,2025-11-18,Conforme,2,4.2.1,Montée de version PostgreSQL 16,2026-11-20,2028-06-30,,
+2,,Epic,HZN · Horizon,"Information voyageurs temps réel (retards, voies)",En cours,Medium,2026-10-28,application,HZN,Voyageurs,Run,Vigilance,Critique,4-4-3-3,Cloud AWS,Kotlin · Kafka · Redis,Squad Info Voyageurs,Validé,2025-06-12,Écarts,3,7.0.4,Bascule multi-AZ,2026-10-28,2029-01-31,,
+3,,Epic,CAD · Cadence,Planification des roulements conducteurs,En cours,Medium,2026-12-08,application,CAD,Production,Build,OK,Élevée,3-4-3-3,Cloud Azure,Python · FastAPI · Angular,Squad Production,En cours,2026-10-22,À évaluer,2,0.9.0,Mise en production lot 1,2026-12-08,2030-12-31,,
+4,,Epic,VIG · Vigie,Supervision des incidents de circulation,En cours,Medium,2027-02-15,application,VIG,Circulation,Run,Incident,Critique,4-4-4-3,On-premise,Java 11 · Oracle,Squad Circulation,Validé,2024-09-03,Écarts,4,3.8.2,Migration Java 21,2027-02-15,2026-12-31,,
+5,,Epic,TRC · Traction,Gestion de la maintenance du matériel roulant,En cours,Medium,2027-03-31,application,TRC,Maintenance,Run,OK,Élevée,3-3-3-2,On-premise,SAP PM · ABAP,Pôle Maintenance,Validé,2024-03-21,Conforme,3,S4-2023,Étude migration S/4 Cloud,2027-03-31,2027-12-31,,
+6,,Epic,BPR · Billetique Pro,Vente et facturation B2B entreprises,En cours,Medium,2026-11-12,application,BPR,Distribution,Run,OK,Élevée,3-3-4-4,Cloud AWS,Node.js · React · DynamoDB,Squad Distribution,Validé,2025-02-10,Conforme,2,5.3.0,Ouverture API partenaires,2026-11-12,2029-06-30,,
+7,,Epic,QAI · Quai,Pilotage de l'affichage sur les quais,En cours,Medium,2026-10-20,application,QAI,Voyageurs,Run,Vigilance,Critique,4-3-3-2,Hybride,C# .NET 8 · SQL Server,Squad Info Voyageurs,Validé,2025-04-08,Conforme,3,2.11.0,Remplacement afficheurs lot Sud-Est,2026-10-20,2028-09-30,,
+8,,Epic,SGM · Sigma,Référentiel de l'infrastructure ferroviaire,En cours,Medium,2027-01-20,application,SGM,Gares & Réseau,Run,OK,Élevée,3-3-4-3,Cloud Azure,Java 17 · Neo4j,Squad Référentiels,Validé,2025-09-30,Conforme,2,6.1.0,Publication du modèle v7,2027-01-20,2029-12-31,,
+9,,Epic,FRL · Fretlink,Suivi des wagons et des convois fret,En cours,Medium,2027-04-01,application,FRL,Fret,Run,OK,Moyenne,2-3-3-2,SaaS,Plateforme éditeur,Pôle Fret,Validé,2024-11-14,Conforme,2,2026.2,Renouvellement du contrat éditeur,2027-04-01,2027-04-01,,
+10,,Epic,TAL · Talents,Gestion des compétences et habilitations,En cours,Medium,2026-12-15,application,TAL,RH,Run,OK,Moyenne,2-3-4-4,SaaS,Plateforme éditeur,Pôle RH,Validé,2025-05-19,Conforme,1,2026.3,Interface habilitations sécurité,2026-12-15,2028-12-31,,
+11,,Epic,EQL · Équilibre,Consolidation budgétaire et refacturation,En cours,Medium,2026-11-05,application,EQL,Finance,Run,OK,Moyenne,2-2-4-4,On-premise,Java 8 · Oracle · BO,Pôle Finance,Validé,2023-10-02,Écarts,5,1.14.7,Décision cible : refonte ou SaaS,2026-11-05,2026-12-31,,
+12,,Epic,SRC · Sourcing,Gestion des appels d'offres fournisseurs,En cours,Medium,2026-11-26,application,SRC,Achats,Projet,OK,Faible,2-2-3-3,SaaS,Plateforme éditeur,Pôle Achats,À passer,2026-11-26,À évaluer,1,—,Passage en CAO,2026-11-26,2031-12-31,,
+13,,Epic,DOC · Docuref,GED documentaire technique,En cours,Medium,2027-06-30,application,DOC,Transverse,Run,Vigilance,Moyenne,2-3-3-3,On-premise,Alfresco 6 · PostgreSQL,Squad Socle,Validé,2022-06-14,Écarts,4,6.2,Migration vers la GED groupe,2027-06-30,2026-12-31,,
+14,,Epic,MNT · Maintenir,GMAO des installations fixes,En cours,Medium,2027-01-12,application,MNT,Maintenance,Build,OK,Élevée,3-3-3-3,Cloud Azure,Java 21 · Spring · React,Pôle Maintenance,En cours,2026-10-15,À évaluer,1,0.6.0,Pilote sur 2 établissements,2027-01-12,2031-06-30,,
+15,,Epic,MOB · Mobilité Agents,Application mobile des agents de terrain,En cours,Medium,2026-12-01,application,MOB,Production,Run,OK,Élevée,3-3-3-3,Cloud AWS,Flutter · GraphQL,Squad Production,Validé,2025-08-26,Conforme,2,3.4.0,Mode hors ligne complet,2026-12-01,2029-08-31,,
+16,,Epic,FLX · Flux,Plateforme data et datalake,En cours,Medium,2026-11-30,application,FLX,Data,Run,OK,Élevée,3-3-3-4,Cloud AWS,Spark · S3 · Glue · Airflow,Squad Data,Validé,2025-10-07,Conforme,2,2.0.0,Ouverture au self-service BI,2026-11-30,2030-12-31,,
+17,,Epic,PAS · Passe,Gestion des identités et des accès (IAM),En cours,Medium,2026-10-31,application,PAS,Transverse,Run,OK,Critique,4-4-4-4,Hybride,Keycloak · LDAP,Squad Socle,Validé,2025-03-17,Conforme,3,24.0,Généralisation MFA,2026-10-31,2028-03-31,,
+18,,Epic,ECH · Échangeur,API management et passerelle d'échanges,En cours,Medium,2027-02-28,application,ECH,Transverse,Run,OK,Critique,4-4-3-3,Cloud Azure,Azure APIM · Kong,Squad Socle,Validé,2025-07-01,Conforme,2,3.2,Catalogue d'API unifié,2027-02-28,2029-12-31,,
+19,,Epic,BSL · Boussole,Tableaux de bord de pilotage (BI),En cours,Medium,2027-01-31,application,BSL,Pilotage,Run,OK,Faible,1-2-3-2,Cloud Azure,Power BI · Synapse,Squad Data,Validé,2024-12-09,Conforme,2,—,Rationalisation des rapports,2027-01-31,2029-06-30,,
+20,,Epic,MEM · Mémoire,Archivage légal des documents,En cours,Medium,2027-03-31,application,MEM,Transverse,Décommissionnement,Vigilance,Faible,1-2-4-3,On-premise,Documentum · Solaris,Squad Socle,Validé,2021-05-11,Écarts,5,7.3,Arrêt définitif après reprise des archives,2027-03-31,2026-12-31,,
+101,4,Bug,Incident récurrent sur le flux de positions des trains,,En cours,Highest,2026-10-09,,,,,,,,,,,,,,,,,,,Incident,Squad Circulation
+102,4,Task,Plan de sortie Java 11 avant fin de support,,À faire,High,2026-11-30,,,,,,,,,,,,,,,,,,,Dette technique,Squad Circulation
+103,4,Task,Corriger les écarts SSI relevés à l'audit,,En cours,High,2026-10-31,,,,,,,,,,,,,,,,,,,Sécurité,RSSI domaine
+104,2,Bug,Latence des annonces en heure de pointe,,En revue,High,2026-10-14,,,,,,,,,,,,,,,,,,,Incident,Squad Info Voyageurs
+105,2,Task,DAT : architecture multi-AZ,,En cours,High,2026-10-21,,,,,,,,,,,,,,,,,,,Décision d'architecture,Architecte solution
+106,2,Task,Chiffrement des topics Kafka,,À faire,Medium,2026-12-15,,,,,,,,,,,,,,,,,,,Sécurité,Squad Info Voyageurs
+107,3,Task,Préparer le dossier CAO lot 1,,En cours,High,2026-10-16,,,,,,,,,,,,,,,,,,,Gouvernance / CAO,Architecte solution
+108,3,Task,Analyse de risques PréK-SSI,,À faire,High,2026-10-19,,,,,,,,,,,,,,,,,,,Sécurité,RSSI domaine
+109,3,Story,Interface avec Mobilité Agents,,À faire,Medium,2026-11-25,,,,,,,,,,,,,,,,,,,Évolution,Squad Production
+110,7,Bug,Saturation disque sur les serveurs régionaux,,Bloqué,High,2026-10-02,,,,,,,,,,,,,,,,,,,Incident,Exploitation
+111,7,Story,Déploiement afficheurs lot Sud-Est,,En cours,Medium,2026-10-20,,,,,,,,,,,,,,,,,,,Évolution,Squad Info Voyageurs
+112,11,Task,Note de décision : refonte ou SaaS,,En revue,High,2026-11-05,,,,,,,,,,,,,,,,,,,Décision d'architecture,Architecte solution
+113,11,Task,Fin de support Java 8 : dérogation temporaire,,Bloqué,High,2026-10-05,,,,,,,,,,,,,,,,,,,Dette technique,Pôle Finance
+114,12,Task,Remplir la trame CAO,,À faire,Medium,2026-11-12,,,,,,,,,,,,,,,,,,,Gouvernance / CAO,Architecte solution
+115,12,Task,Qualification DICP avec le métier,,À faire,Medium,2026-10-30,,,,,,,,,,,,,,,,,,,Gouvernance / CAO,Pôle Achats
+116,13,Story,Plan de migration vers la GED groupe,,À faire,Medium,2027-01-15,,,,,,,,,,,,,,,,,,,Évolution,Squad Socle
+117,13,Task,Montée de version Alfresco (CVE),,En cours,Highest,2026-10-10,,,,,,,,,,,,,,,,,,,Sécurité,Squad Socle
+118,14,Task,Revue du DAL avec l'urbanisme,,En revue,Medium,2026-10-13,,,,,,,,,,,,,,,,,,,Gouvernance / CAO,Architecte solution
+119,14,Task,Choix de l'outil de cartographie mobile,,À faire,Low,2026-11-20,,,,,,,,,,,,,,,,,,,Décision d'architecture,Pôle Maintenance
+120,20,Story,Reprise des archives vers la nouvelle cible,,En cours,Medium,2027-02-28,,,,,,,,,,,,,,,,,,,Évolution,Squad Socle
+121,20,Task,Contrat de support Solaris : prolongation 6 mois,,Bloqué,High,2026-10-15,,,,,,,,,,,,,,,,,,,Gouvernance / CAO,Pôle Achats
+122,17,Task,Généralisation MFA sur les applications Run,,En cours,High,2026-10-31,,,,,,,,,,,,,,,,,,,Sécurité,Squad Socle
+123,18,Story,Normaliser les contrats d'API (OpenAPI 3.1),,À faire,Low,2027-01-31,,,,,,,,,,,,,,,,,,,Évolution,Squad Socle
+124,16,Task,Gouvernance des données personnelles (RGPD),,En revue,Medium,2026-11-10,,,,,,,,,,,,,,,,,,,Sécurité,Squad Data
+125,6,Story,Ouverture de l'API partenaires,,En cours,Medium,2026-11-12,,,,,,,,,,,,,,,,,,,Évolution,Squad Distribution
+126,1,Task,Montée de version PostgreSQL 16,,À faire,Medium,2026-11-20,,,,,,,,,,,,,,,,,,,Dette technique,Squad Référentiels
+127,5,Task,Étude de migration S/4 Cloud,,À faire,Low,2027-03-31,,,,,,,,,,,,,,,,,,,Décision d'architecture,Pôle Maintenance
+128,15,Story,Mode hors ligne complet,,Terminé,Medium,2026-09-30,,,,,,,,,,,,,,,,,,,Évolution,Squad Production
+129,9,Task,Bilan éditeur avant renouvellement,,Terminé,Low,2026-09-25,,,,,,,,,,,,,,,,,,,Gouvernance / CAO,Pôle Fret
+130,10,Story,Interface habilitations sécurité,,En cours,Medium,2026-12-15,,,,,,,,,,,,,,,,,,,Évolution,Pôle RH

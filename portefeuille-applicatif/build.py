@@ -27,3 +27,26 @@ with open(os.path.join(nd, "Tickets.csv"), "w", newline="", encoding="utf-8-sig"
     for t in seed["tickets"]:
         w.writerow([apps[t["appId"]]["nom"] if k == "app" else t.get(k, "") for k, _ in t_cols])
 print("ok")
+
+# --- Import Jira Cloud (un seul CSV : les applications en Epic, les tickets en enfants) ---
+JIRA_TYPE = {"Évolution": "Story", "Incident": "Bug"}
+JIRA_PRIO = {"Critique": "Highest", "Haute": "High", "Moyenne": "Medium", "Basse": "Low"}
+jcols = ["Issue Id", "Parent", "Issue Type", "Summary", "Description", "Status", "Priority", "Due Date", "Labels",
+         "Code application", "Domaine", "Cycle de vie", "Santé", "Criticité", "DICP", "Hébergement", "Technologies",
+         "Équipe", "Statut CAO", "Date CAO", "Conformité SSI", "Dette technique", "Version", "Prochain jalon",
+         "Date jalon", "Fin de support", "Catégorie", "Porteur"]
+jd = os.path.join(here, "jira")
+os.makedirs(jd, exist_ok=True)
+ids = {}
+with open(os.path.join(jd, "import-jira.csv"), "w", newline="", encoding="utf-8") as f:
+    w = csv.writer(f); w.writerow(jcols)
+    for i, a in enumerate(seed["apps"], 1):
+        ids[a["id"]] = str(i)
+        w.writerow([i, "", "Epic", f'{a["code"]} · {a["nom"]}', a["description"], "En cours", "Medium", a.get("jalonDate", ""),
+                    "application", a["code"], a["domaine"], a["cycle"], a["sante"], a["criticite"], a["dicp"],
+                    a["hebergement"], a["techno"], a["equipe"], a["cao"], a.get("caoDate", ""), a["ssi"], a["dette"],
+                    a["version"], a["jalon"], a.get("jalonDate", ""), a.get("finSupport", ""), "", ""])
+    for j, t in enumerate(seed["tickets"], 1):
+        w.writerow([100 + j, ids[t["appId"]], JIRA_TYPE.get(t["type"], "Task"), t["titre"], t["description"], t["statut"],
+                    JIRA_PRIO[t["priorite"]], t["echeance"], "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+                    "", "", "", t["type"], t["porteur"]])

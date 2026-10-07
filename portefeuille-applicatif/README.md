@@ -20,8 +20,9 @@ Double-cliquez sur `index.html` : il fonctionne hors ligne, sans serveur. Les mo
 index.html            dashboard autonome (généré)
 template.html         source du dashboard
 data-exemple.json     20 applications et 30 tickets fictifs
-build.py              régénère index.html et notion/*.csv
+build.py              régénère index.html, notion/*.csv et jira/import-jira.csv
 notion/               CSV à importer dans Notion + GUIDE-NOTION.md
+jira/                 CSV à importer dans Jira Cloud + GUIDE-JIRA.md
 ```
 
 Les données fournies sont des exemples fictifs : remplacez-les par vos applications depuis les fiches, ou modifiez `data-exemple.json` puis lancez `python3 build.py`.
