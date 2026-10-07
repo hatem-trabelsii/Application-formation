@@ -194,12 +194,12 @@ JQL vous propose la bonne forme.
    Déclencheur *Ticket créé ou transitionné* → Branche *Parent* → Action *Modifier le champ* « Tickets ouverts » (champ
    Nombre) avec `{{lookupIssues.size}}` après une action *Rechercher des tickets* sur
    `parent = {{issue.key}} AND statusCategory != Done`.
+5. **Rappel fin de support** (planifiée chaque lundi)
+   JQL `"Fin de support" <= 180d` → notification à l'architecte.
 6. **Étapes types d'un livrable**
    Déclencheur *Ticket créé* → Condition `Catégorie = Slides CAO` → Action *Créer des sous-tâches* :
    Remplir la trame CAO, Schémas d'architecture, Analyse DICP et risques SSI, Répétition avec le chef de projet,
    Envoi au secrétariat CAO. Dupliquez la règle pour DAL, DAT, Appel d'offres, etc. (listes dans le dashboard).
-5. **Rappel fin de support** (planifiée chaque lundi)
-   JQL `"Fin de support" <= 180d` → notification à l'architecte.
 
 ## Ce que Jira ne fait pas nativement, et comment s'en approcher
 
