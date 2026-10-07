@@ -8,6 +8,7 @@ Double-cliquez sur `index.html` : il fonctionne hors ligne, sans serveur. Les mo
 
 ## Vues
 
+- **Mes tickets** : vos tâches d'architecte par application (appel d'offres, DAL, DAT, slides CAO, DICP / PréK-SSI, revue, note de décision, atelier…), classées en En retard / Cette semaine / Semaine prochaine / Plus tard. Ajout rapide en une ligne ; chaque type de livrable crée ses étapes types à cocher.
 - **Synthèse** : indicateurs (incidents, tickets bloqués, retards, CAO, fins de support), tableau de signalisation des 20 applis, échéances à 14 jours, jalons, santé par domaine, obsolescence.
 - **Applications** : table filtrable et triable (domaine, cycle de vie, santé, criticité / DICP, hébergement, CAO, SSI, dette technique, fin de support). Un clic ouvre la fiche éditable et ses tickets.
 - **Tableau** : Kanban glisser-déposer (À faire, En cours, En revue, Bloqué, Terminé), filtres par application, type et priorité.

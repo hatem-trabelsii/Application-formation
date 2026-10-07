@@ -54,7 +54,8 @@ Les deux CSV contiennent les 20 applications et 30 tickets d'exemple. Remplacez-
 | Clé | Texte | ex. `VIG-1` |
 | Application | **Relation** → `Applications` (cochez « Afficher sur Applications ») | Notion relie chaque ticket par le nom |
 | Statut | **Statut** | À faire : À faire · En cours : En cours, En revue, Bloqué · Terminé : Terminé |
-| Type | Sélection | Évolution, Incident, Dette technique, Sécurité, Gouvernance / CAO, Décision d'architecture |
+| Type | Sélection | Appel d'offres, DAL, DAT, Slides CAO, DICP / PréK-SSI, Revue d'architecture, Note de décision, Atelier / réunion, Support / incident, Étude / veille |
+| Avancement / Étapes | Texte | à transformer en case à cocher dans le corps de la page (une liste de tâches par ticket) |
 | Priorité | Sélection | Critique (rouge), Haute (orange), Moyenne (bleu), Basse (gris) |
 | Échéance | Date | |
 | Porteur | Texte (ou Personne si vos collègues sont dans Notion) | |

@@ -108,6 +108,50 @@ main{min-width:0;padding-block:24px 48px;padding-inline:32px}
 .date.late{color:var(--crit)}
 .prio{width:4px;height:28px;border-radius:2px;background:var(--line)}
 .prio.Critique{background:var(--crit)} .prio.Haute{background:var(--warn)} .prio.Moyenne{background:var(--accent)} .prio.Basse{background:var(--muted)}
+/* type de livrable */
+.tchip{background:var(--surface-2);color:var(--fg)}
+.tchip::before{content:"";width:7px;height:7px;border-radius:2px;background:var(--tc,var(--muted))}
+.t-ao{--tc:#8A5CD0}.t-dal{--tc:#2D7FD8}.t-dat{--tc:#14919B}.t-cao{--tc:#D9822B}.t-ssi{--tc:#C8323C}
+.t-rev{--tc:#5C6BC0}.t-dec{--tc:#3F8F4E}.t-ate{--tc:#A0789A}.t-inc{--tc:#E0457B}.t-etu{--tc:#7A8699}
+.prog{display:inline-block;width:56px;height:5px;border-radius:3px;background:var(--surface-2);overflow:hidden;vertical-align:middle}
+.prog i{display:block;height:100%;background:var(--ok)}
+/* agenda des tickets */
+.agenda{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.bucket{display:flex;flex-direction:column;gap:8px;min-width:0}
+.bucket-h{display:flex;justify-content:space-between;align-items:baseline;font:700 12px var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);padding:0 2px}
+.bucket-h.late{color:var(--crit)}
+.bucket-h .n{font-family:var(--f-mono)}
+.tk{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:10px}
+.tk:hover{border-color:var(--accent)}
+.tk .body{all:unset;cursor:pointer;display:flex;flex-direction:column;gap:6px;min-width:0}
+.tk .ti{font-weight:600;font-size:13px;line-height:1.35}
+.tk .meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:space-between}
+.done-btn{all:unset;cursor:pointer;width:18px;height:18px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;margin-top:1px}
+.done-btn:hover{border-color:var(--ok);background:var(--ok-soft)}
+.done-btn:focus-visible{outline:2px solid var(--accent)}
+.done-btn svg{width:11px;height:11px;opacity:0;color:var(--ok)}
+.done-btn:hover svg{opacity:1}
+.quick{display:flex;flex-direction:column;gap:10px}
+.quick .chips{display:flex;flex-wrap:wrap;gap:6px}
+.quick .chips button{all:unset;cursor:pointer;border-radius:999px}
+.quick .chips button .tchip{padding:4px 10px;font-size:12px;border:1px solid transparent}
+.quick .chips button[aria-pressed="true"] .tchip{border-color:var(--tc);background:var(--surface)}
+.quick .chips button:focus-visible{outline:2px solid var(--accent)}
+.quick .row{display:flex;flex-wrap:wrap;gap:8px}
+.quick .row input,.quick .row select{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:7px 10px;min-width:0}
+.quick .row #q-titre{flex:1 1 280px}
+.quick .hint{font-size:12px;color:var(--muted)}
+.checks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.checks li{display:flex;gap:8px;align-items:center}
+.checks input[type=checkbox]{width:16px;height:16px;accent-color:var(--ok)}
+.checks .lb{flex:1;min-width:0;text-transform:none;letter-spacing:0;font-size:13.5px;font-weight:500;color:var(--fg)}
+.checks li.ok .lb{text-decoration:line-through;color:var(--muted)}
+.checks .rm{all:unset;cursor:pointer;color:var(--muted);padding:0 4px}
+.checks .rm:hover{color:var(--crit)}
+.add-step{display:flex;gap:6px;margin-top:6px}
+.add-step input{flex:1;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 9px}
+@media (max-width:1180px){.agenda{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:620px){.agenda{grid-template-columns:minmax(0,1fr)}}
 /* bars */
 .bars{display:flex;flex-direction:column;gap:9px}
 .bar{display:grid;grid-template-columns:118px minmax(0,1fr) 28px;gap:10px;align-items:center;font-size:12.5px}
@@ -218,7 +262,8 @@ td .ds{font-size:12px;color:var(--muted)}
       <div><b>Portefeuille Applicatif</b><small>Périmètre architecte solution</small></div>
     </div>
     <nav class="nav" aria-label="Vues">
-      <button data-view="synthese" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg><span class="lbl">Synthèse</span></button>
+      <button data-view="tickets" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span class="lbl">Mes tickets</span><span class="count" id="c-mine">0</span></button>
+      <button data-view="synthese"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg><span class="lbl">Synthèse</span></button>
       <button data-view="portefeuille"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg><span class="lbl">Applications</span><span class="count" id="c-apps">0</span></button>
       <button data-view="tableau"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="5" height="16" rx="1"/><rect x="10" y="4" width="5" height="11" rx="1"/><rect x="17" y="4" width="4" height="7" rx="1"/></svg><span class="lbl">Tableau</span><span class="count" id="c-open">0</span></button>
       <button data-view="feuille"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h8M7 12h10M13 19h8"/><circle cx="3" cy="5" r="1"/><circle cx="7" cy="12" r="1"/><circle cx="13" cy="19" r="1"/></svg><span class="lbl">Feuille de route</span></button>
@@ -236,7 +281,23 @@ td .ds{font-size:12px;color:var(--muted)}
 <script>
 const SEED = /*SEED*/null;
 const STATUTS = ["À faire","En cours","En revue","Bloqué","Terminé"];
-const TYPES = ["Évolution","Incident","Dette technique","Sécurité","Gouvernance / CAO","Décision d'architecture"];
+const TYPES = ["Appel d'offres","DAL","DAT","Slides CAO","DICP / PréK-SSI","Revue d'architecture","Note de décision","Atelier / réunion","Support / incident","Étude / veille"];
+/* Étapes proposées automatiquement à la création d'un ticket de ce type */
+const CHECK = {
+  "Appel d'offres":["Lire le cahier des charges","Lire et analyser les offres reçues","Remplir la grille d'évaluation technique","Rédiger l'avis d'architecture"],
+  "DAL":["Contexte et périmètre","Exigences fonctionnelles et non fonctionnelles","Architecture applicative cible","Flux et interfaces","Validation avec l'urbanisme"],
+  "DAT":["Architecture technique et hébergement","Dimensionnement","Sécurité et gestion des accès","Exploitabilité et supervision","PRA / PCA"],
+  "Slides CAO":["Remplir la trame CAO","Schémas d'architecture","Analyse DICP et risques SSI","Répétition avec le chef de projet","Envoi au secrétariat CAO"],
+  "DICP / PréK-SSI":["Atelier DICP avec le métier","Questionnaire PréK-SSI","Validation RSSI"],
+  "Revue d'architecture":["Lire les livrables","Rédiger les remarques","Réunion de restitution"],
+  "Note de décision":["Options étudiées","Analyse coûts et risques","Recommandation","Validation par le comité"],
+  "Atelier / réunion":["Préparer l'ordre du jour","Animer l'atelier","Envoyer le compte rendu"],
+  "Support / incident":[], "Étude / veille":[]
+};
+const TYPE_CLS = {"Appel d'offres":"t-ao","DAL":"t-dal","DAT":"t-dat","Slides CAO":"t-cao","DICP / PréK-SSI":"t-ssi","Revue d'architecture":"t-rev","Note de décision":"t-dec","Atelier / réunion":"t-ate","Support / incident":"t-inc","Étude / veille":"t-etu"};
+const typeChip = t => `<span class="chip tchip ${TYPE_CLS[t]||""}">${esc(t)}</span>`;
+const steps = t => Array.isArray(t.etapes)?t.etapes:[];
+const prog = t => { const e=steps(t); return e.length?`<span class="prog" title="${e.filter(x=>x.ok).length} étape(s) sur ${e.length}"><i style="width:${e.filter(x=>x.ok).length/e.length*100}%"></i></span><span class="date">${e.filter(x=>x.ok).length}/${e.length}</span>`:"" };
 const PRIOS = ["Critique","Haute","Moyenne","Basse"];
 const SANTES = ["OK","Vigilance","Incident"];
 const CYCLES = ["Projet","Build","Run","Décommissionnement"];
@@ -246,7 +307,7 @@ const CAOS = ["À passer","En cours","Validé","Non requis"];
 const SSIS = ["Conforme","Écarts","À évaluer"];
 const MONTHS = ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
 
-const S = { apps:new Map(), tickets:new Map(), mode:"init", canWrite:true, view:"synthese", loaded:{apps:false,tickets:false},
+const S = { apps:new Map(), tickets:new Map(), mode:"init", canWrite:true, view:"tickets", quickType:"Appel d'offres", loaded:{apps:false,tickets:false},
   f:{q:"",domaine:"",cycle:"",sante:""}, sort:{k:"sante",d:1}, kb:{app:"",type:"",prio:"",q:""}, db:null, downloads:null };
 
 const $ = (s,r=document)=>r.querySelector(s);
@@ -268,12 +329,13 @@ const openT = () => tickets().filter(t=>t.statut!=="Terminé");
 const uid = p => p + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
 
 /* ---------- persistence ---------- */
-const LS_KEY = "portefeuille-applicatif-v1";
+const LS_KEY = "portefeuille-applicatif-v2";
 function lsLoad(){ try{ const raw=localStorage.getItem(LS_KEY); return raw?JSON.parse(raw):null }catch(e){ return null } }
 function lsSave(){ try{ localStorage.setItem(LS_KEY, JSON.stringify({apps:[...S.apps.values()],tickets:[...S.tickets.values()]})) }catch(e){} }
 function loadLocal(data){ S.apps.clear(); S.tickets.clear(); (data.apps||[]).forEach(a=>S.apps.set(a.id,a)); (data.tickets||[]).forEach(t=>S.tickets.set(t.id,t)); }
 
 async function put(kind, obj){
+  if(kind==="tickets"){ if(obj.statut==="Terminé"){ if(!obj.termine) obj={...obj,termine:iso(TODAY)} } else if(obj.termine){ obj={...obj}; delete obj.termine } }
   const map = kind==="apps"?S.apps:S.tickets;
   const prev = map.get(obj.id);
   map.set(obj.id, obj); render();
@@ -302,7 +364,7 @@ async function loadExamples(){
 
 async function boot(){
   $("#today-lbl").textContent = "Aujourd'hui : " + fdate(iso(TODAY));
-  const hash=(location.hash||"").slice(1); if(["synthese","portefeuille","tableau","feuille","notion"].includes(hash)) S.view=hash;
+  const hash=(location.hash||"").slice(1); if(["tickets","synthese","portefeuille","tableau","feuille","notion"].includes(hash)) S.view=hash;
   let db=null;
   if(window.claude && typeof window.claude.use==="function"){
     try{ db = await window.claude.use("db") }catch(e){ db=null }
@@ -338,11 +400,11 @@ document.querySelectorAll(".nav button").forEach(b=>b.addEventListener("click",(
 /* ---------- render ---------- */
 function render(){
   document.querySelectorAll(".nav button").forEach(b=>{ if(b.dataset.view===S.view) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current") });
-  $("#c-apps").textContent=S.apps.size; $("#c-open").textContent=openT().length;
+  $("#c-apps").textContent=S.apps.size; $("#c-mine").textContent=openT().filter(t=>{const n=days(t.echeance);return n!==null&&n<=7}).length; $("#c-open").textContent=openT().length;
   const m=$("#main");
   if(!(S.loaded.apps&&S.loaded.tickets)){ m.innerHTML=`<div class="loading">Chargement du portefeuille…</div>`; return }
   if(S.apps.size===0 && S.view!=="notion"){ m.innerHTML=emptyView(); bindEmpty(); return }
-  const v={synthese:vSynthese,portefeuille:vPortefeuille,tableau:vTableau,feuille:vFeuille,notion:vNotion}[S.view];
+  const v={tickets:vTickets,synthese:vSynthese,portefeuille:vPortefeuille,tableau:vTableau,feuille:vFeuille,notion:vNotion}[S.view];
   v(m);
 }
 function header(eyebrow,title,actions=""){ return `<div class="top"><div><div class="eyebrow">${esc(eyebrow)}</div><h1>${esc(title)}</h1></div><div class="actions">${actions}</div></div>` }
@@ -361,6 +423,70 @@ function exampleBanner(){
   if(!n) return "";
   return `<div class="banner"><span><b>Données d'exemple.</b> ${n} application${n>1?"s":""} fictive${n>1?"s":""} sont affichées. Ouvrez chaque fiche pour y saisir vos vraies applications ; le badge disparaît dès que vous enregistrez une fiche.</span></div>`;
 }
+
+/* Mes tickets */
+function vTickets(m){
+  const T=openT(), done30=tickets().filter(t=>t.statut==="Terminé"&&t.termine&&days(t.termine)>=-30);
+  const late=T.filter(t=>{const n=days(t.echeance);return n!==null&&n<0});
+  const week=T.filter(t=>{const n=days(t.echeance);return n!==null&&n>=0&&n<=7});
+  const next=T.filter(t=>{const n=days(t.echeance);return n!==null&&n>7&&n<=14});
+  const later=T.filter(t=>{const n=days(t.echeance);return n===null||n>14});
+  const blocked=T.filter(t=>t.statut==="Bloqué");
+  const pr={Critique:0,Haute:1,Moyenne:2,Basse:3};
+  const byDate=L=>[...L].sort((a,b)=>(a.echeance||"9").localeCompare(b.echeance||"9")||pr[a.priorite]-pr[b.priorite]);
+  const tk=t=>{const a=appOf(t.appId);const n=days(t.echeance);return `<div class="tk">
+    ${S.canWrite?`<button class="done-btn" data-done="${esc(t.id)}" aria-label="Marquer « ${esc(t.titre)} » comme terminé" title="Marquer comme terminé"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><path d="M5 12l5 5 9-10"/></svg></button>`:"<span></span>"}
+    <button class="body" data-ticket="${esc(t.id)}"><span class="meta">${typeChip(t.type)}<span class="date ${n!==null&&n<0?"late":""}" title="${rel(t.echeance)}">${fdate(t.echeance)}</span></span>
+    <span class="ti">${esc(t.titre)}</span>
+    <span class="meta"><span class="code">${a?esc(a.code):"—"}${t.statut!=="À faire"?" · "+chip(t.statut,statutCls(t.statut)):""}</span>${prog(t)}</span></button></div>`};
+  const bucket=(title,L,cls="")=>`<div class="bucket"><div class="bucket-h ${cls}"><span>${title}</span><span class="n">${L.length}</span></div>${L.length?byDate(L).map(tk).join(""):`<div class="empty" style="padding:8px 2px">Rien ici.</div>`}</div>`;
+  const k=(cls,l,v,s)=>`<div class="kpi ${cls}" style="cursor:default"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`;
+  const tc=TYPES.map(t=>[t,T.filter(x=>x.type===t).length]).filter(x=>x[1]); const tmax=Math.max(1,...tc.map(x=>x[1]));
+  const ac=apps().map(a=>[a,T.filter(x=>x.appId===a.id).length]).filter(x=>x[1]).sort((x,y)=>y[1]-x[1]).slice(0,8); const amax=Math.max(1,...ac.map(x=>x[1]));
+  m.innerHTML = header("Mes tickets · "+T.length+" ouverts sur "+S.apps.size+" applications","Ce que j'ai à faire",
+     S.canWrite?`<button class="btn" data-go="tableau">Vue Kanban</button><button class="btn primary" id="b-newt">${I.plus} Ticket détaillé</button>`:`<button class="btn" data-go="tableau">Vue Kanban</button>`)
+  + `<div class="kpis" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+      ${k(late.length?"crit":"ok","En retard",late.length,"échéance dépassée")}
+      ${k(week.length?"warn":"","Cette semaine",week.length,"à rendre sous 7 jours")}
+      ${k(blocked.length?"crit":"","Bloqués",blocked.length,"en attente d'un tiers")}
+      ${k("ok","Terminés",done30.length,"sur les 30 derniers jours")}
+    </div>
+    ${S.canWrite?`<section class="panel" style="margin-bottom:16px"><div class="panel-h"><h2>Ajouter un ticket</h2><span class="hint">Les étapes types du livrable sont ajoutées automatiquement</span></div>
+      <div class="panel-b quick">
+        <div class="chips" role="group" aria-label="Type de livrable">${TYPES.map(t=>`<button data-qt="${esc(t)}" aria-pressed="${S.quickType===t}">${typeChip(t)}</button>`).join("")}</div>
+        <form class="row" id="q-form">
+          <input id="q-titre" placeholder="${esc(({"Appel d'offres":"Ex. Lire l'offre de l'appel d'offres","DAL":"Ex. DAL à faire","Slides CAO":"Ex. Slides CAO à préparer","DAT":"Ex. DAT à rédiger"})[S.quickType]||"Ex. "+S.quickType)}" aria-label="Titre du ticket">
+          <select id="q-app" aria-label="Application">${apps().map(a=>`<option value="${esc(a.id)}" ${S.quickApp===a.id?"selected":""}>${esc(a.code)} · ${esc(a.nom)}</option>`).join("")}</select>
+          <input id="q-date" type="date" aria-label="Échéance" value="${esc(S.quickDate||"")}">
+          <select id="q-prio" aria-label="Priorité">${opts(PRIOS,S.quickPrio||"Moyenne")}</select>
+          <button class="btn primary" type="submit">${I.plus} Ajouter</button>
+        </form>
+        <div class="hint">${CHECK[S.quickType]?.length?"Étapes ajoutées : "+CHECK[S.quickType].map(esc).join(" · "):"Pas d'étapes types pour ce livrable : vous pourrez en ajouter dans le ticket."}</div>
+      </div></section>`:""}
+    <div class="agenda">${bucket("En retard",late,"late")}${bucket("Cette semaine",week)}${bucket("Semaine prochaine",next)}${bucket("Plus tard",later)}</div>
+    <div class="grid2">
+      <section class="panel"><div class="panel-h"><h2>Tickets ouverts par livrable</h2><span class="hint">Cliquez pour filtrer le Kanban</span></div><div class="panel-b"><div class="bars">
+        ${tc.length?tc.map(([t,n])=>`<button class="bar link" data-ktype="${esc(t)}" style="all:unset;cursor:pointer;display:grid;grid-template-columns:150px minmax(0,1fr) 28px;gap:10px;align-items:center;font-size:12.5px"><span>${typeChip(t)}</span><span class="track"><i class="${TYPE_CLS[t]}" style="width:${n/tmax*100}%;background:var(--tc)"></i></span><span class="num">${n}</span></button>`).join(""):`<span class="empty">Aucun ticket ouvert.</span>`}
+      </div></div></section>
+      <section class="panel"><div class="panel-h"><h2>Applications les plus chargées</h2></div><div class="panel-b"><div class="bars">
+        ${ac.length?ac.map(([a,n])=>`<button class="bar" data-kapp="${esc(a.id)}" style="all:unset;cursor:pointer;display:grid;grid-template-columns:150px minmax(0,1fr) 28px;gap:10px;align-items:center;font-size:12.5px"><span><span class="code">${esc(a.code)}</span> ${esc(a.nom)}</span><span class="track"><i style="width:${n/amax*100}%;background:var(--accent)"></i></span><span class="num">${n}</span></button>`).join(""):`<span class="empty">Aucun ticket ouvert.</span>`}
+      </div></div></section>
+    </div>`;
+  bindCommon(m);
+  $("#b-newt")?.addEventListener("click",()=>openTicket(null));
+  m.querySelectorAll("[data-qt]").forEach(b=>b.addEventListener("click",()=>{ keepQuick(); S.quickType=b.dataset.qt; render(); $("#q-titre")?.focus() }));
+  m.querySelectorAll("[data-ktype]").forEach(b=>b.addEventListener("click",()=>{ S.kb={app:"",type:b.dataset.ktype,prio:"",q:""}; go("tableau") }));
+  m.querySelectorAll("[data-kapp]").forEach(b=>b.addEventListener("click",()=>{ S.kb={app:b.dataset.kapp,type:"",prio:"",q:""}; go("tableau") }));
+  m.querySelectorAll("[data-done]").forEach(b=>b.addEventListener("click",async()=>{ const t=S.tickets.get(b.dataset.done); if(!t) return;
+    if(await put("tickets",{...t,statut:"Terminé",etapes:steps(t).map(x=>({...x,ok:true})),exemple:false})) toast("Terminé : "+t.titre) }));
+  $("#q-form")?.addEventListener("submit",async e=>{ e.preventDefault(); keepQuick();
+    const titre=$("#q-titre").value.trim(); if(!titre){ toast("Écrivez ce qu'il y a à faire."); $("#q-titre").focus(); return }
+    const a=appOf($("#q-app").value); if(!a){ toast("Ajoutez d'abord une application."); return }
+    const nums=tickets().map(x=>+(String(x.cle||"").split("-")[1]||0));
+    const obj={id:uid("t"),cle:`${a.code}-${Math.max(0,...nums)+1}`,titre,appId:a.id,type:S.quickType,statut:"À faire",priorite:$("#q-prio").value,echeance:$("#q-date").value,porteur:"",description:"",etapes:(CHECK[S.quickType]||[]).map(x=>({t:x,ok:false})),cree:iso(TODAY),exemple:false};
+    if(await put("tickets",obj)){ toast("Ticket créé : "+obj.cle); $("#q-titre").value=""; $("#q-titre").focus() } });
+}
+function keepQuick(){ const a=$("#q-app"),d=$("#q-date"),p=$("#q-prio"); if(a) S.quickApp=a.value; if(d) S.quickDate=d.value; if(p) S.quickPrio=p.value }
 
 /* Synthèse */
 function vSynthese(m){
@@ -485,8 +611,8 @@ function vTableau(m){
     <div class="kanban">${STATUTS.map(s=>{const C=L.filter(t=>t.statut===s).sort((a,b)=>pr[a.priorite]-pr[b.priorite]||(a.echeance||"9").localeCompare(b.echeance||"9"));
       return `<div class="col" data-col="${esc(s)}"><div class="col-h"><span>${esc(s)}</span><span class="n">${C.length}</span></div>
       ${C.map(t=>{const a=appOf(t.appId);const n=days(t.echeance);return `<div class="card ${esc(t.priorite)}" draggable="${S.canWrite}" data-ticket="${esc(t.id)}" tabindex="0" role="button" aria-label="${esc(t.titre)}">
-        <div class="meta"><span class="code">${esc(t.cle||"")}</span>${chip(t.type,t.type==="Incident"||t.type==="Sécurité"?"crit":t.type==="Gouvernance / CAO"?"warn":"")}</div>
-        <div class="ti">${esc(t.titre)}</div>
+        <div class="meta"><span class="code">${esc(t.cle||"")}</span>${typeChip(t.type)}</div>
+        <div class="ti">${esc(t.titre)}</div>${steps(t).length?`<div class="meta" style="justify-content:flex-start;gap:8px">${prog(t)}</div>`:""}
         <div class="meta"><span style="font-size:12px;color:var(--muted)">${a?esc(a.nom):"Sans application"}</span><span class="date ${s!=="Terminé"&&n!==null&&n<0?"late":""}">${fdate(t.echeance)}</span></div></div>`}).join("")}
       </div>`}).join("")}</div>
     <p style="color:var(--muted);font-size:12px">Glissez une carte d'une colonne à l'autre pour changer son statut. Le liseré gauche indique la priorité.</p>`;
@@ -540,7 +666,7 @@ function csvCell(v){ v=String(v??""); return /[",\n;]/.test(v)?`"${v.replace(/"/
 function toCSV(rows,cols){ return "﻿"+[cols.map(c=>csvCell(c[1])).join(","),...rows.map(r=>cols.map(c=>csvCell(typeof c[0]==="function"?c[0](r):r[c[0]])).join(","))].join("\n") }
 function notionDate(s){ return pd(s)?s:"" }
 const APP_COLS=[["nom","Nom"],["code","Code"],["domaine","Domaine"],["description","Description"],["cycle","Cycle de vie"],["sante","Santé"],["criticite","Criticité"],["dicp","DICP"],["hebergement","Hébergement"],["techno","Technologies"],["equipe","Équipe"],["cao","Statut CAO"],[a=>notionDate(a.caoDate),"Date CAO"],["ssi","Conformité SSI"],["dette","Dette technique (1-5)"],["version","Version"],["jalon","Prochain jalon"],[a=>notionDate(a.jalonDate),"Date jalon"],[a=>notionDate(a.finSupport),"Fin de support"],["notes","Notes"]];
-const T_COLS=[["titre","Titre"],["cle","Clé"],[t=>appOf(t.appId)?.nom||"","Application"],["type","Type"],["statut","Statut"],["priorite","Priorité"],[t=>notionDate(t.echeance),"Échéance"],["porteur","Porteur"],["description","Description"]];
+const T_COLS=[["titre","Titre"],["cle","Clé"],[t=>appOf(t.appId)?.nom||"","Application"],["type","Type"],["statut","Statut"],["priorite","Priorité"],[t=>notionDate(t.echeance),"Échéance"],["porteur","Porteur"],[t=>steps(t).length?steps(t).filter(x=>x.ok).length+"/"+steps(t).length:"","Avancement"],[t=>steps(t).map(x=>(x.ok?"[x] ":"[ ] ")+x.t).join(" | "),"Étapes"],["description","Description"]];
 async function saveFile(name,content){
   if(S.downloads){ try{ await S.downloads.save({filename:name,data:content}); toast(name+" enregistré"); return }catch(e){ if(e&&e.code==="declined") return; } }
   try{ const url=URL.createObjectURL(new Blob([content],{type:"text/csv"})); const a=document.createElement("a"); a.href=url; a.download=name; document.body.append(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1000) }catch(e){ toast("Téléchargement indisponible ici.") }
@@ -640,8 +766,9 @@ function openApp(id){
   });
 }
 function openTicket(id,appId){
-  const t = id?S.tickets.get(id):{id:"",titre:"",appId:appId||(S.kb.app||apps()[0]?.id||""),type:"Évolution",statut:"À faire",priorite:"Moyenne",echeance:"",porteur:"",description:""};
+  const t = id?S.tickets.get(id):{id:"",titre:"",appId:appId||(S.kb.app||apps()[0]?.id||""),type:"Appel d'offres",statut:"À faire",priorite:"Moyenne",echeance:"",porteur:"",description:"",etapes:CHECK["Appel d'offres"].map(x=>({t:x,ok:false}))};
   if(!t) return;
+  let E = steps(t).map(x=>({...x}));
   const ro=S.canWrite?"":"disabled";
   $("#layer").innerHTML = `<div class="scrim" id="scrim"></div><div class="modal" role="dialog" aria-modal="true" aria-labelledby="md-t">
     <div class="eyebrow">${id?esc(t.cle||""):"Nouveau ticket"}</div><h3 id="md-t">${id?esc(t.titre):"Créer un ticket"}</h3>
@@ -651,12 +778,22 @@ function openTicket(id,appId){
       ${field("t-type","Type",t.type,"",false,TYPES)}${field("t-statut","Statut",t.statut,"",false,STATUTS)}
       ${field("t-prio","Priorité",t.priorite,"",false,PRIOS)}${field("t-ech","Échéance",t.echeance,"date")}
       ${field("t-port","Porteur",t.porteur,"text",true)}
-      ${field("t-desc","Description",t.description,"textarea")}
+      <div class="field full"><label>Étapes</label><ul class="checks" id="t-steps"></ul>
+        ${S.canWrite?`<div class="add-step"><input id="t-newstep" placeholder="Ajouter une étape" aria-label="Nouvelle étape"><button class="btn" id="t-addstep" type="button">Ajouter</button></div>`:""}</div>
+      ${field("t-desc","Notes",t.description,"textarea")}
     </div>
     ${S.canWrite?`<div class="foot"><div id="t-delwrap">${id?`<button class="btn danger" id="t-del">Supprimer</button>`:""}</div><div class="actions"><button class="btn" id="t-cancel">Annuler</button><button class="btn primary" id="t-save">Enregistrer</button></div></div>`:`<div class="foot"><span></span><button class="btn" id="t-cancel">Fermer</button></div>`}
   </div>`;
   document.addEventListener("keydown",escClose);
   $("#scrim").onclick=closeLayer; $("#t-cancel").onclick=closeLayer;
+  const drawSteps=()=>{ $("#t-steps").innerHTML = E.length?E.map((x,i)=>`<li class="${x.ok?"ok":""}"><input type="checkbox" id="st-${i}" data-i="${i}" ${x.ok?"checked":""} ${ro}><label class="lb" for="st-${i}">${esc(x.t)}</label>${S.canWrite?`<button class="rm" data-rm="${i}" aria-label="Retirer l'étape">✕</button>`:""}</li>`).join(""):`<li class="empty">Aucune étape.</li>`;
+    $("#t-steps").querySelectorAll("[data-i]").forEach(c=>c.addEventListener("change",()=>{E[+c.dataset.i].ok=c.checked;drawSteps()}));
+    $("#t-steps").querySelectorAll("[data-rm]").forEach(b=>b.addEventListener("click",()=>{E.splice(+b.dataset.rm,1);drawSteps()})); };
+  drawSteps();
+  const addStep=()=>{ const v=$("#t-newstep").value.trim(); if(!v) return; E.push({t:v,ok:false}); $("#t-newstep").value=""; drawSteps() };
+  $("#t-addstep")?.addEventListener("click",addStep);
+  $("#t-newstep")?.addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); addStep() } });
+  $("#t-type")?.addEventListener("change",e=>{ if(!E.some(x=>x.ok)){ E=(CHECK[e.target.value]||[]).map(x=>({t:x,ok:false})); drawSteps() } });
   $("#t-titre")?.focus();
   $("#t-del")?.addEventListener("click",()=>{ $("#t-delwrap").innerHTML=`<div class="confirm">Supprimer ce ticket ? <button class="btn danger" id="t-del2">Confirmer</button></div>`;
     $("#t-del2").onclick=async()=>{ closeLayer(); if(await del("tickets",id)) toast("Ticket supprimé") } });
@@ -667,7 +804,7 @@ function openTicket(id,appId){
     const a=appOf(app);
     let cle=t.cle;
     if(!id || t.appId!==app){ const nums=tickets().map(x=>+(String(x.cle||"").split("-")[1]||0)); cle=`${a.code}-${Math.max(0,...nums)+1}` }
-    const obj={...t,id:t.id||uid("t"),cle,titre,appId:app,type:g("t-type"),statut:g("t-statut"),priorite:g("t-prio"),echeance:g("t-ech"),porteur:g("t-port"),description:g("t-desc"),cree:t.cree||iso(new Date()),exemple:false};
+    const obj={...t,id:t.id||uid("t"),cle,titre,appId:app,type:g("t-type"),statut:g("t-statut"),priorite:g("t-prio"),echeance:g("t-ech"),porteur:g("t-port"),description:g("t-desc"),etapes:E,cree:t.cree||iso(new Date()),exemple:false};
     closeLayer(); if(await put("tickets",obj)) toast((id?"Ticket enregistré : ":"Ticket créé : ")+cle);
   });
 }

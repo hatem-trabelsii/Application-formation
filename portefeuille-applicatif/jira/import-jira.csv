@@ -19,33 +19,128 @@ Issue Id,Parent,Issue Type,Summary,Description,Status,Priority,Due Date,Labels,C
 18,,Epic,ECH · Échangeur,API management et passerelle d'échanges,En cours,Medium,2027-02-28,application,ECH,Transverse,Run,OK,Critique,4-4-3-3,Cloud Azure,Azure APIM · Kong,Squad Socle,Validé,2025-07-01,Conforme,2,3.2,Catalogue d'API unifié,2027-02-28,2029-12-31,,
 19,,Epic,BSL · Boussole,Tableaux de bord de pilotage (BI),En cours,Medium,2027-01-31,application,BSL,Pilotage,Run,OK,Faible,1-2-3-2,Cloud Azure,Power BI · Synapse,Squad Data,Validé,2024-12-09,Conforme,2,—,Rationalisation des rapports,2027-01-31,2029-06-30,,
 20,,Epic,MEM · Mémoire,Archivage légal des documents,En cours,Medium,2027-03-31,application,MEM,Transverse,Décommissionnement,Vigilance,Faible,1-2-4-3,On-premise,Documentum · Solaris,Squad Socle,Validé,2021-05-11,Écarts,5,7.3,Arrêt définitif après reprise des archives,2027-03-31,2026-12-31,,
-101,4,Bug,Incident récurrent sur le flux de positions des trains,,En cours,Highest,2026-10-09,,,,,,,,,,,,,,,,,,,Incident,Squad Circulation
-102,4,Task,Plan de sortie Java 11 avant fin de support,,À faire,High,2026-11-30,,,,,,,,,,,,,,,,,,,Dette technique,Squad Circulation
-103,4,Task,Corriger les écarts SSI relevés à l'audit,,En cours,High,2026-10-31,,,,,,,,,,,,,,,,,,,Sécurité,RSSI domaine
-104,2,Bug,Latence des annonces en heure de pointe,,En revue,High,2026-10-14,,,,,,,,,,,,,,,,,,,Incident,Squad Info Voyageurs
-105,2,Task,DAT : architecture multi-AZ,,En cours,High,2026-10-21,,,,,,,,,,,,,,,,,,,Décision d'architecture,Architecte solution
-106,2,Task,Chiffrement des topics Kafka,,À faire,Medium,2026-12-15,,,,,,,,,,,,,,,,,,,Sécurité,Squad Info Voyageurs
-107,3,Task,Préparer le dossier CAO lot 1,,En cours,High,2026-10-16,,,,,,,,,,,,,,,,,,,Gouvernance / CAO,Architecte solution
-108,3,Task,Analyse de risques PréK-SSI,,À faire,High,2026-10-19,,,,,,,,,,,,,,,,,,,Sécurité,RSSI domaine
-109,3,Story,Interface avec Mobilité Agents,,À faire,Medium,2026-11-25,,,,,,,,,,,,,,,,,,,Évolution,Squad Production
-110,7,Bug,Saturation disque sur les serveurs régionaux,,Bloqué,High,2026-10-02,,,,,,,,,,,,,,,,,,,Incident,Exploitation
-111,7,Story,Déploiement afficheurs lot Sud-Est,,En cours,Medium,2026-10-20,,,,,,,,,,,,,,,,,,,Évolution,Squad Info Voyageurs
-112,11,Task,Note de décision : refonte ou SaaS,,En revue,High,2026-11-05,,,,,,,,,,,,,,,,,,,Décision d'architecture,Architecte solution
-113,11,Task,Fin de support Java 8 : dérogation temporaire,,Bloqué,High,2026-10-05,,,,,,,,,,,,,,,,,,,Dette technique,Pôle Finance
-114,12,Task,Remplir la trame CAO,,À faire,Medium,2026-11-12,,,,,,,,,,,,,,,,,,,Gouvernance / CAO,Architecte solution
-115,12,Task,Qualification DICP avec le métier,,À faire,Medium,2026-10-30,,,,,,,,,,,,,,,,,,,Gouvernance / CAO,Pôle Achats
-116,13,Story,Plan de migration vers la GED groupe,,À faire,Medium,2027-01-15,,,,,,,,,,,,,,,,,,,Évolution,Squad Socle
-117,13,Task,Montée de version Alfresco (CVE),,En cours,Highest,2026-10-10,,,,,,,,,,,,,,,,,,,Sécurité,Squad Socle
-118,14,Task,Revue du DAL avec l'urbanisme,,En revue,Medium,2026-10-13,,,,,,,,,,,,,,,,,,,Gouvernance / CAO,Architecte solution
-119,14,Task,Choix de l'outil de cartographie mobile,,À faire,Low,2026-11-20,,,,,,,,,,,,,,,,,,,Décision d'architecture,Pôle Maintenance
-120,20,Story,Reprise des archives vers la nouvelle cible,,En cours,Medium,2027-02-28,,,,,,,,,,,,,,,,,,,Évolution,Squad Socle
-121,20,Task,Contrat de support Solaris : prolongation 6 mois,,Bloqué,High,2026-10-15,,,,,,,,,,,,,,,,,,,Gouvernance / CAO,Pôle Achats
-122,17,Task,Généralisation MFA sur les applications Run,,En cours,High,2026-10-31,,,,,,,,,,,,,,,,,,,Sécurité,Squad Socle
-123,18,Story,Normaliser les contrats d'API (OpenAPI 3.1),,À faire,Low,2027-01-31,,,,,,,,,,,,,,,,,,,Évolution,Squad Socle
-124,16,Task,Gouvernance des données personnelles (RGPD),,En revue,Medium,2026-11-10,,,,,,,,,,,,,,,,,,,Sécurité,Squad Data
-125,6,Story,Ouverture de l'API partenaires,,En cours,Medium,2026-11-12,,,,,,,,,,,,,,,,,,,Évolution,Squad Distribution
-126,1,Task,Montée de version PostgreSQL 16,,À faire,Medium,2026-11-20,,,,,,,,,,,,,,,,,,,Dette technique,Squad Référentiels
-127,5,Task,Étude de migration S/4 Cloud,,À faire,Low,2027-03-31,,,,,,,,,,,,,,,,,,,Décision d'architecture,Pôle Maintenance
-128,15,Story,Mode hors ligne complet,,Terminé,Medium,2026-09-30,,,,,,,,,,,,,,,,,,,Évolution,Squad Production
-129,9,Task,Bilan éditeur avant renouvellement,,Terminé,Low,2026-09-25,,,,,,,,,,,,,,,,,,,Gouvernance / CAO,Pôle Fret
-130,10,Story,Interface habilitations sécurité,,En cours,Medium,2026-12-15,,,,,,,,,,,,,,,,,,,Évolution,Pôle RH
+101,12,Task,Lire l'offre de l'appel d'offres (3 éditeurs),,En cours,High,2026-10-09,,,,,,,,,,,,,,,,,,,Appel d'offres,Pôle Achats
+10101,101,Sub-task,Lire le cahier des charges,,Terminé,Medium,,,,,,,,,,,,,,,,,,,,,
+10102,101,Sub-task,Lire et analyser les offres reçues,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+10103,101,Sub-task,Remplir la grille d'évaluation technique,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+10104,101,Sub-task,Rédiger l'avis d'architecture,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+102,12,Task,Slides CAO à préparer,,À faire,High,2026-11-19,,,,,,,,,,,,,,,,,,,Slides CAO,Chef de projet Sourcing
+10201,102,Sub-task,Remplir la trame CAO,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+10202,102,Sub-task,Schémas d'architecture,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+10203,102,Sub-task,Analyse DICP et risques SSI,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+10204,102,Sub-task,Répétition avec le chef de projet,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+10205,102,Sub-task,Envoi au secrétariat CAO,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+103,12,Task,DICP avec le métier Achats,,À faire,Medium,2026-10-30,,,,,,,,,,,,,,,,,,,DICP / PréK-SSI,Pôle Achats
+10301,103,Sub-task,Atelier DICP avec le métier,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+10302,103,Sub-task,Questionnaire PréK-SSI,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+10303,103,Sub-task,Validation RSSI,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+104,3,Task,DAL lot 1 à faire,,En cours,High,2026-10-14,,,,,,,,,,,,,,,,,,,DAL,Squad Production
+10401,104,Sub-task,Contexte et périmètre,,Terminé,Medium,,,,,,,,,,,,,,,,,,,,,
+10402,104,Sub-task,Exigences fonctionnelles et non fonctionnelles,,Terminé,Medium,,,,,,,,,,,,,,,,,,,,,
+10403,104,Sub-task,Architecture applicative cible,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+10404,104,Sub-task,Flux et interfaces,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+10405,104,Sub-task,Validation avec l'urbanisme,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+105,3,Task,Slides CAO lot 1 à préparer,,En cours,Highest,2026-10-16,,,,,,,,,,,,,,,,,,,Slides CAO,Chef de projet Cadence
+10501,105,Sub-task,Remplir la trame CAO,,Terminé,Medium,,,,,,,,,,,,,,,,,,,,,
+10502,105,Sub-task,Schémas d'architecture,,Terminé,Medium,,,,,,,,,,,,,,,,,,,,,
+10503,105,Sub-task,Analyse DICP et risques SSI,,Terminé,Medium,,,,,,,,,,,,,,,,,,,,,
+10504,105,Sub-task,Répétition avec le chef de projet,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+10505,105,Sub-task,Envoi au secrétariat CAO,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+106,3,Task,PréK-SSI à faire valider,,En revue,High,2026-10-12,,,,,,,,,,,,,,,,,,,DICP / PréK-SSI,RSSI domaine
+10601,106,Sub-task,Atelier DICP avec le métier,,Terminé,Medium,,,,,,,,,,,,,,,,,,,,,
+10602,106,Sub-task,Questionnaire PréK-SSI,,Terminé,Medium,,,,,,,,,,,,,,,,,,,,,
+10603,106,Sub-task,Validation RSSI,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+107,14,Task,DAT à rédiger,,À faire,Medium,2026-11-06,,,,,,,,,,,,,,,,,,,DAT,Pôle Maintenance
+10701,107,Sub-task,Architecture technique et hébergement,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+10702,107,Sub-task,Dimensionnement,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+10703,107,Sub-task,Sécurité et gestion des accès,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+10704,107,Sub-task,Exploitabilité et supervision,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+10705,107,Sub-task,PRA / PCA,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+108,14,Task,Relire le DAL avant passage à l'urbanisme,,En revue,Medium,2026-10-13,,,,,,,,,,,,,,,,,,,Revue d'architecture,Urbanisme SI
+10801,108,Sub-task,Lire les livrables,,Terminé,Medium,,,,,,,,,,,,,,,,,,,,,
+10802,108,Sub-task,Rédiger les remarques,,Terminé,Medium,,,,,,,,,,,,,,,,,,,,,
+10803,108,Sub-task,Réunion de restitution,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+109,11,Task,Note de décision : refonte ou SaaS,,En cours,High,2026-11-05,,,,,,,,,,,,,,,,,,,Note de décision,Pôle Finance
+10901,109,Sub-task,Options étudiées,,Terminé,Medium,,,,,,,,,,,,,,,,,,,,,
+10902,109,Sub-task,Analyse coûts et risques,,Terminé,Medium,,,,,,,,,,,,,,,,,,,,,
+10903,109,Sub-task,Recommandation,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+10904,109,Sub-task,Validation par le comité,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+110,11,Task,Appel d'offres SaaS finance : analyser les réponses,,À faire,High,2026-10-23,,,,,,,,,,,,,,,,,,,Appel d'offres,Pôle Achats
+11001,110,Sub-task,Lire le cahier des charges,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+11002,110,Sub-task,Lire et analyser les offres reçues,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+11003,110,Sub-task,Remplir la grille d'évaluation technique,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+11004,110,Sub-task,Rédiger l'avis d'architecture,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+111,2,Task,DAT bascule multi-AZ,,En cours,High,2026-10-21,,,,,,,,,,,,,,,,,,,DAT,Squad Info Voyageurs
+11101,111,Sub-task,Architecture technique et hébergement,,Terminé,Medium,,,,,,,,,,,,,,,,,,,,,
+11102,111,Sub-task,Dimensionnement,,Terminé,Medium,,,,,,,,,,,,,,,,,,,,,
+11103,111,Sub-task,Sécurité et gestion des accès,,Terminé,Medium,,,,,,,,,,,,,,,,,,,,,
+11104,111,Sub-task,Exploitabilité et supervision,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+11105,111,Sub-task,PRA / PCA,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+112,2,Task,Atelier capacité heure de pointe avec l'exploitation,,À faire,Medium,2026-10-10,,,,,,,,,,,,,,,,,,,Atelier / réunion,Exploitation
+11201,112,Sub-task,Préparer l'ordre du jour,,Terminé,Medium,,,,,,,,,,,,,,,,,,,,,
+11202,112,Sub-task,Animer l'atelier,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+11203,112,Sub-task,Envoyer le compte rendu,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+113,4,Task,Note de décision : sortie de Java 11,,À faire,High,2026-10-29,,,,,,,,,,,,,,,,,,,Note de décision,Squad Circulation
+11301,113,Sub-task,Options étudiées,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+11302,113,Sub-task,Analyse coûts et risques,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+11303,113,Sub-task,Recommandation,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+11304,113,Sub-task,Validation par le comité,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+114,4,Bug,Appui sur l'incident du flux de positions des trains,,En cours,Highest,2026-10-08,,,,,,,,,,,,,,,,,,,Support / incident,Squad Circulation
+115,13,Task,Étude de migration vers la GED groupe,,À faire,Medium,2026-12-11,,,,,,,,,,,,,,,,,,,Étude / veille,Squad Socle
+116,20,Task,Note de décision : prolongation du support Solaris,,Bloqué,High,2026-10-05,,,,,,,,,,,,,,,,,,,Note de décision,Pôle Achats
+11601,116,Sub-task,Options étudiées,,Terminé,Medium,,,,,,,,,,,,,,,,,,,,,
+11602,116,Sub-task,Analyse coûts et risques,,Terminé,Medium,,,,,,,,,,,,,,,,,,,,,
+11603,116,Sub-task,Recommandation,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+11604,116,Sub-task,Validation par le comité,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+117,6,Task,Revue d'architecture de l'API partenaires,,À faire,Medium,2026-10-27,,,,,,,,,,,,,,,,,,,Revue d'architecture,Squad Distribution
+11701,117,Sub-task,Lire les livrables,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+11702,117,Sub-task,Rédiger les remarques,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+11703,117,Sub-task,Réunion de restitution,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+118,16,Task,DICP données personnelles (RGPD),,En cours,Medium,2026-11-10,,,,,,,,,,,,,,,,,,,DICP / PréK-SSI,DPO
+11801,118,Sub-task,Atelier DICP avec le métier,,Terminé,Medium,,,,,,,,,,,,,,,,,,,,,
+11802,118,Sub-task,Questionnaire PréK-SSI,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+11803,118,Sub-task,Validation RSSI,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+119,5,Task,Étude de migration S/4 Cloud,,À faire,Low,2027-01-29,,,,,,,,,,,,,,,,,,,Étude / veille,Pôle Maintenance
+120,9,Task,Lire les offres du renouvellement éditeur,,À faire,Medium,2027-01-15,,,,,,,,,,,,,,,,,,,Appel d'offres,Pôle Fret
+12001,120,Sub-task,Lire le cahier des charges,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+12002,120,Sub-task,Lire et analyser les offres reçues,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+12003,120,Sub-task,Remplir la grille d'évaluation technique,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+12004,120,Sub-task,Rédiger l'avis d'architecture,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+121,17,Task,Atelier généralisation MFA,,Terminé,High,2026-10-01,,,,,,,,,,,,,,,,,,,Atelier / réunion,Squad Socle
+12101,121,Sub-task,Préparer l'ordre du jour,,Terminé,Medium,,,,,,,,,,,,,,,,,,,,,
+12102,121,Sub-task,Animer l'atelier,,Terminé,Medium,,,,,,,,,,,,,,,,,,,,,
+12103,121,Sub-task,Envoyer le compte rendu,,Terminé,Medium,,,,,,,,,,,,,,,,,,,,,
+122,18,Task,DAL du catalogue d'API unifié,,À faire,Low,2026-12-18,,,,,,,,,,,,,,,,,,,DAL,Squad Socle
+12201,122,Sub-task,Contexte et périmètre,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+12202,122,Sub-task,Exigences fonctionnelles et non fonctionnelles,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+12203,122,Sub-task,Architecture applicative cible,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+12204,122,Sub-task,Flux et interfaces,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+12205,122,Sub-task,Validation avec l'urbanisme,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+123,7,Bug,Appui sur la saturation disque des serveurs régionaux,,Bloqué,High,2026-10-02,,,,,,,,,,,,,,,,,,,Support / incident,Exploitation
+124,1,Task,Relire le DAT de montée PostgreSQL 16,,À faire,Medium,2026-11-13,,,,,,,,,,,,,,,,,,,Revue d'architecture,Squad Référentiels
+12401,124,Sub-task,Lire les livrables,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+12402,124,Sub-task,Rédiger les remarques,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+12403,124,Sub-task,Réunion de restitution,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+125,15,Task,Slides CAO mode hors ligne,,Terminé,Medium,2026-09-24,,,,,,,,,,,,,,,,,,,Slides CAO,Squad Production
+12501,125,Sub-task,Remplir la trame CAO,,Terminé,Medium,,,,,,,,,,,,,,,,,,,,,
+12502,125,Sub-task,Schémas d'architecture,,Terminé,Medium,,,,,,,,,,,,,,,,,,,,,
+12503,125,Sub-task,Analyse DICP et risques SSI,,Terminé,Medium,,,,,,,,,,,,,,,,,,,,,
+12504,125,Sub-task,Répétition avec le chef de projet,,Terminé,Medium,,,,,,,,,,,,,,,,,,,,,
+12505,125,Sub-task,Envoi au secrétariat CAO,,Terminé,Medium,,,,,,,,,,,,,,,,,,,,,
+126,8,Task,Atelier modèle v7 avec les référentiels,,À faire,Low,2026-11-25,,,,,,,,,,,,,,,,,,,Atelier / réunion,Squad Référentiels
+12601,126,Sub-task,Préparer l'ordre du jour,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+12602,126,Sub-task,Animer l'atelier,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+12603,126,Sub-task,Envoyer le compte rendu,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+127,10,Task,Revue de l'interface habilitations sécurité,,En cours,Medium,2026-10-15,,,,,,,,,,,,,,,,,,,Revue d'architecture,Pôle RH
+12701,127,Sub-task,Lire les livrables,,Terminé,Medium,,,,,,,,,,,,,,,,,,,,,
+12702,127,Sub-task,Rédiger les remarques,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+12703,127,Sub-task,Réunion de restitution,,À faire,Medium,,,,,,,,,,,,,,,,,,,,,
+128,19,Task,Étude de rationalisation des rapports,,À faire,Low,2026-12-04,,,,,,,,,,,,,,,,,,,Étude / veille,Squad Data
+129,3,Task,Atelier roulements avec la production,,Terminé,Medium,2026-10-03,,,,,,,,,,,,,,,,,,,Atelier / réunion,Squad Production
+12901,129,Sub-task,Préparer l'ordre du jour,,Terminé,Medium,,,,,,,,,,,,,,,,,,,,,
+12902,129,Sub-task,Animer l'atelier,,Terminé,Medium,,,,,,,,,,,,,,,,,,,,,
+12903,129,Sub-task,Envoyer le compte rendu,,Terminé,Medium,,,,,,,,,,,,,,,,,,,,,
+130,13,Task,DICP Docuref,,Terminé,Low,2026-09-30,,,,,,,,,,,,,,,,,,,DICP / PréK-SSI,RSSI domaine
+13001,130,Sub-task,Atelier DICP avec le métier,,Terminé,Medium,,,,,,,,,,,,,,,,,,,,,
+13002,130,Sub-task,Questionnaire PréK-SSI,,Terminé,Medium,,,,,,,,,,,,,,,,,,,,,
+13003,130,Sub-task,Validation RSSI,,Terminé,Medium,,,,,,,,,,,,,,,,,,,,,

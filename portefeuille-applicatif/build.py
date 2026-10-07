@@ -29,7 +29,7 @@ with open(os.path.join(nd, "Tickets.csv"), "w", newline="", encoding="utf-8-sig"
 print("ok")
 
 # --- Import Jira Cloud (un seul CSV : les applications en Epic, les tickets en enfants) ---
-JIRA_TYPE = {"Évolution": "Story", "Incident": "Bug"}
+JIRA_TYPE = {"Support / incident": "Bug"}
 JIRA_PRIO = {"Critique": "Highest", "Haute": "High", "Moyenne": "Medium", "Basse": "Low"}
 jcols = ["Issue Id", "Parent", "Issue Type", "Summary", "Description", "Status", "Priority", "Due Date", "Labels",
          "Code application", "Domaine", "Cycle de vie", "Santé", "Criticité", "DICP", "Hébergement", "Technologies",
@@ -50,3 +50,6 @@ with open(os.path.join(jd, "import-jira.csv"), "w", newline="", encoding="utf-8"
         w.writerow([100 + j, ids[t["appId"]], JIRA_TYPE.get(t["type"], "Task"), t["titre"], t["description"], t["statut"],
                     JIRA_PRIO[t["priorite"]], t["echeance"], "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
                     "", "", "", t["type"], t["porteur"]])
+        for k, e in enumerate(t.get("etapes", []), 1):
+            w.writerow([f"{100 + j}{k:02d}", 100 + j, "Sub-task", e["t"], "", "Terminé" if e["ok"] else "À faire", "Medium",
+                        "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""])

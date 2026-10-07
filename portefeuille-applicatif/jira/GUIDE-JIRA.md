@@ -54,9 +54,12 @@ Cochez « Autoriser toutes les transitions » pour permettre le glisser-déposer
 | Type du dashboard | Type Jira |
 |---|---|
 | Application | **Epic** |
-| Évolution | Story |
-| Incident | Bug |
-| Dette technique, Sécurité, Gouvernance / CAO, Décision d'architecture | Task + champ **Catégorie** |
+| Support / incident | Bug |
+| Appel d'offres, DAL, DAT, Slides CAO, DICP / PréK-SSI, Revue d'architecture, Note de décision, Atelier / réunion, Étude / veille | Task + champ **Catégorie** (le type de livrable) |
+| Étapes du livrable (ex. « Remplir la trame CAO ») | **Sous-tâches** du ticket |
+
+Le CSV d'import crée déjà les sous-tâches types de chaque livrable. Pour les nouveaux tickets, une règle
+d'automatisation peut les créer automatiquement (voir l'étape 10, règle n°6).
 
 ## Étape 4. Les champs personnalisés
 
@@ -81,7 +84,7 @@ Cochez « Autoriser toutes les transitions » pour permettre le glisser-déposer
 | Prochain jalon | Texte court | | Epic |
 | Date jalon | Date | | Epic |
 | Fin de support | Date | | Epic |
-| Catégorie | Liste de sélection | Évolution, Incident, Dette technique, Sécurité, Gouvernance / CAO, Décision d'architecture | Tickets |
+| Catégorie | Liste de sélection | Appel d'offres, DAL, DAT, Slides CAO, DICP / PréK-SSI, Revue d'architecture, Note de décision, Atelier / réunion, Support / incident, Étude / veille | Tickets |
 | Porteur | Texte court (ou champ *Responsable* natif) | | Tickets |
 
 Pour la **Feuille de route**, activez aussi les champs natifs **Date de début** et **Date d'échéance**.
@@ -103,6 +106,14 @@ Le fichier `import-jira.csv` (dans ce dossier) contient les 20 Epics et les 30 t
 
 Les données du fichier sont des **exemples fictifs** : remplacez-les par vos 20 applications avant l'import, ou importez
 puis modifiez les Epics dans Jira.
+
+## Étape 5 bis. La vue « Mes tickets »
+
+Filtre `PAPP · Mes tickets` : `project = PAPP AND issuetype not in (Epic, Sub-task) AND statusCategory != Done ORDER BY duedate ASC`.
+Sur le tableau de bord, ajoutez 4 gadgets *Résultats de filtre* : En retard (`duedate < now()`), Cette semaine
+(`duedate >= now() AND duedate <= 7d`), Semaine prochaine (`duedate > 7d AND duedate <= 14d`), Plus tard
+(`duedate > 14d OR duedate is EMPTY`), plus un *Graphique circulaire* sur *Catégorie*. La colonne *Progression*
+des sous-tâches s'affiche dans les résultats de filtre.
 
 ## Étape 6. Les filtres JQL
 
@@ -133,8 +144,9 @@ JQL vous propose la bonne forme.
 - **Couloirs** : *Epics* → un couloir par application.
 - **Filtres rapides** :
   - Incidents : `issuetype = Bug`
-  - Sécurité : `"Catégorie" = "Sécurité"`
-  - CAO : `"Catégorie" = "Gouvernance / CAO"`
+  - Slides CAO : `"Catégorie" = "Slides CAO"`
+  - DAL / DAT : `"Catégorie" in (DAL, DAT)`
+  - Appels d'offres : `"Catégorie" = "Appel d'offres"`
   - Critique et haute : `priority in (Highest, High)`
   - En retard : `duedate < now()`
 - **Couleurs des cartes** : par *Priorité* (rappel du liseré coloré du dashboard).
@@ -182,6 +194,10 @@ JQL vous propose la bonne forme.
    Déclencheur *Ticket créé ou transitionné* → Branche *Parent* → Action *Modifier le champ* « Tickets ouverts » (champ
    Nombre) avec `{{lookupIssues.size}}` après une action *Rechercher des tickets* sur
    `parent = {{issue.key}} AND statusCategory != Done`.
+6. **Étapes types d'un livrable**
+   Déclencheur *Ticket créé* → Condition `Catégorie = Slides CAO` → Action *Créer des sous-tâches* :
+   Remplir la trame CAO, Schémas d'architecture, Analyse DICP et risques SSI, Répétition avec le chef de projet,
+   Envoi au secrétariat CAO. Dupliquez la règle pour DAL, DAT, Appel d'offres, etc. (listes dans le dashboard).
 5. **Rappel fin de support** (planifiée chaque lundi)
    JQL `"Fin de support" <= 180d` → notification à l'architecte.
 
