@@ -25,6 +25,19 @@
     c.minutes = c.lessons.reduce((s, l) => s + l.minutes, 0);
   });
   const phaseOf = c => A.phases[c.phase - 1];
+  const XPS = window.EXPLAINERS || [];
+  const xpFor = cid => XPS.filter(x => (x.courses || []).includes(cid));
+  function xpCard(x) {
+    const rel = (x.courses || []).map(id => byId[id]).filter(Boolean);
+    return `<a class="xp-card" href="#/animation/${x.id}">
+      ${ExplainerPlayer.sceneSVG(x, 'xp-thumb')}
+      <div class="xp-card-body">
+        <h3>${x.icon} ${esc(x.title)}</h3>
+        <div class="q">${esc(x.question)}</div>
+        <div class="meta small"><span>🎞️ ${x.steps.length} étapes · ~${ExplainerPlayer.minutes(x)} min</span>${Store.explainerSeen(x.id) ? '<span class="seen">✓ vue</span>' : ''}</div>
+        ${rel.length ? `<div class="tags">${rel.slice(0, 3).map(c => `<span class="tag">${c.icon} ${esc(c.title)}</span>`).join('')}</div>` : ''}
+      </div></a>`;
+  }
 
   function currentPhase() {
     const today = new Date().toISOString().slice(0, 10);
@@ -187,6 +200,9 @@
         <div class="section-title"><h2>Formations de la phase ${cp.n}</h2><a href="#/catalogue?phase=${cp.n}">Tout voir ›</a></div>
         <div class="grid courses">${phaseCourses.map(courseCard).join('')}</div>
 
+        ${XPS.length ? `<div class="section-title"><h2>🎞️ Comprendre en 1 minute</h2><a href="#/animations">Toutes les animations ›</a></div>
+        <div class="grid courses">${XPS.filter(x => !Store.explainerSeen(x.id)).concat(XPS.filter(x => Store.explainerSeen(x.id))).slice(0, 4).map(xpCard).join('')}</div>` : ''}
+
         <div class="section-title"><h2>Comment apprendre « par cœur » ici</h2></div>
         <div class="grid stats">
           <div class="card"><b>🎬 1. Regarder</b><p class="muted small">Chaque leçon est une vidéo narrée (diaporama + voix + sous-titres). Vitesse réglable, plein écran, raccourcis clavier.</p></div>
@@ -293,6 +309,9 @@
           ${c.labs.length ? `<div class="section-title"><h2>🧪 Travaux pratiques</h2></div>
           <div class="accordion">${c.labs.map(lab => `<a class="acc-row" href="#/lab/${c.id}/${lab.id}"><span>${Store.isLabDone(c.id, lab.id) ? '<span class="done">✔</span>' : '🧪'}</span><span><b>${esc(lab.title)}</b><br><span class="muted small">${esc(lab.goal)}</span></span><span class="dur">${lab.minutes || 30} min · ${lab.steps.length} étapes</span></a>`).join('')}</div>` : ''}
 
+          ${xpFor(c.id).length ? `<div class="section-title"><h2>🎞️ Animations pour comprendre</h2><a href="#/animations">Toutes ›</a></div>
+          <div class="grid courses">${xpFor(c.id).map(xpCard).join('')}</div>` : ''}
+
           <div class="section-title"><h2>Prérequis</h2></div>
           <ul>${(c.prerequisites || ['Aucun']).map(x => `<li>${md(x)}</li>`).join('')}</ul>
 
@@ -378,6 +397,7 @@
             ${c.labs.map(lab => `<a href="#/lab/${c.id}/${lab.id}">${Store.isLabDone(c.id, lab.id) ? '✔' : '🧪'} ${esc(lab.title)}</a>`).join('')}
             <a href="#/quiz/${c.id}">❓ Quiz du cours (${c.quiz.length} questions)</a>
             <a href="#/flashcards/${c.id}">🧠 Flashcards (${c.flashcards.length})</a>
+            ${xpFor(c.id).map(x => `<a href="#/animation/${x.id}">🎞️ ${esc(x.title)}${Store.explainerSeen(x.id) ? ' ✓' : ''}</a>`).join('')}
           </div>
         </aside>
       </div>`);
@@ -824,6 +844,7 @@
       const i = nt.indexOf(nq);
       if (nq && i >= 0) lessons.push({ c, l, snippet: text.slice(Math.max(0, i - 60), i + 100) });
     }));
+    const anims = XPS.filter(x => nq && U.normalize([x.title, x.question, ...x.steps.map(st => st.say), ...(x.recap || [])].join(' ')).includes(nq));
     const cards = [];
     A.courses.forEach(c => c.flashcards.forEach(([f, b]) => { if (nq && U.normalize(f + ' ' + b).includes(nq)) cards.push({ c, f, b }); }));
     setView(`
@@ -831,8 +852,9 @@
         <h1>Résultats pour « ${esc(q)} »</h1>
         ${courses.length ? `<div class="section-title"><h2>Formations (${courses.length})</h2></div><div class="grid courses">${courses.map(courseCard).join('')}</div>` : ''}
         ${lessons.length ? `<div class="section-title"><h2>Leçons (${lessons.length})</h2></div>${lessons.slice(0, 60).map(x => `<a class="search-hit" href="#/apprendre/${x.c.id}/${x.l.id}"><div class="muted small">${x.c.icon} ${esc(x.c.title)}</div><b>${hl(x.l.title)}</b><div class="small muted">…${hl(U.plain(x.snippet))}…</div></a>`).join('')}` : ''}
+        ${anims.length ? `<div class="section-title"><h2>Animations (${anims.length})</h2></div><div class="grid courses">${anims.map(xpCard).join('')}</div>` : ''}
         ${cards.length ? `<div class="section-title"><h2>Flashcards (${cards.length})</h2></div>${cards.slice(0, 40).map(x => `<a class="search-hit" href="#/flashcards/${x.c.id}"><div class="muted small">${x.c.icon} ${esc(x.c.title)}</div><b>${hl(x.f)}</b><div class="small">${hl(x.b)}</div></a>`).join('')}` : ''}
-        ${!courses.length && !lessons.length && !cards.length ? `<div class="empty"><div class="e-icon">🔍</div>Aucun résultat. Essayez « VPC », « pipeline », « pod », « IAM »…</div>` : ''}
+        ${!courses.length && !lessons.length && !cards.length && !anims.length ? `<div class="empty"><div class="e-icon">🔍</div>Aucun résultat. Essayez « VPC », « pipeline », « pod », « IAM »…</div>` : ''}
       </div>`);
   }
 
@@ -902,6 +924,48 @@
     if (synth && !voices.length) synth.onvoiceschanged = () => { synth.onvoiceschanged = null; if (location.hash === '#/parametres') viewSettings(); };
   }
 
+  /* ---------- Animations ---------- */
+  function viewAnimations() {
+    const seen = XPS.filter(x => Store.explainerSeen(x.id)).length;
+    setView(`
+      <div class="container">
+        <h1>🎞️ Comprendre en 1 minute</h1>
+        <p class="muted">Des schémas animés et narrés pour comprendre les mécanismes clés de l'informatique : ce qui circule, dans quel ordre, et pourquoi. Chaque animation se termine par une fiche mémo. ${seen}/${XPS.length} vues.</p>
+        <div class="grid courses">${XPS.map(xpCard).join('')}</div>
+      </div>`);
+  }
+
+  function viewAnimation(id) {
+    const k = XPS.findIndex(x => x.id === id);
+    if (k < 0) return notFound();
+    const x = XPS[k], next = XPS[(k + 1) % XPS.length];
+    const rel = (x.courses || []).map(cid => byId[cid]).filter(Boolean);
+    setView(`
+      <div class="container">
+        <div class="crumbs muted small"><a href="#/animations">Animations</a> › ${esc(x.title)}</div>
+        <div class="xp-layout">
+          <div>
+            <div id="xpPlayer"></div>
+            <p class="muted small" style="margin-top:8px">Raccourcis : <kbd>Espace</kbd> lecture/pause · <kbd>←</kbd> <kbd>→</kbd> étapes · <kbd>F</kbd> plein écran · <kbd>M</kbd> voix. Cliquez sur une étape ci-contre pour y sauter.</p>
+          </div>
+          <aside>
+            <h3>Les étapes</h3>
+            <ol class="xp-steps">${x.steps.map((st, i) => `<li data-k="${i}">${esc(st.caption || st.say)}</li>`).join('')}</ol>
+            <h3 style="margin-top:20px">📌 Fiche mémo</h3>
+            <ul class="keypoints">${(x.recap || []).map(r => `<li>${md(r)}</li>`).join('')}</ul>
+            ${rel.length ? `<h3 style="margin-top:20px">Formations liées</h3><div class="side-extra" style="padding:0">${rel.map(c => `<a href="#/cours/${c.id}">${c.icon} ${esc(c.title)}</a>`).join('')}</div>` : ''}
+          </aside>
+        </div>
+        <div class="section-title"><h2>Autres animations</h2><a href="#/animations">Toutes ›</a></div>
+        <div class="grid courses">${XPS.filter(o => o.id !== x.id).slice(0, 4).map(xpCard).join('')}</div>
+      </div>`);
+    const player = new ExplainerPlayer($('#xpPlayer'), x, { next });
+    cleanup = () => player.destroy();
+    $$('.xp-steps li', app).forEach(li => li.addEventListener('click', () => { player.go(+li.dataset.k); $('#xpPlayer').scrollIntoView({ behavior: 'smooth', block: 'center' }); }));
+    const ua = navigator.userActivation;
+    if (Store.setting('autoplay') && ua && ua.hasBeenActive) setTimeout(() => player.play(), 300);
+  }
+
   function notFound() {
     setView(`<div class="container"><div class="empty"><div class="e-icon">🧭</div><h2>Page introuvable</h2><a class="btn" href="#/">Retour à l'accueil</a></div></div>`);
   }
@@ -942,6 +1006,8 @@
       case 'roadmap': return viewRoadmap(seg[1]);
       case 'notes': return viewNotes();
       case 'parametres': return viewSettings();
+      case 'animations': return viewAnimations();
+      case 'animation': return viewAnimation(seg[1]);
       case 'recherche': return viewSearch(params.get('q') || '');
       default: return notFound();
     }

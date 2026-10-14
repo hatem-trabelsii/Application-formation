@@ -16,6 +16,7 @@ Facultatif : `start.bat` (Windows) ou `./start.sh` (macOS/Linux) démarre un pet
 - 🎬 **Leçons vidéo narrées** : diapositives animées, voix française, sous-titres, vitesse réglable, plein écran.
 - 📖 **Théorie** et exemples de code à copier, 💡 points clés, 📝 notes par leçon.
 - 🧪 **Labs pratiques guidés**, ❓ **quiz** en mode entraînement ou examen, 🧠 **flashcards à répétition espacée**.
+- 🎞️ **Animations « Comprendre en 1 minute »** : schémas animés et narrés (DNS, paiement par carte, TLS, OAuth, Kafka, RAG…), en format vertical sur téléphone.
 - 🗺️ **Roadmap** des 5 phases, avec suivi des certifications obtenues.
 - 🎥 Possibilité de rattacher vos propres vidéos (lien YouTube ou fichier local) à chaque leçon.
 
@@ -29,9 +30,11 @@ css/style.css         styles (clair / sombre, responsive)
 js/utils.js           utilitaires, coloration syntaxique
 js/store.js           persistance (localStorage + IndexedDB)
 js/player.js          lecteur vidéo narré
+js/explainer.js       moteur des animations explicatives
 js/app.js             pages et routeur
 data/phases.js        les 5 phases
 data/courses/*.js     une formation par fichier
+data/explainers.js    les animations (nœuds, liens, étapes)
 Decisions.md          choix faits pendant la construction
 ```
 

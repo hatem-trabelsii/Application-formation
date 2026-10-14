@@ -76,3 +76,13 @@ Les heures affichées (~40 h, ~120 h…) sont celles du plan : c'est le temps to
 - La synthèse vocale n'est pas une voix humaine. Pour de vraies vidéos, rattachez vos propres fichiers ou liens dans l'onglet « Vidéos ».
 - Pas de synchronisation entre appareils, seulement l'export/import manuel : c'est la conséquence du « sans compte ».
 - Les labs cloud s'exécutent sur votre propre compte AWS/Azure et peuvent coûter quelques euros. Chaque lab indique les avertissements et le nettoyage à faire.
+
+## 8. Animations « Comprendre en 1 minute » (ajout)
+
+Inspirées des reels pédagogiques (« Online Payments », « DNS Server »), où l'on voit ce qui circule entre les composants.
+
+- **Moteur maison** (`js/explainer.js`), sans dépendance et sans fichier vidéo. Chaque animation est un schéma SVG animé : des jetons circulent entre les composants, des compteurs changent (« 60 € bloqués »), des badges apparaissent (« PAYÉ ✓ »), et les liens actifs s'illuminent. Une narration vocale et des sous-titres accompagnent chaque étape. Contrôles : lecture/pause, étape par étape, vitesse, plein écran, clavier.
+- **Pilotées par les données** (`data/explainers.js`) : une animation, ce sont des nœuds, des liens et des étapes. En ajouter une ne demande aucun code.
+- **Mode portrait automatique** sur téléphone : le schéma est transposé (le flux gauche → droite devient haut → bas), comme un reel vertical, pour garder les textes lisibles.
+- Chaque animation se termine par une **fiche mémo** façon infographie. Elle est reliée aux formations concernées : on la retrouve sur la page du cours, dans la barre latérale des leçons, sur l'accueil et dans la recherche.
+- **12 animations** : DNS, paiement par carte (autorisation / capture / règlement), HTTPS/TLS, de l'URL à la page, load balancer et autoscaling, OAuth 2.0/OIDC, file de messages, pipeline CI/CD, réconciliation Kubernetes, architecture événementielle (Kafka), RAG pour les LLM, boucle d'événements Node.js. Trois d'entre elles (événementiel, RAG, OAuth) couvrent des compétences demandées par l'offre INTERPOL de Solution Architect.

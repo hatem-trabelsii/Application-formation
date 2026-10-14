@@ -12,6 +12,7 @@
     notes: {},     // { courseId: { lessonId: "texte" } }
     status: {},    // { courseId: { done: true, date } }  certification obtenue / techno maîtrisée
     videos: {},    // { "courseId/lessonId": "https://..." }
+    explainers: {},// { explainerId: timestamp de la dernière vision complète }
     last: null,    // { courseId, lessonId, t }
     settings: { theme: 'auto', voice: '', rate: 1, muted: false, captions: true, autoplay: true, newPerSession: 10 }
   });
@@ -99,6 +100,10 @@
     // ---- vidéo perso (URL)
     videoUrl(c, l) { return state.videos[c + '/' + l] || ''; },
     setVideoUrl(c, l, url) { if (url) state.videos[c + '/' + l] = url; else delete state.videos[c + '/' + l]; save(); },
+
+    // ---- animations
+    explainerSeen(id) { return !!state.explainers[id]; },
+    setExplainerSeen(id) { state.explainers[id] = Date.now(); save(); },
 
     // ---- réglages
     setting(k) { return state.settings[k]; },
