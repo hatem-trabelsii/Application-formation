@@ -49,10 +49,39 @@
     </svg>`;
   }
 
+  /* ---------- texte : temps forts, sous-titres, prononciation ---------- */
+  // Une étape peut être écrite en « temps forts » (beats) : [{ say, do, pause }].
+  // Ancien format { say, do } : découpé automatiquement en phrases, actions sur la 1re phrase.
+  function splitSentences(text) {
+    const parts = String(text).split(/(?<=[.!?…])\s+/).map(s => s.trim()).filter(Boolean);
+    const out = [];
+    parts.forEach(p => { if (out.length && out[out.length - 1].length < 25) out[out.length - 1] += ' ' + p; else out.push(p); });
+    return out;
+  }
+  function normStep(st) {
+    if (st.beats) return { beats: st.beats.map(b => ({ say: b.say, do: b.do || [], pause: b.pause })) };
+    const ss = splitSentences(st.say);
+    return { beats: ss.map((s, i) => ({ say: s, do: i === 0 ? (st.do || []) : [] })) };
+  }
+  const stepText = st => normStep(st).beats.map(b => b.say).join(' ');
+
+  // Prononciation : uniquement pour la voix (les sous-titres gardent l'orthographe exacte)
+  const SAY_AS = [
+    [/\bNode\.js\b/g, 'Node J S'], [/\blibuv\b/g, 'lib U V'], [/\bkubectl\b/g, 'kube control'],
+    [/\betcd\b/g, 'E T C D'], [/\bPKCE\b/g, 'pixie'], [/\bJSON\b/g, 'jason'], [/\bJWT\b/g, 'J W T'],
+    [/\bOAuth\b/g, 'O auth'], [/\bCI\/CD\b/g, 'C I, C D'], [/\bwww\./g, 'trois W point '],
+    [/\.fr\b/g, ' point F R'], [/\bSQS\b/g, 'S Q S'], [/\bDLQ\b/g, 'D L Q'], [/\bLLM\b/g, 'L L M'],
+    [/\bRAG\b/g, 'rague'], [/\bDNS\b/g, 'D N S'], [/\bTLS\b/g, 'T L S'], [/\bHTTPS\b/g, 'H T T P S'],
+    [/\bTTL\b/g, 'T T L'], [/\bCDN\b/g, 'C D N'], [/\bCPU\b/g, 'C P U'], [/\bMFA\b/g, 'M F A'],
+    [/\bSHA\b/g, 'S H A'], [/\bDockerfile\b/g, 'Docker file'], [/\bcgroups\b/g, 'C groups']
+  ];
+  const spoken = t => SAY_AS.reduce((s, [re, r]) => s.replace(re, r), U.plain(t));
+
   /* ---------- lecteur ---------- */
   class ExplainerPlayer {
     constructor(root, ex, opts = {}) {
       this.root = root; this.ex = ex; this.o = opts;
+      this.steps = ex.steps.map(normStep);
       this.portrait = root.clientWidth > 0 && root.clientWidth < 640;
       this.i = 0; this.playing = false; this.token = 0; this.timers = [];
       this.rate = Store.setting('rate') || 1;
@@ -70,12 +99,13 @@
           <div class="xp-head"><div class="xp-q">${esc(ex.question || '')}</div><div class="xp-title">${ex.icon || ''} ${esc(ex.title)}</div></div>
           <div class="xp-stage">${sceneSVG(ex, 'xp-svg', this.portrait)}</div>
           <div class="xp-caption"></div>
-          <div class="xp-dots">${ex.steps.map((_, k) => `<button class="xp-dot" data-k="${k}" title="Étape ${k + 1}"></button>`).join('')}</div>
+          <div class="xp-dots">${this.steps.map((_, k) => `<button class="xp-dot" data-k="${k}" title="Étape ${k + 1}"></button>`).join('')}</div>
           <div class="xp-controls">
             <button data-a="prev" title="Étape précédente (←)">⏮</button>
             <button data-a="play" title="Lecture / pause (espace)">▶</button>
             <button data-a="next" title="Étape suivante (→)">⏭</button>
             <span class="xp-count"></span><span class="sp"></span>
+            <span class="xp-voice"></span>
             <button data-a="speed" class="xp-speed" title="Vitesse"></button>
             <button data-a="mute" title="Voix on/off (M)"></button>
             <button data-a="fs" title="Plein écran (F)">⛶</button>
@@ -98,12 +128,14 @@
     }
 
     node(id) { return this.svg.querySelector(`.xp-node[data-id="${id}"]`); }
+    stepActions(k) { return this.steps[k].beats.flatMap(b => b.do); }
 
     // remet la scène dans l'état « juste avant l'étape k »
     reset(k) {
       this.token++;
       this.timers.forEach(clearTimeout); this.timers = [];
       if (synth) synth.cancel();
+      if (this.audio) { this.audio.pause(); this.audio = null; }
       this.tokens.innerHTML = '';
       const end = this.el.querySelector('.xp-end'); if (end) end.remove();
       Object.entries(this.ex.nodes).forEach(([id, n]) => {
@@ -113,17 +145,18 @@
         const v = g.querySelector('.xp-value'); if (v) v.textContent = n.value || '';
         this.setBadge(id, null);
       });
-      this.svg.querySelectorAll('.xp-link').forEach(l => l.classList.remove('xp-flow'));
-      for (let s = 0; s < k; s++) (this.ex.steps[s].do || []).forEach(a => this.apply(a, false));
-      this.i = Math.max(0, Math.min(k, this.ex.steps.length - 1));
-      this.showStepInfo();
+      this.clearStepFx();
+      for (let s = 0; s < k; s++) this.stepActions(s).forEach(a => this.apply(a, false));
+      this.i = Math.max(0, Math.min(k, this.steps.length - 1));
+      this.showStepInfo(-1);
     }
 
-    showStepInfo() {
-      const st = this.ex.steps[this.i];
-      this.cap.textContent = st.caption || st.say;
+    // sous-titres « karaoké » : la phrase prononcée est en blanc, les autres atténuées
+    showStepInfo(beat) {
+      const st = this.steps[this.i];
+      this.cap.innerHTML = st.beats.map((b, j) => `<span class="${j === beat ? 'on' : j < beat ? 'past' : ''}">${esc(b.say)}</span>`).join(' ');
       this.el.querySelectorAll('.xp-dot').forEach((d, k) => { d.classList.toggle('on', k === this.i); d.classList.toggle('done', k < this.i); });
-      this.el.querySelector('.xp-count').textContent = `Étape ${this.i + 1}/${this.ex.steps.length}`;
+      this.el.querySelector('.xp-count').textContent = `Étape ${this.i + 1}/${this.steps.length}`;
     }
 
     setBadge(id, text, kind) {
@@ -134,12 +167,13 @@
       const w = Math.max(40, [...text].length * 7.4 + 20);
       const r = b.querySelector('rect'); r.setAttribute('width', w); r.setAttribute('x', -w / 2);
       b.setAttribute('class', 'xp-badge ' + (kind || 'info'));
+      void b.getBBox(); b.classList.add('xp-pop');      // apparition douce
     }
 
     // applique une action ; animate=false → seulement l'état final (pour sauter des étapes)
     apply(a, animate, tok) {
       if (a.value) {
-        const [id, v] = a.value; const g = this.node(id); if (!g) return;
+        const [id, v] = a.value; const g = this.node(id); if (!g) return 0;
         g.querySelector('.xp-value').textContent = v;
         if (animate) { g.classList.remove('xp-flash'); void g.getBBox(); g.classList.add('xp-flash'); }
       } else if (a.badge) {
@@ -154,6 +188,19 @@
         return this.move(a, tok);
       }
       return 0;
+    }
+
+    // focus : on assombrit tout ce qui ne participe pas à la phrase en cours
+    focus(actions) {
+      const ids = new Set();
+      actions.forEach(a => {
+        if (a.move) a.move.split('>').forEach(id => ids.add(id));
+        ['glow', 'show'].forEach(k => a[k] && [].concat(a[k]).forEach(id => ids.add(id)));
+        ['value', 'badge'].forEach(k => a[k] && a[k][1] && ids.add(a[k][0]));
+      });
+      if (!ids.size) return;
+      this.svg.classList.add('xp-focus-mode');
+      Object.keys(this.ex.nodes).forEach(id => this.node(id).classList.toggle('xp-focus', ids.has(id)));
     }
 
     move(a, tok) {
@@ -194,36 +241,74 @@
       return delay + dur + 500 / this.rate;
     }
 
+    // Une étape = une suite de temps forts. Chaque temps fort déclenche ses actions
+    // au moment où sa phrase commence à être prononcée, puis marque une courte pause.
     runStep() {
       const tok = ++this.token;
-      const st = this.ex.steps[this.i];
-      this.showStepInfo();
-      let animMs = 0;
-      (st.do || []).forEach(a => { animMs = Math.max(animMs, this.apply(a, true, tok) || 0); });
-      let animDone = false, speechDone = false;
-      const maybeNext = () => {
-        if (tok !== this.token || !animDone || !speechDone || !this.playing) return;
+      const st = this.steps[this.i];
+      let animUntil = performance.now();
+      const fire = b => {
+        if (tok !== this.token) return;
+        const beat = st.beats[b];
+        this.showStepInfo(b);
+        this.focus(beat.do);
+        beat.do.forEach(a => { animUntil = Math.max(animUntil, performance.now() + (this.apply(a, true, tok) || 0)); });
+      };
+      const endStep = () => {
+        if (tok !== this.token) return;
+        const wait = Math.max(0, animUntil - performance.now()) + 650 / this.rate;
         this.timers.push(setTimeout(() => {
           if (tok !== this.token || !this.playing) return;
-          if (this.i + 1 < this.ex.steps.length) { this.clearStepFx(); this.i++; this.runStep(); }
+          if (this.i + 1 < this.steps.length) { this.clearStepFx(); this.i++; this.runStep(); }
           else this.finish();
-        }, 700 / this.rate));
+        }, wait));
       };
-      this.timers.push(setTimeout(() => { animDone = true; maybeNext(); }, animMs));
-      this.speak(st.say, tok, () => { speechDone = true; maybeNext(); });
+      // 1) voix enregistrée (ex.audio = true) : audio/<id>/<n° d'étape>.mp3, actions réparties au prorata des mots
+      if (this.ex.audio && this.audioOk !== false) {
+        const au = new Audio(`audio/${this.ex.id}/${this.i + 1}.mp3`);
+        this.audio = au; au.playbackRate = this.rate;
+        au.onerror = () => { if (tok !== this.token) return; this.audioOk = false; this.audio = null; this.runStep(); };
+        au.onloadedmetadata = () => {
+          if (tok !== this.token) return;
+          const total = st.beats.reduce((s, b) => s + words(b.say), 0) || 1;
+          let acc = 0;
+          st.beats.forEach((b, k) => { const at = acc / total * au.duration * 1000 / this.rate; acc += words(b.say); this.timers.push(setTimeout(() => fire(k), at)); });
+          au.play().catch(() => { this.audioOk = false; this.runStep(); });
+        };
+        au.onended = endStep;
+        this.updateVoiceLabel('voix enregistrée');
+        return;
+      }
+      // 2) synthèse vocale du navigateur, phrase par phrase
+      let b = 0;
+      const next = () => {
+        if (tok !== this.token) return;
+        fire(b);
+        this.speak(st.beats[b].say, tok, () => {
+          const pause = st.beats[b].pause != null ? st.beats[b].pause : 320;
+          b++;
+          if (b < st.beats.length) this.timers.push(setTimeout(next, pause / this.rate));
+          else endStep();
+        });
+      };
+      next();
     }
     clearStepFx() {
+      this.svg.classList.remove('xp-focus-mode');
+      this.svg.querySelectorAll('.xp-focus').forEach(g => g.classList.remove('xp-focus'));
       this.svg.querySelectorAll('.xp-active').forEach(g => g.classList.remove('xp-active'));
       this.svg.querySelectorAll('.xp-flow').forEach(l => l.classList.remove('xp-flow'));
     }
 
     speak(text, tok, done) {
-      const fallback = () => this.timers.push(setTimeout(() => tok === this.token && done(), (words(text) * 0.42 + 0.6) / this.rate * 1000));
-      if (this.muted || !synth || this.ttsBroken || !synth.getVoices().length) return fallback();
-      const u = new SpeechSynthesisUtterance(U.plain(text));
+      const fallback = () => this.timers.push(setTimeout(() => tok === this.token && done(), (words(text) * 0.42 + 0.4) / this.rate * 1000));
+      if (this.muted || !synth || this.ttsBroken || !synth.getVoices().length) { this.updateVoiceLabel(this.muted ? 'sous-titres' : ''); return fallback(); }
+      const u = new SpeechSynthesisUtterance(spoken(text));
       u.lang = 'fr-FR';
       const v = LessonPlayer.pickVoice(Store.setting('voice')); if (v) u.voice = v;
-      u.rate = this.rate;
+      this.updateVoiceLabel(v ? v.name.replace(/^Microsoft |\s*-.*$/g, '') : '');
+      u.rate = this.rate * 0.95;   // un peu plus posé que la vitesse « robot »
+      u.pitch = 1;
       let finished = false;
       const end = () => { if (finished || tok !== this.token) return; finished = true; done(); };
       u.onend = end;
@@ -235,6 +320,7 @@
       this.timers.push(setTimeout(end, (words(text) * 0.9 / this.rate + 4) * 1000)); // filet de sécurité
       synth.speak(u);
     }
+    updateVoiceLabel(t) { const e = this.el.querySelector('.xp-voice'); if (e && e.textContent !== t) e.textContent = t; }
 
     play() {
       this.el.querySelector('.xp-big').classList.add('hidden');
@@ -246,16 +332,16 @@
     pause() { this.playing = false; this.reset(this.i); this.updateButtons(); }
     toggle() { this.playing ? this.pause() : this.play(); }
     go(k) {
-      if (k < 0 || k >= this.ex.steps.length) return;
+      if (k < 0 || k >= this.steps.length) return;
       this.el.querySelector('.xp-big').classList.add('hidden');
       this.ended = false;
       this.reset(k);
       if (this.playing) this.runStep();
-      else { (this.ex.steps[k].do || []).forEach(a => this.apply(a, false)); this.showStepInfo(); }
+      else { this.stepActions(k).forEach(a => this.apply(a, false)); this.showStepInfo(-1); }
     }
     cycleSpeed() { this.rate = SPEEDS[(SPEEDS.indexOf(this.rate) + 1) % SPEEDS.length] || 1; Store.setSetting('rate', this.rate); this.updateButtons(); if (this.playing) this.play(); }
     toggleMute() {
-      if (!synth) return U.toast('Synthèse vocale indisponible : lecture avec sous-titres.');
+      if (!synth && !this.ex.audio) return U.toast('Synthèse vocale indisponible : lecture avec sous-titres.');
       this.muted = !this.muted; Store.setSetting('muted', this.muted); this.updateButtons(); if (this.playing) this.play();
     }
     fullscreen() { if (document.fullscreenElement) document.exitFullscreen(); else if (this.el.requestFullscreen) this.el.requestFullscreen(); }
@@ -267,6 +353,7 @@
 
     finish() {
       this.playing = false; this.ended = true; this.updateButtons();
+      this.clearStepFx();
       this.el.querySelectorAll('.xp-dot').forEach(d => d.classList.add('done'));
       Store.setExplainerSeen(this.ex.id);
       const end = U.h(`<div class="xp-end">
@@ -291,11 +378,15 @@
       this.token++; this.playing = false;
       this.timers.forEach(clearTimeout);
       if (synth) synth.cancel();
+      if (this.audio) { this.audio.pause(); this.audio = null; }
       document.removeEventListener('keydown', this.onKey);
     }
   }
 
   ExplainerPlayer.sceneSVG = sceneSVG;
-  ExplainerPlayer.minutes = ex => Math.max(1, Math.round(ex.steps.reduce((s, st) => s + words(st.say) * 0.42 + 2, 0) / 60));
+  ExplainerPlayer.stepText = stepText;
+  ExplainerPlayer.spoken = spoken;
+  ExplainerPlayer.normStep = normStep;
+  ExplainerPlayer.minutes = ex => Math.max(1, Math.round(ex.steps.reduce((s, st) => s + normStep(st).beats.reduce((a, b) => a + words(b.say) * 0.45 + 0.35, 0) + 1.5, 0) / 60));
   window.ExplainerPlayer = ExplainerPlayer;
 })();

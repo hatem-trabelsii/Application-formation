@@ -844,7 +844,7 @@
       const i = nt.indexOf(nq);
       if (nq && i >= 0) lessons.push({ c, l, snippet: text.slice(Math.max(0, i - 60), i + 100) });
     }));
-    const anims = XPS.filter(x => nq && U.normalize([x.title, x.question, ...x.steps.map(st => st.say), ...(x.recap || [])].join(' ')).includes(nq));
+    const anims = XPS.filter(x => nq && U.normalize([x.title, x.question, ...x.steps.map(ExplainerPlayer.stepText), ...(x.recap || [])].join(' ')).includes(nq));
     const cards = [];
     A.courses.forEach(c => c.flashcards.forEach(([f, b]) => { if (nq && U.normalize(f + ' ' + b).includes(nq)) cards.push({ c, f, b }); }));
     setView(`
@@ -950,7 +950,7 @@
           </div>
           <aside>
             <h3>Les étapes</h3>
-            <ol class="xp-steps">${x.steps.map((st, i) => `<li data-k="${i}">${esc(st.caption || st.say)}</li>`).join('')}</ol>
+            <ol class="xp-steps">${x.steps.map((st, i) => `<li data-k="${i}">${esc(ExplainerPlayer.stepText(st))}</li>`).join('')}</ol>
             <h3 style="margin-top:20px">📌 Fiche mémo</h3>
             <ul class="keypoints">${(x.recap || []).map(r => `<li>${md(r)}</li>`).join('')}</ul>
             ${rel.length ? `<h3 style="margin-top:20px">Formations liées</h3><div class="side-extra" style="padding:0">${rel.map(c => `<a href="#/cours/${c.id}">${c.icon} ${esc(c.title)}</a>`).join('')}</div>` : ''}

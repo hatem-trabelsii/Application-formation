@@ -95,3 +95,13 @@ Inspirées des reels pédagogiques (« Online Payments », « DNS Server »), o�
 - **Workflow manuel** (`workflow_dispatch`) pour que rien ne s'exécute ni n'échoue tant que l'infrastructure n'existe pas.
 - **Corrections faites pendant l'étude** : retrait de 6 captures d'écran de tests commitées par erreur (elles auraient été publiées) ; rôle de déploiement aligné sur la vraie branche du dépôt (il n'existe pas de branche `main`) et sur la casse exacte du nom du dépôt.
 - **Non vérifiable depuis mon environnement** : prix exact des noms de domaine, détails des forfaits CloudFront flat-rate, déploiement réel (pas de compte AWS). C'est listé dans `docs/aws/README.md` § 10.
+
+## 10. Animations plus naturelles (refonte)
+
+- **Temps forts (beats)** : chaque étape est une suite de phrases courtes, chacune avec ses actions visuelles. Elles sont déclenchées au moment précis où la phrase commence, ce qui supprime le décalage entre la voix et l'écran.
+- **Rythme** : une phrase par énoncé de synthèse vocale, des pauses dosées (0,32 s par défaut, plus longues pour le suspense) et un débit légèrement réduit (0,95).
+- **Focus visuel** : les éléments hors sujet sont assombris, l'élément actif pulse, les étiquettes apparaissent en fondu et les sous-titres s'affichent façon karaoké. Le tout respecte `prefers-reduced-motion`.
+- **Prononciation** : un dictionnaire appliqué à la voix seulement (Node.js, libuv, kubectl, etcd, JSON, PKCE, www., .fr…) ; les sous-titres gardent l'orthographe exacte.
+- **Voix réalistes** : les voix neuronales « Online (Natural) » d'Edge sont choisies automatiquement quand elles sont disponibles. Des voix professionnelles enregistrées sont possibles via `audio/<id>/<étape>.mp3` et `audio: true`, avec repli automatique sur la synthèse si un fichier manque. Je n'ai généré aucun audio ElevenLabs ou Azure : il faut un compte, une clé, et un accès réseau que je n'ai pas.
+- **Scripts réécrits** dans un ton parlé pour les 12 animations, plus une nouvelle : « Docker : du Dockerfile au conteneur ».
+- **Storyboard** (`docs/animations/STORYBOARD.md`) généré depuis les données : il reste donc toujours fidèle à ce qui est joué.

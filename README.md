@@ -38,7 +38,8 @@ js/explainer.js       moteur des animations explicatives
 js/app.js             pages et routeur
 data/phases.js        les 5 phases
 data/courses/*.js     une formation par fichier
-data/explainers.js    les animations (nœuds, liens, étapes)
+data/explainers.js    les animations (nœuds, liens, étapes en temps forts)
+docs/animations/      storyboard détaillé de chaque animation (généré)
 Decisions.md          choix faits pendant la construction
 docs/aws/             mise en ligne sur AWS (schéma, coûts, CloudFormation)
 .github/workflows/    déploiement manuel vers AWS

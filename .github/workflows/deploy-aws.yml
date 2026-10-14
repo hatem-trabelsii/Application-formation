@@ -60,9 +60,13 @@ jobs:
           aws s3 cp css  "s3://$BUCKET/css"  --recursive --exclude "*" --include "*.css" --cache-control "$CACHE_CONTROL" --content-type "text/css; charset=utf-8"
           aws s3 cp js   "s3://$BUCKET/js"   --recursive --exclude "*" --include "*.js"  --cache-control "$CACHE_CONTROL" --content-type "text/javascript; charset=utf-8"
           aws s3 cp data "s3://$BUCKET/data" --recursive --exclude "*" --include "*.js"  --cache-control "$CACHE_CONTROL" --content-type "text/javascript; charset=utf-8"
+          # Voix enregistrées optionnelles des animations (audio/<id>/<étape>.mp3)
+          if [ -d audio ]; then
+            aws s3 cp audio "s3://$BUCKET/audio" --recursive --exclude "*" --include "*.mp3" --cache-control "$CACHE_CONTROL" --content-type "audio/mpeg"
+          fi
           # Supprime du bucket les fichiers retirés du dépôt (n'envoie rien : les tailles sont identiques).
           aws s3 sync . "s3://$BUCKET" --delete --size-only \
-            --exclude "*" --include "index.html" --include "css/*.css" --include "js/*.js" --include "data/*.js" --include "data/courses/*.js"
+            --exclude "*" --include "index.html" --include "css/*.css" --include "js/*.js" --include "data/*.js" --include "data/courses/*.js" --include "audio/*.mp3"
 
       - name: Vider le cache CloudFront
         run: |
