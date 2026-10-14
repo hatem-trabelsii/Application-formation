@@ -86,3 +86,12 @@ Inspirées des reels pédagogiques (« Online Payments », « DNS Server »), o�
 - **Mode portrait automatique** sur téléphone : le schéma est transposé (le flux gauche → droite devient haut → bas), comme un reel vertical, pour garder les textes lisibles.
 - Chaque animation se termine par une **fiche mémo** façon infographie. Elle est reliée aux formations concernées : on la retrouve sur la page du cours, dans la barre latérale des leçons, sur l'accueil et dans la recherche.
 - **12 animations** : DNS, paiement par carte (autorisation / capture / règlement), HTTPS/TLS, de l'URL à la page, load balancer et autoscaling, OAuth 2.0/OIDC, file de messages, pipeline CI/CD, réconciliation Kubernetes, architecture événementielle (Kafka), RAG pour les LLM, boucle d'événements Node.js. Trois d'entre elles (événementiel, RAG, OAuth) couvrent des compétences demandées par l'offre INTERPOL de Solution Architect.
+
+## 9. Mise en ligne sur AWS (étude)
+
+- **Architecture choisie** : S3 privé (Paris) + CloudFront (OAC, HTTPS, en-têtes de sécurité, redirection www → apex) + Route 53 + ACM, avec un déploiement GitHub Actions par OIDC, sans clé stockée. Raison : l'application est entièrement statique (aucune requête réseau dans le code), donc aucun serveur ni base de données n'est justifié.
+- **Coûts** : calculés à partir de l'API officielle AWS Price List (relevé du 14/10/2026), dans un script reproductible (`docs/aws/estimation_couts.py`). Environ 0,50 $/mois pour un usage personnel. Le premier poste de coût à forte audience est le nombre de requêtes (39 fichiers par visite).
+- **Infrastructure en code** : deux piles CloudFormation, car le certificat CloudFront doit être en us-east-1. Elles sont validées par `cfn-lint` ; le workflow est validé contre le schéma GitHub ; la CSP a été testée sur 110 écrans sans aucune violation.
+- **Workflow manuel** (`workflow_dispatch`) pour que rien ne s'exécute ni n'échoue tant que l'infrastructure n'existe pas.
+- **Corrections faites pendant l'étude** : retrait de 6 captures d'écran de tests commitées par erreur (elles auraient été publiées) ; rôle de déploiement aligné sur la vraie branche du dépôt (il n'existe pas de branche `main`) et sur la casse exacte du nom du dépôt.
+- **Non vérifiable depuis mon environnement** : prix exact des noms de domaine, détails des forfaits CloudFront flat-rate, déploiement réel (pas de compte AWS). C'est listé dans `docs/aws/README.md` § 10.

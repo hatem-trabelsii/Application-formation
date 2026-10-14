@@ -1,0 +1,333 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  ArchiPath Academy - etape 2/2 : site statique S3 prive (Paris) + CloudFront (OAC,
+  HTTPS, en-tetes de securite, redirection www -> apex) + DNS Route 53 + role de
+  deploiement GitHub Actions (OIDC, sans cle d'acces) + alerte budgetaire.
+  A deployer dans eu-west-3 (Paris) apres le template 01.
+
+Parameters:
+  DomainName:
+    Type: String
+    Description: Domaine apex du site, sans www (meme valeur qu'a l'etape 1)
+    AllowedPattern: "^(?!www\\.)([a-z0-9-]+\\.)+[a-z]{2,}$"
+    ConstraintDescription: Domaine en minuscules, sans "www." ni "https://".
+  HostedZoneId:
+    Type: AWS::Route53::HostedZone::Id
+    Description: Identifiant de la zone hebergee Route 53 du domaine
+  CertificateArn:
+    Type: String
+    Description: Sortie CertificateArn du template 01 (certificat en us-east-1)
+    AllowedPattern: "^arn:aws:acm:us-east-1:[0-9]{12}:certificate/.+$"
+    ConstraintDescription: Doit etre un certificat ACM de la region us-east-1.
+  GitHubRepository:
+    Type: String
+    Description: Depot GitHub autorise a deployer, au format proprietaire/depot
+    Default: hatem-trabelsii/Application-formation
+    AllowedPattern: "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+  GitHubBranch:
+    Type: String
+    Description: Seule branche autorisee a deployer (le depot n'a pas de branche main a ce jour)
+    Default: claude/local-cloud-training-platform-e7bo51
+  CreateGitHubOidcProvider:
+    Type: String
+    Description: "true si le fournisseur OIDC token.actions.githubusercontent.com n'existe pas encore dans le compte (un seul par compte)"
+    AllowedValues: ["true", "false"]
+    Default: "true"
+  PriceClass:
+    Type: String
+    Description: PriceClass_100 = Amerique du Nord, Europe, Israel (suffisant pour des visiteurs en France)
+    AllowedValues: [PriceClass_100, PriceClass_200, PriceClass_All]
+    Default: PriceClass_100
+  BudgetEmail:
+    Type: String
+    Description: Adresse e-mail qui recoit les alertes de budget
+    AllowedPattern: "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"
+  MonthlyBudgetUsd:
+    Type: Number
+    Description: Budget mensuel en dollars (alerte a 80 % du reel et 100 % de la prevision)
+    Default: 5
+    MinValue: 1
+
+Conditions:
+  CreateOidc: !Equals [!Ref CreateGitHubOidcProvider, "true"]
+
+Resources:
+  # ---------------------------------------------------------------- stockage
+  SiteBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain          # supprimer la pile ne supprime pas le contenu
+    UpdateReplacePolicy: Retain
+    Properties:
+      PublicAccessBlockConfiguration:   # bucket 100 % prive : seul CloudFront y lit
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced   # ACL desactivees
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256    # SSE-S3 (gratuit). SSE-KMS imposerait une politique de cle pour l'OAC.
+      VersioningConfiguration:
+        Status: Enabled               # permet de revenir a la version precedente d'un fichier
+      LifecycleConfiguration:
+        Rules:
+          - Id: purge-anciennes-versions
+            Status: Enabled
+            NoncurrentVersionExpiration:
+              NoncurrentDays: 30
+            AbortIncompleteMultipartUpload:
+              DaysAfterInitiation: 7
+      Tags:
+        - Key: projet
+          Value: archipath
+
+  SiteBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref SiteBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: LectureParCetteDistributionCloudFrontUniquement
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource: !Sub "${SiteBucket.Arn}/*"
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}"
+          # Sans risque pour CloudFront : les spectateurs sont forces en HTTPS, donc les requetes vers S3 le sont aussi.
+          - Sid: RefuserToutAccesNonChiffre
+            Effect: Deny
+            Principal: "*"
+            Action: s3:*
+            Resource:
+              - !GetAtt SiteBucket.Arn
+              - !Sub "${SiteBucket.Arn}/*"
+            Condition:
+              Bool:
+                aws:SecureTransport: "false"
+
+  # ---------------------------------------------------------------- CloudFront
+  OriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub "archipath-oac-${AWS::StackName}"
+        Description: Signature SigV4 des requetes CloudFront vers le bucket prive
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  WwwToApexFunction:
+    Type: AWS::CloudFront::Function
+    Properties:
+      Name: !Sub "archipath-www-vers-apex-${AWS::StackName}"
+      AutoPublish: true
+      FunctionConfig:
+        Comment: Redirige www.domaine vers domaine (une seule origine = un seul localStorage)
+        Runtime: cloudfront-js-2.0
+      FunctionCode: !Sub |
+        function handler(event) {
+          var req = event.request;
+          var host = req.headers.host ? req.headers.host.value : '';
+          if (host === 'www.${DomainName}') {
+            // Le fragment (#/cours/...) n'est jamais envoye au serveur :
+            // le navigateur le reapplique lui-meme apres la redirection.
+            return {
+              statusCode: 301,
+              statusDescription: 'Moved Permanently',
+              headers: { location: { value: 'https://${DomainName}' + req.uri } }
+            };
+          }
+          return req;
+        }
+
+  SecurityHeadersPolicy:
+    Type: AWS::CloudFront::ResponseHeadersPolicy
+    Properties:
+      ResponseHeadersPolicyConfig:
+        Name: !Sub "archipath-securite-${AWS::StackName}"
+        Comment: En-tetes de securite adaptes a l'application (verifies sans erreur CSP)
+        SecurityHeadersConfig:
+          StrictTransportSecurity:
+            AccessControlMaxAgeSec: 63072000
+            IncludeSubdomains: true
+            Preload: false
+            Override: true
+          ContentTypeOptions:
+            Override: true
+          FrameOptions:
+            FrameOption: DENY
+            Override: true
+          ReferrerPolicy:
+            ReferrerPolicy: strict-origin-when-cross-origin
+            Override: true
+          ContentSecurityPolicy:
+            Override: true
+            # style-src 'unsafe-inline' : l'interface utilise des attributs style="".
+            # media-src blob: : videos locales ajoutees par l'utilisateur (IndexedDB).
+            # frame-src youtube-nocookie : videos YouTube rattachees a une lecon.
+            ContentSecurityPolicy: >-
+              default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';
+              img-src 'self' data:; media-src 'self' blob:; font-src 'self'; connect-src 'self';
+              frame-src https://www.youtube-nocookie.com; object-src 'none'; base-uri 'self';
+              form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+        CustomHeadersConfig:
+          Items:
+            - Header: Permissions-Policy
+              Value: "camera=(), microphone=(), geolocation=(), payment=()"
+              Override: true
+
+  Distribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Comment: ArchiPath Academy
+        Enabled: true
+        Aliases:
+          - !Ref DomainName
+          - !Sub "www.${DomainName}"
+        ViewerCertificate:
+          AcmCertificateArn: !Ref CertificateArn
+          SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.2_2021
+        DefaultRootObject: index.html
+        HttpVersion: http2and3
+        IPV6Enabled: true
+        PriceClass: !Ref PriceClass
+        Origins:
+          - Id: s3-site
+            DomainName: !GetAtt SiteBucket.RegionalDomainName   # point de terminaison REST (pas « website ») : requis par l'OAC
+            OriginAccessControlId: !GetAtt OriginAccessControl.Id
+            S3OriginConfig:
+              OriginAccessIdentity: ""                          # vide : on utilise l'OAC, pas l'ancien OAI
+        DefaultCacheBehavior:
+          TargetOriginId: s3-site
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: [GET, HEAD]
+          CachedMethods: [GET, HEAD]
+          Compress: true                                        # gzip / brotli a la volee
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6   # politique geree « CachingOptimized »
+          ResponseHeadersPolicyId: !Ref SecurityHeadersPolicy
+          FunctionAssociations:
+            - EventType: viewer-request
+              FunctionARN: !GetAtt WwwToApexFunction.FunctionMetadata.FunctionARN
+      Tags:
+        - Key: projet
+          Value: archipath
+
+  # ---------------------------------------------------------------- DNS
+  DnsRecords:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      RecordSets:
+        - Name: !Ref DomainName
+          Type: A
+          AliasTarget: { DNSName: !GetAtt Distribution.DomainName, HostedZoneId: Z2FDTNDATAQYW2 }
+        - Name: !Ref DomainName
+          Type: AAAA
+          AliasTarget: { DNSName: !GetAtt Distribution.DomainName, HostedZoneId: Z2FDTNDATAQYW2 }
+        - Name: !Sub "www.${DomainName}"
+          Type: A
+          AliasTarget: { DNSName: !GetAtt Distribution.DomainName, HostedZoneId: Z2FDTNDATAQYW2 }
+        - Name: !Sub "www.${DomainName}"
+          Type: AAAA
+          AliasTarget: { DNSName: !GetAtt Distribution.DomainName, HostedZoneId: Z2FDTNDATAQYW2 }
+        # Z2FDTNDATAQYW2 = identifiant fixe de zone utilise par AWS pour TOUTES les distributions CloudFront.
+
+  # ---------------------------------------------------------------- déploiement CI (OIDC, sans clé)
+  GitHubOidcProvider:
+    Type: AWS::IAM::OIDCProvider
+    Condition: CreateOidc
+    Properties:
+      Url: https://token.actions.githubusercontent.com
+      ClientIdList: [sts.amazonaws.com]
+
+  GitHubDeployRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: Deploiement du site ArchiPath depuis GitHub Actions (une seule branche d'un seul depot)
+      MaxSessionDuration: 3600
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: !If
+                - CreateOidc
+                - !Ref GitHubOidcProvider
+                - !Sub "arn:aws:iam::${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com"
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+              StringEqualsIgnoreCase:   # le nom du depot contient une majuscule (Application-formation)
+                token.actions.githubusercontent.com:sub: !Sub "repo:${GitHubRepository}:ref:refs/heads/${GitHubBranch}"
+      Policies:
+        - PolicyName: deploiement-site-moindre-privilege
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: ListerLeBucket
+                Effect: Allow
+                Action: s3:ListBucket
+                Resource: !GetAtt SiteBucket.Arn
+              - Sid: EcrireEtSupprimerLesFichiersDuSite
+                Effect: Allow
+                Action: [s3:PutObject, s3:DeleteObject]
+                Resource: !Sub "${SiteBucket.Arn}/*"
+              - Sid: InvaliderLeCache
+                Effect: Allow
+                Action: cloudfront:CreateInvalidation
+                Resource: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}"
+
+  # ---------------------------------------------------------------- garde-fou financier
+  MonthlyBudget:
+    Type: AWS::Budgets::Budget
+    Properties:
+      Budget:
+        BudgetName: !Sub "archipath-mensuel-${AWS::StackName}"
+        BudgetType: COST
+        TimeUnit: MONTHLY
+        BudgetLimit:
+          Amount: !Ref MonthlyBudgetUsd
+          Unit: USD
+      NotificationsWithSubscribers:
+        - Notification:
+            NotificationType: ACTUAL
+            ComparisonOperator: GREATER_THAN
+            Threshold: 80
+            ThresholdType: PERCENTAGE
+          Subscribers:
+            - SubscriptionType: EMAIL
+              Address: !Ref BudgetEmail
+        - Notification:
+            NotificationType: FORECASTED
+            ComparisonOperator: GREATER_THAN
+            Threshold: 100
+            ThresholdType: PERCENTAGE
+          Subscribers:
+            - SubscriptionType: EMAIL
+              Address: !Ref BudgetEmail
+
+Outputs:
+  SiteUrl:
+    Value: !Sub "https://${DomainName}"
+  BucketName:
+    Description: Variable GitHub AWS_BUCKET
+    Value: !Ref SiteBucket
+  DistributionId:
+    Description: Variable GitHub AWS_DISTRIBUTION_ID
+    Value: !Ref Distribution
+  DistributionDomainName:
+    Description: Nom CloudFront (xxxx.cloudfront.net), utile pour tester avant la propagation DNS
+    Value: !GetAtt Distribution.DomainName
+  DeployRoleArn:
+    Description: Variable GitHub AWS_DEPLOY_ROLE_ARN
+    Value: !GetAtt GitHubDeployRole.Arn

@@ -22,6 +22,10 @@ Facultatif : `start.bat` (Windows) ou `./start.sh` (macOS/Linux) démarre un pet
 
 La progression est enregistrée dans le navigateur. Exportez-la depuis ⚙️ Paramètres pour la sauvegarder ou changer de machine.
 
+## Mettre le site en ligne sur AWS
+
+Architecture, schéma, coûts vérifiés, étapes et infrastructure en code (CloudFormation + GitHub Actions) : voir [`docs/aws/README.md`](docs/aws/README.md).
+
 ## Structure
 
 ```
@@ -36,6 +40,8 @@ data/phases.js        les 5 phases
 data/courses/*.js     une formation par fichier
 data/explainers.js    les animations (nœuds, liens, étapes)
 Decisions.md          choix faits pendant la construction
+docs/aws/             mise en ligne sur AWS (schéma, coûts, CloudFormation)
+.github/workflows/    déploiement manuel vers AWS
 ```
 
 Pour ajouter une formation, copiez un fichier de `data/courses/`, modifiez-le, puis ajoutez sa balise `<script>` dans `index.html`.

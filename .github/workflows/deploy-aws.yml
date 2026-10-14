@@ -1,0 +1,73 @@
+# Publie le site statique sur AWS (S3 privé + CloudFront).
+# Déclenchement MANUEL uniquement (onglet Actions > « Déployer sur AWS » > Run workflow) :
+# tant que l'infrastructure n'existe pas, aucun déploiement automatique ne doit échouer.
+# Prérequis : piles CloudFormation de docs/aws déployées et 3 variables de dépôt définies
+# (Settings > Secrets and variables > Actions > Variables) : AWS_DEPLOY_ROLE_ARN, AWS_BUCKET,
+# AWS_DISTRIBUTION_ID. Aucune clé d'accès AWS n'est stockée : authentification OIDC.
+name: Déployer sur AWS
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write   # nécessaire pour obtenir le jeton OIDC échangé contre un rôle AWS
+  contents: read
+
+concurrency:
+  group: deploy-aws
+  cancel-in-progress: false   # ne jamais interrompre un déploiement en cours
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      AWS_REGION: eu-west-3
+      ROLE_ARN: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+      BUCKET: ${{ vars.AWS_BUCKET }}
+      DISTRIBUTION_ID: ${{ vars.AWS_DISTRIBUTION_ID }}
+      # Navigateur : revalide à chaque visite (réponse 304 légère si rien n'a changé).
+      # CloudFront : garde 24 h en cache ; vidé par l'invalidation en fin de déploiement.
+      CACHE_CONTROL: "public, max-age=0, s-maxage=86400, must-revalidate"
+    steps:
+      - name: Vérifier la configuration
+        run: |
+          missing=0
+          for v in ROLE_ARN BUCKET DISTRIBUTION_ID; do
+            if [ -z "${!v}" ]; then echo "::error::Variable de dépôt manquante pour $v (voir docs/aws/README.md)"; missing=1; fi
+          done
+          exit $missing
+
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Vérifier que tous les fichiers référencés par index.html existent
+        run: |
+          grep -oE '(src|href)="(css|js|data)/[^"]+"' index.html | cut -d'"' -f2 | while read -r f; do
+            [ -f "$f" ] || { echo "::error::$f est référencé par index.html mais absent"; exit 1; }
+          done
+
+      - name: S'authentifier sur AWS (OIDC, sans clé)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: eu-west-3
+
+      - name: Publier les fichiers (types MIME et encodage explicites)
+        run: |
+          set -euo pipefail
+          aws s3 cp index.html "s3://$BUCKET/index.html" --cache-control "$CACHE_CONTROL" --content-type "text/html; charset=utf-8"
+          aws s3 cp css  "s3://$BUCKET/css"  --recursive --exclude "*" --include "*.css" --cache-control "$CACHE_CONTROL" --content-type "text/css; charset=utf-8"
+          aws s3 cp js   "s3://$BUCKET/js"   --recursive --exclude "*" --include "*.js"  --cache-control "$CACHE_CONTROL" --content-type "text/javascript; charset=utf-8"
+          aws s3 cp data "s3://$BUCKET/data" --recursive --exclude "*" --include "*.js"  --cache-control "$CACHE_CONTROL" --content-type "text/javascript; charset=utf-8"
+          # Supprime du bucket les fichiers retirés du dépôt (n'envoie rien : les tailles sont identiques).
+          aws s3 sync . "s3://$BUCKET" --delete --size-only \
+            --exclude "*" --include "index.html" --include "css/*.css" --include "js/*.js" --include "data/*.js" --include "data/courses/*.js"
+
+      - name: Vider le cache CloudFront
+        run: |
+          set -euo pipefail
+          id=$(aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION_ID" --paths "/*" --query 'Invalidation.Id' --output text)
+          echo "Invalidation $id lancée (1 chemin générique = 1 chemin facturé, 1 000 gratuits par mois)"
+          aws cloudfront wait invalidation-completed --distribution-id "$DISTRIBUTION_ID" --id "$id"
+          echo "Site à jour."

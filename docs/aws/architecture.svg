@@ -1,0 +1,178 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 1010" font-family="Segoe UI, Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
+  <title id="t">Architecture AWS d'ArchiPath Academy</title>
+  <desc id="d">Site statique : navigateur, Route 53, CloudFront avec ACM, fonction, en-têtes de sécurité et OAC, bucket S3 privé à Paris ; déploiement GitHub Actions par OIDC ; budget et CloudTrail ; évolution optionnelle Cognito, API Gateway, Lambda, DynamoDB.</desc>
+  <defs>
+    <marker id="ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/></marker>
+    <marker id="ao" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#ea580c"/></marker>
+    <marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#6b7280"/></marker>
+    <style>
+      .zone { fill: #f8fafc; stroke: #94a3b8; stroke-width: 1.5; }
+      .zone-aws { fill: #fff7ed; stroke: #f59e0b; stroke-width: 1.5; }
+      .zone-paris { fill: #f0fdf4; stroke: #22c55e; stroke-width: 1.5; }
+      .zone-gh { fill: #f5f3ff; stroke: #8b5cf6; stroke-width: 1.5; }
+      .zone-opt { fill: #ffffff; stroke: #9ca3af; stroke-width: 1.5; stroke-dasharray: 7 5; }
+      .zt { font-size: 15px; font-weight: 700; fill: #334155; }
+      .box { fill: #ffffff; stroke: #475569; stroke-width: 1.4; }
+      .box-opt { fill: #ffffff; stroke: #9ca3af; stroke-width: 1.4; stroke-dasharray: 6 4; }
+      .bt { font-size: 14px; font-weight: 700; fill: #0f172a; }
+      .bl { font-size: 12px; fill: #334155; }
+      .bs { font-size: 11px; fill: #64748b; }
+      .fu { stroke: #2563eb; stroke-width: 2.2; fill: none; marker-end: url(#ab); }
+      .fd { stroke: #ea580c; stroke-width: 2.2; fill: none; marker-end: url(#ao); }
+      .fo { stroke: #6b7280; stroke-width: 1.8; fill: none; stroke-dasharray: 6 4; marker-end: url(#ag); }
+      .lu { font-size: 12px; font-weight: 700; fill: #1d4ed8; }
+      .ld { font-size: 12px; font-weight: 700; fill: #c2410c; }
+      .lo { font-size: 12px; font-weight: 600; fill: #4b5563; }
+      .lbg { fill: #ffffff; opacity: .92; }
+    </style>
+  </defs>
+
+  <rect width="1400" height="1010" fill="#ffffff"/>
+  <text x="30" y="38" font-size="22" font-weight="800" fill="#0f172a">ArchiPath Academy sur AWS — site statique sans serveur</text>
+  <text x="30" y="62" font-size="13" fill="#475569">Aucune donnée utilisateur ne quitte le navigateur : AWS ne sert que 39 fichiers statiques (2,1 Mo ; ≈ 269 Kio compressés par visite).</text>
+
+  <!-- ===================== Zone utilisateur ===================== -->
+  <rect class="zone" x="20" y="85" width="320" height="490" rx="12"/>
+  <text class="zt" x="36" y="110">Utilisateur</text>
+  <rect class="box" x="45" y="130" width="270" height="175" rx="10"/>
+  <text class="bt" x="60" y="155">🖥️ Navigateur (PC / mobile)</text>
+  <text class="bl" x="60" y="180">Application monopage (routage #/…)</text>
+  <text class="bl" x="60" y="202">Progression : localStorage</text>
+  <text class="bl" x="60" y="224">Vidéos personnelles : IndexedDB</text>
+  <text class="bl" x="60" y="246">Narration : synthèse vocale locale</text>
+  <text class="bs" x="60" y="270">Données liées à l'origine https://domaine :</text>
+  <text class="bs" x="60" y="287">exporter/importer le JSON pour migrer</text>
+  <rect class="box-opt" x="45" y="440" width="270" height="105" rx="10"/>
+  <text class="bt" x="60" y="465">▶ YouTube (optionnel)</text>
+  <text class="bl" x="60" y="489">iframe youtube-nocookie.com</text>
+  <text class="bl" x="60" y="509">seulement si l'apprenant rattache</text>
+  <text class="bl" x="60" y="527">une vidéo à une leçon</text>
+
+  <!-- ===================== Zone AWS globale ===================== -->
+  <rect class="zone-aws" x="370" y="85" width="560" height="490" rx="12"/>
+  <text class="zt" x="386" y="110">AWS — services globaux (réseau edge)</text>
+
+  <rect class="box" x="395" y="125" width="245" height="105" rx="10"/>
+  <text class="bt" x="410" y="150">Amazon Route 53</text>
+  <text class="bl" x="410" y="173">Domaine + zone hébergée</text>
+  <text class="bl" x="410" y="193">Alias A et AAAA (apex, www)</text>
+  <text class="bs" x="410" y="214">0,50 $/mois · requêtes Alias gratuites</text>
+
+  <rect class="box" x="660" y="125" width="245" height="105" rx="10"/>
+  <text class="bt" x="675" y="150">AWS Certificate Manager</text>
+  <text class="bl" x="675" y="173">Certificat TLS public (apex + www)</text>
+  <text class="bl" x="675" y="193">Région us-east-1 (exigé)</text>
+  <text class="bs" x="675" y="214">Gratuit · renouvellement automatique</text>
+
+  <rect class="box" x="395" y="265" width="510" height="290" rx="12"/>
+  <text class="bt" x="410" y="290">Amazon CloudFront — distribution (point de présence le plus proche)</text>
+  <text class="bs" x="410" y="308">HTTPS imposé (HTTP → 301) · TLS ≥ 1.2 · HTTP/2 et HTTP/3 · IPv6 · PriceClass_100</text>
+  <rect class="box" x="410" y="320" width="235" height="62" rx="8"/>
+  <text class="bl" x="422" y="343" font-weight="700">CloudFront Function</text>
+  <text class="bs" x="422" y="363">www → apex (301), sur chaque requête</text>
+  <rect class="box" x="657" y="320" width="235" height="62" rx="8"/>
+  <text class="bl" x="669" y="343" font-weight="700">Politique de cache</text>
+  <text class="bs" x="669" y="363">CachingOptimized · gzip / brotli</text>
+  <rect class="box" x="410" y="397" width="235" height="62" rx="8"/>
+  <text class="bl" x="422" y="420" font-weight="700">En-têtes de sécurité</text>
+  <text class="bs" x="422" y="440">CSP · HSTS · nosniff · frame DENY</text>
+  <rect class="box" x="657" y="397" width="235" height="62" rx="8"/>
+  <text class="bl" x="669" y="420" font-weight="700">Origin Access Control</text>
+  <text class="bs" x="669" y="440">requêtes vers S3 signées (SigV4)</text>
+  <rect class="box" x="410" y="474" width="235" height="62" rx="8"/>
+  <text class="bl" x="422" y="497" font-weight="700">AWS Shield Standard</text>
+  <text class="bs" x="422" y="517">anti-DDoS couches 3/4 · inclus</text>
+  <rect class="box-opt" x="657" y="474" width="235" height="62" rx="8"/>
+  <text class="bl" x="669" y="497" font-weight="700">AWS WAF (option)</text>
+  <text class="bs" x="669" y="517">≈ 8 $/mois + 0,60 $/M requêtes</text>
+
+  <!-- ===================== Zone Paris ===================== -->
+  <rect class="zone-paris" x="960" y="85" width="420" height="490" rx="12"/>
+  <text class="zt" x="976" y="110">AWS — région eu-west-3 (Paris)</text>
+
+  <rect class="box" x="985" y="125" width="370" height="105" rx="10"/>
+  <text class="bt" x="1000" y="150">Garde-fous du compte (globaux)</text>
+  <text class="bl" x="1000" y="173">AWS Budgets : e-mail à 80 % (réel) et 100 % (prévision)</text>
+  <text class="bl" x="1000" y="193">CloudTrail : historique API 90 j, par région</text>
+  <text class="bs" x="1000" y="214">Gratuits ici · CloudFront, IAM, Route 53 : vus dans us-east-1</text>
+
+  <rect class="box" x="985" y="265" width="370" height="150" rx="10"/>
+  <text class="bt" x="1000" y="290">Amazon S3 — bucket privé (origine)</text>
+  <text class="bl" x="1000" y="314">Block Public Access (4 options) · ACL désactivées</text>
+  <text class="bl" x="1000" y="335">Chiffrement SSE-S3 · HTTPS obligatoire</text>
+  <text class="bl" x="1000" y="356">Versioning, anciennes versions purgées à 30 j</text>
+  <text class="bl" x="1000" y="377">Lecture autorisée à cette seule distribution</text>
+  <text class="bs" x="1000" y="400">39 fichiers · 2,1 Mo · stockage &lt; 0,01 $/mois</text>
+
+  <rect class="box" x="985" y="440" width="370" height="115" rx="10"/>
+  <text class="bt" x="1000" y="465">IAM — rôle de déploiement</text>
+  <text class="bl" x="1000" y="489">Fédéré OIDC GitHub : 1 dépôt, 1 branche</text>
+  <text class="bl" x="1000" y="510">s3:ListBucket, PutObject, DeleteObject</text>
+  <text class="bl" x="1000" y="531">cloudfront:CreateInvalidation (1 distribution)</text>
+
+  <!-- ===================== Zone GitHub ===================== -->
+  <rect class="zone-gh" x="20" y="610" width="910" height="160" rx="12"/>
+  <text class="zt" x="36" y="635">Déploiement — GitHub (aucune clé AWS stockée)</text>
+  <rect class="box" x="45" y="655" width="270" height="95" rx="10"/>
+  <text class="bt" x="60" y="680">Dépôt GitHub (public)</text>
+  <text class="bl" x="60" y="703">hatem-trabelsii/Application-formation</text>
+  <text class="bs" x="60" y="724">branche claude/local-cloud-training-…</text>
+  <rect class="box" x="395" y="655" width="510" height="95" rx="10"/>
+  <text class="bt" x="410" y="680">GitHub Actions — « Déployer sur AWS » (manuel)</text>
+  <text class="bl" x="410" y="703">contrôle des fichiers → upload (types MIME + UTF-8)</text>
+  <text class="bl" x="410" y="723">→ suppression des fichiers retirés → invalidation « /* »</text>
+  <text class="bs" x="410" y="741">Minutes gratuites (dépôt public)</text>
+
+  <!-- ===================== Évolution optionnelle ===================== -->
+  <rect class="zone-opt" x="960" y="610" width="420" height="160" rx="12"/>
+  <text class="zt" x="976" y="635">Évolution possible (non requise)</text>
+  <text class="bl" x="976" y="660">Comptes + synchronisation de la progression :</text>
+  <text class="bl" x="976" y="682">Cognito → API Gateway (HTTP API) → Lambda → DynamoDB</text>
+  <text class="bs" x="976" y="704">Demanderait d'écrire un backend et de modifier js/store.js.</text>
+  <text class="bs" x="976" y="722">Coût faible à petite échelle (offres gratuites Cognito,</text>
+  <text class="bs" x="976" y="740">Lambda, DynamoDB) mais RGPD et sécurité à traiter.</text>
+
+  <!-- ===================== Flux utilisateur (bleu) ===================== -->
+  <path class="fu" d="M315,165 L395,165"/>
+  <rect class="lbg" x="322" y="140" width="66" height="17" rx="3"/><text class="lu" x="325" y="153">① DNS</text>
+  <path class="fu" d="M315,255 C350,255 360,330 395,330"/>
+  <rect class="lbg" x="318" y="232" width="74" height="17" rx="3"/><text class="lu" x="321" y="245">② HTTPS</text>
+  <path class="fu" d="M395,520 C350,520 345,300 318,300"/>
+  <rect class="lbg" x="324" y="388" width="44" height="17" rx="3"/><text class="lu" x="328" y="401">④</text>
+  <path class="fu" d="M905,350 L985,320"/>
+  <rect class="lbg" x="912" y="302" width="40" height="17" rx="3"/><text class="lu" x="916" y="315">③</text>
+  <path class="fu" d="M985,395 L905,425"/>
+  <!-- liens internes -->
+  <path class="fo" d="M517,230 L517,265"/>
+  <text class="lo" x="525" y="252">alias</text>
+  <path class="fo" d="M782,230 L782,265"/>
+  <text class="lo" x="790" y="252">certificat</text>
+  <path class="fo" d="M180,305 L180,440"/>
+  <text class="lo" x="190" y="380">⑤ option</text>
+
+  <!-- ===================== Flux de déploiement (orange) ===================== -->
+  <path class="fd" d="M315,702 L395,702"/>
+  <rect class="lbg" x="330" y="678" width="30" height="17" rx="3"/><text class="ld" x="334" y="691">Ⓐ</text>
+  <path class="fd" d="M905,690 C950,690 950,520 985,515"/>
+  <rect class="lbg" x="915" y="585" width="40" height="17" rx="3"/><text class="ld" x="922" y="598">Ⓑ</text>
+  <path class="fd" d="M1170,440 L1170,415"/>
+  <rect class="lbg" x="1178" y="419" width="30" height="17" rx="3"/><text class="ld" x="1182" y="432">Ⓒ</text>
+  <path class="fd" d="M650,655 L650,555"/>
+  <rect class="lbg" x="658" y="590" width="30" height="17" rx="3"/><text class="ld" x="662" y="603">Ⓓ</text>
+
+  <!-- ===================== Légende ===================== -->
+  <rect class="zone" x="20" y="795" width="1360" height="200" rx="12"/>
+  <text class="zt" x="36" y="820">Lecture des flux</text>
+  <text class="lu" x="36" y="846">① DNS</text>
+  <text class="bl" x="110" y="846">Le navigateur résout le domaine : Route 53 répond (enregistrement Alias) avec les adresses IPv4/IPv6 de CloudFront.</text>
+  <text class="lu" x="36" y="868">② HTTPS</text>
+  <text class="bl" x="110" y="868">Connexion TLS avec le certificat ACM ; la fonction redirige www vers l'apex (une seule origine = un seul localStorage).</text>
+  <text class="lu" x="36" y="890">③ origine</text>
+  <text class="bl" x="110" y="890">Si le fichier n'est pas en cache (ou après une invalidation), CloudFront le lit dans S3 par une requête signée OAC. S3 → CloudFront : transfert gratuit.</text>
+  <text class="lu" x="36" y="912">④ réponse</text>
+  <text class="bl" x="110" y="912">Compressée, avec en-têtes de sécurité ; gardée 24 h au point de présence ; le navigateur revalide à chaque visite (304 si inchangé).</text>
+  <text class="ld" x="36" y="940">Ⓐ–Ⓓ</text>
+  <text class="bl" x="110" y="940">Lancement du workflow → jeton OIDC échangé par STS contre le rôle IAM (Ⓑ) → upload dans S3 (Ⓒ) → invalidation du cache CloudFront (Ⓓ).</text>
+  <text class="lo" x="36" y="968">Pointillés</text>
+  <text class="bl" x="110" y="968">Composants optionnels ou liens de configuration. Prix : AWS Price List API, relevés le 14/10/2026, en USD hors TVA (détail : docs/aws/README.md).</text>
+</svg>

@@ -1,0 +1,46 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  ArchiPath Academy - etape 1/2 : certificat TLS public (ACM) pour CloudFront.
+  A deployer OBLIGATOIREMENT dans la region us-east-1 : CloudFront n'accepte que
+  les certificats ACM de us-east-1. Le certificat est gratuit et renouvele
+  automatiquement tant que les enregistrements DNS de validation existent.
+
+Parameters:
+  DomainName:
+    Type: String
+    Description: Domaine apex du site, sans www (ex. archipath.fr)
+    AllowedPattern: "^(?!www\\.)([a-z0-9-]+\\.)+[a-z]{2,}$"
+    ConstraintDescription: Domaine en minuscules, sans "www." ni "https://".
+  HostedZoneId:
+    Type: AWS::Route53::HostedZone::Id
+    Description: Identifiant de la zone hebergee Route 53 du domaine (ex. Z0123456789ABCDEFGHIJ)
+
+Rules:
+  RegionUsEast1:
+    Assertions:
+      - Assert: !Equals [!Ref "AWS::Region", us-east-1]
+        AssertDescription: Ce template doit etre deploye dans us-east-1 (exigence CloudFront).
+
+Resources:
+  Certificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Ref DomainName
+      SubjectAlternativeNames:
+        - !Sub "www.${DomainName}"
+      ValidationMethod: DNS
+      # Avec HostedZoneId, CloudFormation cree lui-meme les CNAME de validation
+      # dans Route 53 et attend que le certificat soit ISSUED (quelques minutes).
+      DomainValidationOptions:
+        - DomainName: !Ref DomainName
+          HostedZoneId: !Ref HostedZoneId
+        - DomainName: !Sub "www.${DomainName}"
+          HostedZoneId: !Ref HostedZoneId
+      Tags:
+        - Key: projet
+          Value: archipath
+
+Outputs:
+  CertificateArn:
+    Description: ARN a passer au template 02 (parametre CertificateArn)
+    Value: !Ref Certificate
