@@ -17,6 +17,7 @@ Facultatif : `start.bat` (Windows) ou `./start.sh` (macOS/Linux) démarre un pet
 - 📖 **Théorie** et exemples de code à copier, 💡 points clés, 📝 notes par leçon.
 - 🧪 **Labs pratiques guidés**, ❓ **quiz** en mode entraînement ou examen, 🧠 **flashcards à répétition espacée**.
 - 🎞️ **Animations « Comprendre en 1 minute »** : schémas animés et narrés (DNS, paiement par carte, TLS, OAuth, Kafka, RAG…), en format vertical sur téléphone.
+- 🧪 **Simulateurs** (menu « Simulateurs ») : des architectures vivantes où l'on fait circuler du trafic, provoque des pannes et règle algorithmes, health checks, auto-scaling, cache ou file de messages. Chaque chapitre a un objectif mesuré dans la simulation, puis viennent un bac à sable et un quiz. Leçons : load balancer, cache, files de messages.
 - 🗺️ **Roadmap** des 5 phases, avec suivi des certifications obtenues.
 - 🎥 Possibilité de rattacher vos propres vidéos (lien YouTube ou fichier local) à chaque leçon.
 
@@ -35,10 +36,12 @@ js/utils.js           utilitaires, coloration syntaxique
 js/store.js           persistance (localStorage + IndexedDB)
 js/player.js          lecteur vidéo narré
 js/explainer.js       moteur des animations explicatives
+js/sim.js             moteur des simulateurs de trafic (load balancer, cache, file de messages)
 js/app.js             pages et routeur
 data/phases.js        les 5 phases
 data/courses/*.js     une formation par fichier
 data/explainers.js    les animations (nœuds, liens, étapes en temps forts)
+data/sims.js          les leçons des simulateurs (chapitres, objectifs, quiz)
 docs/animations/      storyboard détaillé de chaque animation (généré)
 Decisions.md          choix faits pendant la construction
 docs/aws/             mise en ligne sur AWS (schéma, coûts, CloudFormation)

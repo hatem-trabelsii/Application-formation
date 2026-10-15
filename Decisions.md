@@ -105,3 +105,24 @@ Inspirées des reels pédagogiques (« Online Payments », « DNS Server »), o�
 - **Voix réalistes** : les voix neuronales « Online (Natural) » d'Edge sont choisies automatiquement quand elles sont disponibles. Des voix professionnelles enregistrées sont possibles via `audio/<id>/<étape>.mp3` et `audio: true`, avec repli automatique sur la synthèse si un fichier manque. Je n'ai généré aucun audio ElevenLabs ou Azure : il faut un compte, une clé, et un accès réseau que je n'ai pas.
 - **Scripts réécrits** dans un ton parlé pour les 12 animations, plus une nouvelle : « Docker : du Dockerfile au conteneur ».
 - **Storyboard** (`docs/animations/STORYBOARD.md`) généré depuis les données : il reste donc toujours fidèle à ce qui est joué.
+
+## 11. Simulateurs interactifs, dans l'esprit de freesystemdesign.com
+
+- **Source d'inspiration et limite** : le site freesystemdesign.com n'a pas pu être ouvert depuis mon environnement (résolution DNS refusée, proxy). Je me suis basé sur sa description publique : des composants sur un canevas, une simulation de trafic en direct pour trouver les points faibles, et une leçon « Load Balancer » couvrant les algorithmes, les health checks, l'auto-scaling et les sessions. Le résultat est **inspiré** de ce principe, pas une copie de son interface.
+- **Les animations narrées sont conservées**, et je n'en ai pas fait des simulations. Elles expliquent un mécanisme. Les simulateurs le font **manipuler**. Chaque animation liée (autoscaling, queue) renvoie vers son simulateur via un bouton « À toi de jouer ».
+- **Format d'une leçon** (`#/simulateur/<id>/apprendre/<n>`) :
+  - des chapitres courts, chacun avec la théorie à gauche et un scénario préréglé à droite ;
+  - un **objectif mesuré**. Par exemple « tenir 70 req/s avec moins de 1 % d'erreurs » : il est validé automatiquement quand la condition tient 3 secondes ;
+  - un indice et une lecture à voix haute.
+  
+  Puis viennent un **bac à sable** avec tous les réglages et un **quiz** expliqué. La progression est enregistrée dans `localStorage` (`sims`).
+- **Trois leçons, 16 chapitres** :
+  - **Load balancer** : saturation, scaling horizontal, round robin vs moins de connexions, health checks (seuils 2/2), auto-scaling avec démarrage et draining, sessions en mémoire / collantes / partagées dans Redis ;
+  - **Cache** : base goulot, cache-aside, loi de Zipf et LRU, TTL, données périmées et invalidation, panne du cache et effet troupeau ;
+  - **Files de messages** : synchrone vs asynchrone (202), backlog et âge du plus ancien message, scaling sur la profondeur de file, messages empoisonnés et DLQ, redélivrance at-least-once.
+- **Une vraie simulation, pas une animation scriptée** :
+  - arrivées de Poisson, capacité et file d'attente par composant, expiration à 250 ms ;
+  - choix du serveur par l'algorithme réel, popularité des clés selon la loi de Zipf, LRU ;
+  - les métriques (débit, p95, taux d'erreur, hit ratio…) sont **calculées sur les requêtes simulées** d'une fenêtre glissante.
+- **Ralenti ×10, affiché à l'écran** : il permet de suivre chaque requête. Les chiffres sont reconvertis en temps réel équivalent. Les durées de démarrage des serveurs sont volontairement compressées, et la proportion de messages empoisonnés (10 %) volontairement exagérée. Le texte de la leçon le signale.
+- **Vérifié** : un script Playwright joue la solution de chacun des 16 chapitres et vérifie que l'objectif est atteignable. C'est ainsi que j'ai trouvé et corrigé un bug de particules perdues, une case à cocher initialisée à tort et un TTL qui rendait un objectif impossible. Aucune erreur JS ; pas de débordement horizontal sur mobile, où le canevas défile horizontalement. Non-régression : 298 pages, 13 animations.

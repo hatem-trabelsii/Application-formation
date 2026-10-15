@@ -13,6 +13,7 @@
     status: {},    // { courseId: { done: true, date } }  certification obtenue / techno maîtrisée
     videos: {},    // { "courseId/lessonId": "https://..." }
     explainers: {},// { explainerId: timestamp de la dernière vision complète }
+    sims: {},      // { simId: { ch: { index: timestamp }, quiz: meilleur score en % } }
     last: null,    // { courseId, lessonId, t }
     settings: { theme: 'auto', voice: '', rate: 1, muted: false, captions: true, autoplay: true, newPerSession: 10 }
   });
@@ -104,6 +105,11 @@
     // ---- animations
     explainerSeen(id) { return !!state.explainers[id]; },
     setExplainerSeen(id) { state.explainers[id] = Date.now(); save(); },
+
+    // ---- simulateurs
+    simState(id) { return (state.sims = state.sims || {})[id] || { ch: {} }; },
+    setSimChapterDone(id, k) { const s = (state.sims = state.sims || {}); s[id] = s[id] || { ch: {} }; s[id].ch[k] = Date.now(); save(); },
+    setSimQuiz(id, pct) { const s = (state.sims = state.sims || {}); s[id] = s[id] || { ch: {} }; s[id].quiz = Math.max(s[id].quiz || 0, pct); save(); },
 
     // ---- réglages
     setting(k) { return state.settings[k]; },

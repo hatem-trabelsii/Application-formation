@@ -39,6 +39,19 @@
       </div></a>`;
   }
 
+  const SIMS = window.SIMS || [];
+  const simFor = cid => SIMS.filter(x => (x.courses || []).includes(cid));
+  function simCard(s) {
+    const st = Store.simState(s.id), done = Object.keys(st.ch).length, n = s.chapters.length;
+    return `<a class="xp-card sim-tile" href="#/simulateur/${s.id}/apprendre">
+      <div class="sim-thumb"><span>${s.icon}</span><i></i><i></i><i></i></div>
+      <div class="xp-card-body">
+        <h3>${s.icon} ${esc(s.title)}</h3>
+        <div class="q">${esc(s.summary)}</div>
+        <div class="meta small"><span>🧪 ${n} chapitres interactifs · quiz</span>${done ? `<span class="seen">${done}/${n} ✓</span>` : ''}</div>
+      </div></a>`;
+  }
+
   function currentPhase() {
     const today = new Date().toISOString().slice(0, 10);
     if (today < A.phases[0].start) return A.phases[0];
@@ -203,6 +216,9 @@
         ${XPS.length ? `<div class="section-title"><h2>🎞️ Comprendre en 1 minute</h2><a href="#/animations">Toutes les animations ›</a></div>
         <div class="grid courses">${XPS.filter(x => !Store.explainerSeen(x.id)).concat(XPS.filter(x => Store.explainerSeen(x.id))).slice(0, 4).map(xpCard).join('')}</div>` : ''}
 
+        ${SIMS.length ? `<div class="section-title"><h2>🧪 Apprendre en manipulant</h2><a href="#/simulateurs">Tous les simulateurs ›</a></div>
+        <div class="grid courses">${SIMS.map(simCard).join('')}</div>` : ''}
+
         <div class="section-title"><h2>Comment apprendre « par cœur » ici</h2></div>
         <div class="grid stats">
           <div class="card"><b>🎬 1. Regarder</b><p class="muted small">Chaque leçon est une vidéo narrée (diaporama + voix + sous-titres). Vitesse réglable, plein écran, raccourcis clavier.</p></div>
@@ -311,6 +327,8 @@
 
           ${xpFor(c.id).length ? `<div class="section-title"><h2>🎞️ Animations pour comprendre</h2><a href="#/animations">Toutes ›</a></div>
           <div class="grid courses">${xpFor(c.id).map(xpCard).join('')}</div>` : ''}
+          ${simFor(c.id).length ? `<div class="section-title"><h2>🧪 Simulateurs</h2><a href="#/simulateurs">Tous ›</a></div>
+          <div class="grid courses">${simFor(c.id).map(simCard).join('')}</div>` : ''}
 
           <div class="section-title"><h2>Prérequis</h2></div>
           <ul>${(c.prerequisites || ['Aucun']).map(x => `<li>${md(x)}</li>`).join('')}</ul>
@@ -844,6 +862,7 @@
       const i = nt.indexOf(nq);
       if (nq && i >= 0) lessons.push({ c, l, snippet: text.slice(Math.max(0, i - 60), i + 100) });
     }));
+    const sims = SIMS.filter(x => nq && U.normalize([x.title, x.summary, ...x.chapters.map(ch => ch.title + ' ' + ch.body.join(' '))].join(' ')).includes(nq));
     const anims = XPS.filter(x => nq && U.normalize([x.title, x.question, ...x.steps.map(ExplainerPlayer.stepText), ...(x.recap || [])].join(' ')).includes(nq));
     const cards = [];
     A.courses.forEach(c => c.flashcards.forEach(([f, b]) => { if (nq && U.normalize(f + ' ' + b).includes(nq)) cards.push({ c, f, b }); }));
@@ -853,8 +872,9 @@
         ${courses.length ? `<div class="section-title"><h2>Formations (${courses.length})</h2></div><div class="grid courses">${courses.map(courseCard).join('')}</div>` : ''}
         ${lessons.length ? `<div class="section-title"><h2>Leçons (${lessons.length})</h2></div>${lessons.slice(0, 60).map(x => `<a class="search-hit" href="#/apprendre/${x.c.id}/${x.l.id}"><div class="muted small">${x.c.icon} ${esc(x.c.title)}</div><b>${hl(x.l.title)}</b><div class="small muted">…${hl(U.plain(x.snippet))}…</div></a>`).join('')}` : ''}
         ${anims.length ? `<div class="section-title"><h2>Animations (${anims.length})</h2></div><div class="grid courses">${anims.map(xpCard).join('')}</div>` : ''}
+        ${sims.length ? `<div class="section-title"><h2>Simulateurs (${sims.length})</h2></div><div class="grid courses">${sims.map(simCard).join('')}</div>` : ''}
         ${cards.length ? `<div class="section-title"><h2>Flashcards (${cards.length})</h2></div>${cards.slice(0, 40).map(x => `<a class="search-hit" href="#/flashcards/${x.c.id}"><div class="muted small">${x.c.icon} ${esc(x.c.title)}</div><b>${hl(x.f)}</b><div class="small">${hl(x.b)}</div></a>`).join('')}` : ''}
-        ${!courses.length && !lessons.length && !cards.length && !anims.length ? `<div class="empty"><div class="e-icon">🔍</div>Aucun résultat. Essayez « VPC », « pipeline », « pod », « IAM »…</div>` : ''}
+        ${!courses.length && !lessons.length && !cards.length && !anims.length && !sims.length ? `<div class="empty"><div class="e-icon">🔍</div>Aucun résultat. Essayez « VPC », « pipeline », « pod », « IAM »…</div>` : ''}
       </div>`);
   }
 
@@ -932,7 +952,108 @@
         <h1>🎞️ Comprendre en 1 minute</h1>
         <p class="muted">Des schémas animés et narrés pour comprendre les mécanismes clés de l'informatique : ce qui circule, dans quel ordre, et pourquoi. Chaque animation se termine par une fiche mémo. ${seen}/${XPS.length} vues.</p>
         <div class="grid courses">${XPS.map(xpCard).join('')}</div>
+        ${SIMS.length ? `<div class="section-title"><h2>🧪 Passer à la pratique : les simulateurs</h2><a href="#/simulateurs">Tous ›</a></div>
+        <div class="grid courses">${SIMS.map(simCard).join('')}</div>` : ''}
       </div>`);
+  }
+
+  /* ---------- Simulateurs (apprendre en manipulant) ---------- */
+  function viewSims() {
+    setView(`
+      <div class="container">
+        <h1>🧪 Simulateurs</h1>
+        <p class="muted">Des architectures vivantes : les requêtes circulent, les serveurs saturent, tombent en panne, se multiplient. Chaque leçon alterne une courte théorie et un <b>objectif à atteindre dans la simulation</b>, en bougeant les curseurs, en cliquant sur les composants, en changeant d'algorithme. Puis un bac à sable libre et un quiz. Les métriques (débit, latence p95, erreurs) sont <b>mesurées</b> sur les requêtes simulées, pas écrites à l'avance.</p>
+        <div class="grid courses">${SIMS.map(simCard).join('')}</div>
+      </div>`);
+  }
+
+  function viewSim(id, tab, num) {
+    const s = SIMS.find(x => x.id === id);
+    if (!s) return notFound();
+    tab = tab || 'apprendre';
+    const st = Store.simState(id), n = s.chapters.length;
+    const tabs = [['apprendre', '📖 Apprendre'], ['bac-a-sable', '🧪 Bac à sable'], ['quiz', '✅ Quiz']];
+    const head = `<div class="crumbs muted small"><a href="#/simulateurs">Simulateurs</a> › ${esc(s.title)}</div>
+      <div class="sim-head"><h1>${s.icon} ${esc(s.title)}</h1>
+        <nav class="sim-tabs">${tabs.map(([t, l]) => `<a href="#/simulateur/${id}/${t}" class="${t === tab ? 'active' : ''}">${l}${t === 'apprendre' ? ` <span class="muted">${Object.keys(st.ch).length}/${n}</span>` : t === 'quiz' && st.quiz != null ? ` <span class="muted">${st.quiz} %</span>` : ''}</a>`).join('')}</nav></div>`;
+    if (tab === 'quiz') return simQuiz(s, head);
+    if (tab === 'bac-a-sable') {
+      setView(`<div class="container sim-page">${head}
+        <p class="muted small">Tous les réglages sont disponibles. Clique sur les composants pour provoquer des pannes, déclenche des pics de trafic, et observe les métriques. <kbd>Espace</kbd> : pause.</p>
+        <div id="simRoot"></div></div>`);
+      const lab = new SimLab($('#simRoot'), s, {});
+      cleanup = () => lab.destroy();
+      return;
+    }
+    const k = Math.max(0, Math.min(n - 1, (parseInt(num, 10) || 1) - 1));
+    const ch = s.chapters[k];
+    const nextHref = k < n - 1 ? `#/simulateur/${id}/apprendre/${k + 2}` : `#/simulateur/${id}/quiz`;
+    setView(`<div class="container sim-page">${head}
+      <div class="sim-learn">
+        <article class="sim-lesson">
+          <div class="sim-chaps">${s.chapters.map((c, i) => `<a href="#/simulateur/${id}/apprendre/${i + 1}" class="${i === k ? 'on' : ''} ${st.ch[i] ? 'done' : ''}" title="${esc(c.title)}">${st.ch[i] ? '✓' : i + 1}</a>`).join('')}</div>
+          <div class="muted small">Chapitre ${k + 1} sur ${n}</div>
+          <h2>${esc(ch.title)}</h2>
+          ${ch.body.map(p => `<p>${md(p)}</p>`).join('')}
+          <div class="sim-objective ${st.ch[k] ? 'done' : ''}" id="simObj">
+            <b><span id="simObjIcon">${st.ch[k] ? '✅' : '🎯'}</span> Objectif</b>
+            <p>${md(ch.goal.text)}</p>
+            ${ch.hint ? `<details><summary>💡 Indice</summary><p>${md(ch.hint)}</p></details>` : ''}
+          </div>
+          <div class="sim-nav">
+            ${k > 0 ? `<a class="btn ghost small" href="#/simulateur/${id}/apprendre/${k}">‹ Précédent</a>` : '<span></span>'}
+            ${LessonPlayer.ttsAvailable ? '<button class="btn ghost small" id="simRead">🔊 Écouter</button>' : ''}
+            <a class="btn small ${st.ch[k] ? '' : 'ghost'}" id="simNext" href="${nextHref}">${k < n - 1 ? 'Suivant ›' : 'Quiz ›'}</a>
+          </div>
+        </article>
+        <div id="simRoot"></div>
+      </div></div>`);
+    const lab = new SimLab($('#simRoot'), s, {
+      setup: ch.setup, controls: ch.controls, goal: ch.goal,
+      onGoal: () => {
+        Store.setSimChapterDone(id, k);
+        $('#simObj').classList.add('done');
+        $('#simObjIcon').textContent = '✅';
+        $('#simNext').classList.remove('ghost');
+        const dot = $$('.sim-chaps a')[k]; if (dot) { dot.classList.add('done'); dot.textContent = '✓'; }
+        toast('🎯 Objectif atteint !');
+      }
+    });
+    const synth = window.speechSynthesis;
+    const rd = $('#simRead');
+    if (rd) rd.addEventListener('click', () => {
+      if (synth.speaking) { synth.cancel(); rd.textContent = '🔊 Écouter'; return; }
+      const u = new SpeechSynthesisUtterance(U.plain([ch.title + '.', ...ch.body, 'Objectif : ' + ch.goal.text].join(' ')));
+      u.lang = 'fr-FR'; u.rate = (Store.setting('rate') || 1) * 0.95;
+      const v = LessonPlayer.pickVoice(Store.setting('voice')); if (v) u.voice = v;
+      u.onend = u.onerror = () => { if (rd.isConnected) rd.textContent = '🔊 Écouter'; };
+      synth.cancel(); synth.speak(u); rd.textContent = '⏹ Arrêter';
+    });
+    cleanup = () => { lab.destroy(); if (synth) synth.cancel(); };
+  }
+
+  function simQuiz(s, head) {
+    setView(`<div class="container sim-page">${head}
+      <div class="sim-quiz">
+        ${s.quiz.map((q, i) => `<div class="card sim-q" data-i="${i}"><b>${i + 1}. ${md(q.q)}</b>
+          ${q.options.map((o, j) => `<label class="sim-opt"><input type="radio" name="q${i}" value="${j}"> ${md(o)}</label>`).join('')}
+          <div class="sim-why hidden"></div></div>`).join('')}
+        <div class="sim-nav"><a class="btn ghost small" href="#/simulateur/${s.id}/apprendre">‹ Revoir la leçon</a><button class="btn" id="simCheck">Valider mes réponses</button></div>
+        <div id="simScore"></div>
+      </div></div>`);
+    $('#simCheck').addEventListener('click', () => {
+      let ok = 0;
+      s.quiz.forEach((q, i) => {
+        const box = $(`.sim-q[data-i="${i}"]`, app), sel = $('input:checked', box);
+        const good = sel && +sel.value === q.answer;
+        if (good) ok++;
+        $$('.sim-opt', box).forEach((l, j) => { l.classList.toggle('right', j === q.answer); l.classList.toggle('wrong', !!sel && +sel.value === j && j !== q.answer); });
+        const why = $('.sim-why', box); why.classList.remove('hidden'); why.innerHTML = `${good ? '✅' : '❌'} ${md(q.why)}`;
+      });
+      const pct = Math.round(ok * 100 / s.quiz.length);
+      Store.setSimQuiz(s.id, pct);
+      $('#simScore').innerHTML = `<div class="card"><h3>Score : ${ok}/${s.quiz.length} (${pct} %)</h3><p class="muted">${pct === 100 ? 'Parfait.' : 'Relis les explications, puis retente le chapitre concerné dans la simulation.'}</p><a class="btn small" href="#/simulateur/${s.id}/bac-a-sable">🧪 Aller au bac à sable</a></div>`;
+    });
   }
 
   function viewAnimation(id) {
@@ -953,6 +1074,7 @@
             <ol class="xp-steps">${x.steps.map((st, i) => `<li data-k="${i}">${esc(ExplainerPlayer.stepText(st))}</li>`).join('')}</ol>
             <h3 style="margin-top:20px">📌 Fiche mémo</h3>
             <ul class="keypoints">${(x.recap || []).map(r => `<li>${md(r)}</li>`).join('')}</ul>
+            ${SIMS.filter(sm => sm.explainer === x.id).map(sm => `<a class="btn small" style="margin-top:16px" href="#/simulateur/${sm.id}/apprendre">🧪 À toi de jouer : ${esc(sm.title)}</a>`).join('')}
             ${rel.length ? `<h3 style="margin-top:20px">Formations liées</h3><div class="side-extra" style="padding:0">${rel.map(c => `<a href="#/cours/${c.id}">${c.icon} ${esc(c.title)}</a>`).join('')}</div>` : ''}
           </aside>
         </div>
@@ -1008,6 +1130,8 @@
       case 'parametres': return viewSettings();
       case 'animations': return viewAnimations();
       case 'animation': return viewAnimation(seg[1]);
+      case 'simulateurs': return viewSims();
+      case 'simulateur': return viewSim(seg[1], seg[2], seg[3]);
       case 'recherche': return viewSearch(params.get('q') || '');
       default: return notFound();
     }
