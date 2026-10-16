@@ -28,16 +28,18 @@
   const XPS = window.EXPLAINERS || [];
   // Concepts : les leçons interactives (data/concepts.js) + les animations, présentées en mode « Apprendre »
   const CATS = ['Réseau & Web', 'Scalabilité', 'Cache & données', 'Messages & événements', 'Sécurité & identité', 'Conteneurs & DevOps', 'Runtime & IA'];
-  const ORDER = ['url', 'dns', 'cdn', 'lb', 'autoscaling', 'cache', 'mq', 'queue', 'events', 'https', 'oauth', 'paiement', 'docker', 'k8s', 'cicd', 'eventloop', 'rag'];
+  const ORDER = ['url', 'dns', 'cdn', 'lb', 'autoscaling', 'cache', 'mq', 'queue', 'kafka-rabbit', 'events', 'https', 'oauth', 'paiement', 'docker', 'k8s', 'cicd', 'eventloop', 'rag'];
   const CONCEPTS = (window.CONCEPTS_FLOW || []).map(f => Object.assign({ kind: 'flow' }, f))
-    .concat(XPS.map(x => ({ kind: 'xp', id: x.id, cat: x.cat || 'Runtime & IA', title: x.title, tagline: x.question, icon: x.icon, courses: x.courses, src: x,
+    .concat((window.REELS || []).map(r => Object.assign({ kind: 'reel' }, r)))
+    .concat(XPS.map(x => ({ kind: 'xp', id: x.id, cat: x.cat || 'Runtime & IA', title: x.title, tagline: x.question, icon: x.icon, courses: x.courses, src: x, recap: x.recap,
       sections: x.steps.map(st => ({ t: st.t || '', body: [ExplainerPlayer.stepText(st)] })) })))
     .sort((a, b) => (CATS.indexOf(a.cat) - CATS.indexOf(b.cat)) || ((ORDER.indexOf(a.id) + 1 || 99) - (ORDER.indexOf(b.id) + 1 || 99)));
   CONCEPTS.forEach((c, i) => { c.n = i + 1; c.short = c.title.split(/ ?[:«(]/)[0].slice(0, 28); });
   const conceptsFor = cid => CONCEPTS.filter(c => (c.courses || []).includes(cid));
-  const conceptIcon = (c, size) => (c.kind === 'flow' ? `<span class="cx-icon" style="--c:${FlowCanvas.TYPES[c.icon] ? FlowCanvas.TYPES[c.icon].color : '#6b8afd'}">${FlowCanvas.iconSVG(c.icon, size)}</span>` : `<span class="cx-icon emoji" style="font-size:${size}px">${c.icon}</span>`);
+  const conceptIcon = (c, size) => (c.kind !== 'xp' ? `<span class="cx-icon" style="--c:${FlowCanvas.TYPES[c.icon] ? FlowCanvas.TYPES[c.icon].color : '#6b8afd'}">${FlowCanvas.iconSVG(c.icon, size)}</span>` : `<span class="cx-icon emoji" style="font-size:${size}px">${c.icon}</span>`);
   function conceptThumb(c) {
     if (c.kind === 'xp') return ExplainerPlayer.modernSVG(c.src, 'xp-svg cx-svg cx-thumbsvg', true);
+    if (c.kind === 'reel') return ReelPlayer.thumbSVG(c, 4);
     const g = c.sections.reduce((best, s) => (s.graph.nodes.length > best.nodes.length ? s.graph : best), c.sections[0].graph);
     return FlowCanvas.thumbSVG(g);
   }
@@ -45,6 +47,7 @@
     if (c.kind === 'xp') return Store.explainerSeen(c.id) ? { done: true, label: '✓ vu' } : { done: false };
     const st = Store.simState(c.id), goals = c.sections.filter(s => s.try && s.try.goal).length, got = Object.keys(st.ch).length;
     const parts = [];
+    if (c.kind === 'reel' && Store.explainerSeen(c.id)) parts.push('✓ vu');
     if (got) parts.push(`${got}/${goals} objectifs`);
     if (st.build) parts.push('défi ✓');
     if (st.quiz != null) parts.push(`quiz ${st.quiz} %`);
@@ -945,7 +948,7 @@
         <div class="cx-kicker">CONCEPT ${String(c.n).padStart(2, '0')} · ${esc(c.cat.toUpperCase())}</div>
         <h3>${conceptIcon(c, 18)} ${esc(c.title)}</h3>
         <div class="q">${esc(c.tagline)}</div>
-        <div class="cx-tags small"><span>📖 ${c.sections.length} sections</span>${c.build ? '<span>🛠️ Construire</span>' : ''}${c.quiz ? '<span>✅ Quiz</span>' : ''}${c.kind === 'xp' ? '<span>🎬 Vidéo</span>' : ''}${st.done ? `<span class="seen">${st.label}</span>` : ''}</div>
+        <div class="cx-tags small"><span>📖 ${c.sections.length} sections</span>${c.build ? '<span>🛠️ Construire</span>' : ''}${c.quiz ? '<span>✅ Quiz</span>' : ''}${c.kind !== 'flow' ? '<span>🎬 Vidéo</span>' : ''}${st.done ? `<span class="seen">${st.label}</span>` : ''}</div>
       </div></a>`;
   }
 
@@ -976,7 +979,7 @@
     const c = CONCEPTS[k0], prevC = CONCEPTS[k0 - 1], nextC = CONCEPTS[k0 + 1];
     const n = c.sections.length;
     let k = Math.max(0, Math.min(n - 1, (parseInt(num, 10) || 1) - 1));
-    const right = `${c.kind === 'xp' ? `<a class="cx-pill" href="#/animation/${c.id}/video" title="Version vidéo narrée, plein écran">🎬 Vidéo</a>` : ''}
+    const right = `${c.kind === 'xp' ? `<a class="cx-pill" href="#/animation/${c.id}/video" title="Version vidéo narrée, plein écran">🎬 Vidéo</a>` : c.kind === 'reel' ? `<a class="cx-pill" href="#/concept/${c.id}/video" title="Format reel vertical, narré">🎬 Vidéo</a>` : ''}
       ${prevC ? `<a class="cx-pill" href="#/concept/${prevC.id}/apprendre">← ${esc(prevC.short || prevC.title)}</a>` : ''}
       ${nextC ? `<a class="cx-pill" href="#/concept/${nextC.id}/apprendre">${esc(nextC.short || nextC.title)} →</a>` : ''}
       <span class="cx-pg" id="cxPg"></span>`;
@@ -998,12 +1001,13 @@
     if (c.kind === 'flow') {
       fc = new FlowCanvas($('#cxStage'), { label: c.title, fit: true, onMetrics: m => onMetrics(m) });
     } else {
-      player = new ExplainerPlayer($('#cxStage'), c.src, { stage: true });
+      player = c.kind === 'reel' ? new ReelPlayer($('#cxStage'), c, {}) : new ExplainerPlayer($('#cxStage'), c.src, { stage: true });
       const tools = $('#cxTools');
       tools.innerHTML = `<button class="cx-pill" id="cxReplay" title="Rejouer la section">↺ Rejouer</button>${LessonPlayer.ttsAvailable ? `<button class="cx-pill" id="cxVoice" title="Narration de la section">${voiceOn() ? '🔊 Voix activée' : '🔈 Voix coupée'}</button>` : ''}`;
-      $('#cxReplay').addEventListener('click', () => player.showSection(k, voiceOn()));
+      const playSec = () => (c.kind === 'reel' ? player.playSection(k, voiceOn()) : player.showSection(k, voiceOn()));
+      $('#cxReplay').addEventListener('click', playSec);
       const vb = $('#cxVoice');
-      if (vb) vb.addEventListener('click', () => { Store.setSetting('cxVoice', !voiceOn()); vb.textContent = voiceOn() ? '🔊 Voix activée' : '🔈 Voix coupée'; player.showSection(k, voiceOn()); });
+      if (vb) vb.addEventListener('click', () => { Store.setSetting('cxVoice', !voiceOn()); vb.textContent = voiceOn() ? '🔊 Voix activée' : '🔈 Voix coupée'; playSec(); });
     }
 
     function liveHTML(m) {
@@ -1069,7 +1073,8 @@
         fc.setGraph(JSON.parse(JSON.stringify(sec.graph)), { instant: first });
         if (sec.setup) sec.setup(fc);
       }
-      const xpRecap = c.kind === 'xp' && last && c.src.recap ? `<div class="cx-recap"><div class="cx-lbl">📌 FICHE MÉMO</div><ol>${c.src.recap.map(r => `<li>${md(r)}</li>`).join('')}</ol></div>` : '';
+      const xpRecap = c.kind !== 'flow' && last && c.recap ? `<div class="cx-recap"><div class="cx-lbl">📌 FICHE MÉMO</div><ol>${c.recap.map(r => `<li>${md(r)}</li>`).join('')}</ol></div>` : '';
+      const credit = c.credit && (k === 0 || last) ? `<p class="cx-credit">${md(c.credit)}</p>` : '';
       const link = c.kind === 'xp' ? CONCEPTS.find(o => o.kind === 'flow' && o.explainer === c.id) : null;
       const tryBox = sec.try ? `<div class="cx-try ${goalDone ? 'done' : ''}" id="cxTry">
           <div class="cx-lbl">À TOI</div>
@@ -1090,7 +1095,7 @@
           <div class="cx-num">${String(k + 1).padStart(2, '0')}</div>
           <h2>${esc(sec.t)}</h2>
           ${sec.body.map(p => `<p>${md(p)}</p>`).join('')}
-          ${tryBox}${xpRecap}
+          ${tryBox}${xpRecap}${credit}
           <div class="cx-nav"><button class="cx-btn ghost" id="cxPrev" ${k ? '' : 'disabled'}>← Précédent</button>${nextBtns}</div>
           ${last && nextC ? `<div class="cx-lbl" style="margin-top:22px">OU PASSE DIRECTEMENT À</div><a class="cx-ahead" href="#/concept/${nextC.id}/apprendre"><b>${esc(nextC.title)}</b><span>${esc(nextC.tagline)}</span></a>` : ''}
         </div>
@@ -1104,7 +1109,7 @@
         $('#cxLive').classList.remove('hidden');
       } else {
         $('#cxLive').classList.add('hidden');
-        player.showSection(k, voiceOn());
+        if (c.kind === 'reel') player.playSection(k, voiceOn()); else player.showSection(k, voiceOn());
         if (last) Store.setExplainerSeen(c.id);
       }
       renderProgress();
@@ -1262,6 +1267,43 @@
     cleanup = () => { fc.destroy(); window.removeEventListener('resize', fitCx); };
   }
 
+  // Format reel vertical : toutes les sections à la suite, sous-titres karaoké, voix optionnelle
+  function viewReelVideo(id) {
+    const c = CONCEPTS.find(o => o.id === id && o.kind === 'reel');
+    if (!c) return notFound();
+    const voiceOn = () => !!Store.setting('cxVoice');
+    setView(`<div class="cx rl-page">${cxBar(c, 'Vidéo', `<a class="cx-pill" href="#/concept/${c.id}/apprendre">📖 Version texte</a>${c.build ? `<a class="cx-pill blue" href="#/concept/${c.id}/construire">Construis-le →</a>` : ''}`)}
+      <div class="rl-wrap">
+        <div class="rl-phone"><div id="rlStage" class="rl-stage"></div><button class="rl-big" id="rlBig" aria-label="Lecture">▶</button></div>
+        <div class="rl-ctrls">
+          <button class="cx-pill" id="rlPlay">▶ Lecture</button>
+          <button class="cx-pill" id="rlRestart">↺ Depuis le début</button>
+          ${LessonPlayer.ttsAvailable ? `<button class="cx-pill" id="rlVoice">${voiceOn() ? '🔊 Voix activée' : '🔈 Voix coupée'}</button>` : ''}
+          <div class="rl-dots">${c.sections.map((s, i) => `<button data-k="${i}" title="${esc(s.t)}"></button>`).join('')}</div>
+          ${c.credit ? `<p class="cx-credit">${md(c.credit)}</p>` : ''}
+        </div>
+      </div></div>`);
+    fitCx();
+    let cur = 0;
+    const dots = $$('.rl-dots button');
+    const mark = k => { cur = k; dots.forEach((d, i) => { d.classList.toggle('on', i === k); d.classList.toggle('past', i < k); }); };
+    const player = new ReelPlayer($('#rlStage'), c, {
+      onSection: mark,
+      onEnd: () => { $('#rlPlay').textContent = '▶ Lecture'; Store.setExplainerSeen(c.id); $('#rlBig').classList.remove('hidden'); $('#rlBig').textContent = '↺'; cur = 0; }
+    });
+    const start = k => { $('#rlBig').classList.add('hidden'); $('#rlPlay').textContent = '⏸ Pause'; player.playAll(k, voiceOn()); };
+    const pause = () => { player.stopAll(); player.playing = false; $('#rlPlay').textContent = '▶ Lecture'; };
+    $('#rlBig').addEventListener('click', () => start(cur));
+    $('#rlPlay').addEventListener('click', () => (player.playing ? pause() : start(cur)));
+    $('#rlRestart').addEventListener('click', () => start(0));
+    dots.forEach(d => d.addEventListener('click', () => start(+d.dataset.k)));
+    const vb = $('#rlVoice');
+    if (vb) vb.addEventListener('click', () => { Store.setSetting('cxVoice', !voiceOn()); vb.textContent = voiceOn() ? '🔊 Voix activée' : '🔈 Voix coupée'; if (player.playing) start(cur); });
+    mark(0);
+    window.addEventListener('resize', fitCx);
+    cleanup = () => { player.destroy(); window.removeEventListener('resize', fitCx); };
+  }
+
   function viewConceptQuiz(id) {
     const c = CONCEPTS.find(o => o.id === id);
     if (!c || !c.quiz) return notFound();
@@ -1369,6 +1411,7 @@
       case 'concept':
         if (seg[2] === 'construire') return viewConceptBuild(seg[1]);
         if (seg[2] === 'quiz') return viewConceptQuiz(seg[1]);
+        if (seg[2] === 'video') return viewReelVideo(seg[1]);
         return viewConceptLearn(seg[1], seg[3]);
       // anciennes adresses (animations, simulateurs) → concepts
       case 'animations': case 'simulateurs': location.replace('#/concepts'); return;

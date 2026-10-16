@@ -174,3 +174,27 @@ Les 5 vidéos fournies (environ 2 minutes au total) ont été analysées image p
   - les 4 défis échouent avec le graphe de départ et réussissent avec la solution. Pour les files, 3 workers sont refusés et 4 acceptés ;
   - le parcours réel à la souris a été testé : glisser, relier, Play, réussite, suppression d'une flèche, persistance après rechargement ;
   - mobile sans débordement, CSP sans violation sur 137 écrans, non-régression sur 298 pages sans erreur.
+
+## 13. Nouveau concept « Kafka vs RabbitMQ » au format reel
+
+- **Source** : un reel Instagram de **Krishna Chaitanya** (@krishnachaytanyaa, créateur de freesystemdesign.com), fourni en vidéo et analysé image par image. Je n'ai pas accès au son : le script a été reconstitué à partir des sous-titres incrustés, puis **réécrit en français**. La source est créditée dans le concept.
+- **Faits vérifiés** avant d'écrire :
+  - la lecture d'un stream RabbitMQ est non destructive, et le point de départ se choisit avec `x-stream-offset` (`first`, `last`, `next`, un offset ou une date) — documentation RabbitMQ ;
+  - les share groups Kafka (KIP-932) répartissent les enregistrements entre consommateurs, avec un verrou d'acquisition de **30 s par défaut** (`group.share.record.lock.duration.ms`), puis les relâchent — Javadoc `KafkaShareConsumer` 4.1.
+  
+  Je n'affirme pas la version de Kafka où la fonction est stable : la vidéo dit « 4.2 », mais je n'ai pas pu le confirmer. J'ai aussi corrigé une simplification. Dans un stream, ce n'est pas l'ACK qui déplace le « marque-page » : c'est la position (l'offset) gérée par le consommateur ou par le serveur.
+- **Nouveau moteur `js/reel.js`**, qui reprend le style de la vidéo :
+  - format vertical 9:16 ;
+  - trait fin néon sur fond bleu nuit, étiquettes mono ;
+  - rail de consommateurs avec bras, tête de lecture et convoyeur, journal à emplacements #1–#9 ;
+  - marque-pages qui glissent, ACK, compteurs « rejouées / perdues », barre du verrou de 30 s en accéléré ;
+  - cartes-titres (« 8 REJOUÉES, 0 PERDUE. COMMENT ? »), caméra qui zoome entre les plans ;
+  - sous-titres karaoké avec mots clés soulignés, voix optionnelle.
+  
+  Les scènes sont déclaratives (`data/reels.js`). Chaque section peut être rejouée seule : l'état est reconstruit à partir des sections précédentes.
+- **Intégration** :
+  - mode Apprendre : 7 sections, avec à gauche un texte plus complet que la narration (offsets, rétention, KIP-932, idempotence) ;
+  - page **Vidéo** (`#/concept/kafka-rabbit/video`) : téléphone, lecture continue, points de section ;
+  - **défi Construire** : un topic consommé par un share group à 15 r/s, avec des workers à 10 r/s. Il faut tuer un worker sans rien perdre et résorber le retard. Validé avec 3 workers, refusé avec 2 (retard qui grossit, N+1) ;
+  - quiz de 5 questions.
+- **Vérifications** : lecture complète du reel et des sections, défi (réussite et refus), CSP sans violation sur 140 écrans, mobile sans débordement, non-régression sur 298 pages sans erreur.

@@ -20,6 +20,7 @@ Facultatif : `start.bat` (Windows) ou `./start.sh` (macOS/Linux) démarre un pet
   - **Apprendre** : le texte en sections à gauche, et à droite un schéma vivant où le trafic circule, les composants saturent et tombent en panne (croix ✕).
   - **Construire** (CDN, load balancer, cache, files) : glisser des composants, les relier, lancer **Play**, puis voir les métriques et le feedback en direct.
   - Chaque animation garde sa **version vidéo narrée** (bouton 🎬).
+  - **Kafka vs RabbitMQ** : un format **reel vertical** façon plan technique (rail de consommateurs, journal numéroté, marque-pages, verrou de 30 s, compteurs, karaoké), inspiré d'un reel de Krishna Chaitanya.
 - 🗺️ **Roadmap** des 5 phases, avec suivi des certifications obtenues.
 - 🎥 Possibilité de rattacher vos propres vidéos (lien YouTube ou fichier local) à chaque leçon.
 
@@ -39,11 +40,13 @@ js/store.js           persistance (localStorage + IndexedDB)
 js/player.js          lecteur vidéo narré
 js/explainer.js       moteur des animations explicatives
 js/flow.js            canevas d'architecture vivant (modèle de flux, rendu, édition glisser-déposer)
+js/reel.js            animations verticales « plan technique » (caméra, sous-titres karaoké, voix)
 js/app.js             pages et routeur
 data/phases.js        les 5 phases
 data/courses/*.js     une formation par fichier
 data/explainers.js    les animations (nœuds, liens, étapes en temps forts)
 data/concepts.js      concepts interactifs (sections, objectifs, défis « Construire », quiz)
+data/reels.js         concepts au format reel (Kafka vs RabbitMQ)
 docs/animations/      storyboard détaillé de chaque animation (généré)
 Decisions.md          choix faits pendant la construction
 docs/aws/             mise en ligne sur AWS (schéma, coûts, CloudFormation)
