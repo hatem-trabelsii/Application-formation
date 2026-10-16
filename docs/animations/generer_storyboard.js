@@ -67,7 +67,7 @@ X.forEach((x, n) => {
   out += `- **Durée de voix** : ≈ ${Math.round(nbW / 2.4)} s (${nbW} mots à ~145 mots/min, hors animations)${x.audio ? ' · **voix enregistrée activée**' : ''}\n`;
   out += `- **Éléments à l'écran** : ${Object.values(x.nodes).map(o => `${o.icon || '▭'} ${o.label}${o.kind === 'panel' ? ` (compteur, départ « ${o.value} »)` : ''}${o.hidden ? ' *(apparaît plus tard)*' : ''}`).join(' · ')}\n\n`;
   x.steps.forEach((st, k) => {
-    out += `### Étape ${k + 1}\n\n| Voix off (texte exact) | À l'écran, au même moment |\n|---|---|\n`;
+    out += `### Étape ${k + 1}${st.t ? ` — ${st.t}` : ""}\n\n| Voix off (texte exact) | À l'écran, au même moment |\n|---|---|\n`;
     st.beats.forEach(b => {
       out += `| ${md(b.say)}${b.pause != null && b.pause !== 320 ? ` \`[pause ${b.pause / 1000} s]\`` : ''} | ${(b.do || []).map(a => md(action(x, a))).join('<br>') || '*(plan inchangé)*'} |\n`;
     });

@@ -622,3 +622,27 @@ window.EXPLAINERS = [
     recap: ["**Dockerfile** = recette ; chaque instruction crée une **couche**", "Le **cache de couches** accélère les builds : dépendances avant le code", "**Image** immuable, identifiée par son **digest** ; taguée par version", "**Registre** (ECR, ACR, GitLab) : push puis pull des seules couches manquantes", "**Conteneur** = processus isolé : **namespaces** (vue) + **cgroups** (limites)", "Couche d'écriture **éphémère** → données dans un **volume**"]
   }
 ];
+
+/* Mode « Apprendre » (concepts) : catégorie et titre de chaque section, dans l'ordre des étapes. */
+(function () {
+  const T = {
+    dns: ['Réseau & Web', ['Un nom, mais pas d\'adresse', 'Le cache, puis le résolveur', 'Le serveur racine', 'Le serveur du domaine de premier niveau', 'Le serveur qui fait autorité', 'Mémoriser la réponse : le TTL', 'Enfin, la page']],
+    url: ['Réseau & Web', ['Le DNS mène au CDN', 'Connexion sécurisée et requête', 'Ce que le CDN garde, et ce qu\'il transmet', 'Le load balancer choisit un serveur', 'Logique métier et base de données', 'Le retour, en quelques centaines de millisecondes']],
+    https: ['Sécurité & identité', ['Le problème du Wi-Fi public', 'Client Hello', 'Server Hello et certificat', 'Vérifier le certificat', 'L\'astuce de Diffie-Hellman', 'Tout est chiffré']],
+    autoscaling: ['Scalabilité', ['Une journée calme', 'Le pic de trafic', 'L\'alarme déclenche le scaling', 'Une nouvelle instance démarre', 'Ajoutée à la rotation', 'L\'auto-réparation', 'Le soir, on réduit']],
+    oauth: ['Sécurité & identité', ['Redirection vers le fournisseur', 'L\'authentification chez lui seul', 'Le code à usage unique', 'Échanger le code contre des jetons', 'ID token et access token', 'Appeler l\'API avec le jeton', 'Rafraîchir sans retaper']],
+    paiement: ['Sécurité & identité', ['Le clic sur « Payer »', 'Du prestataire au réseau de cartes', 'L\'autorisation', '« Payé »… mais pas encore encaissé', 'La capture', 'Compensation et règlement', 'L\'argent arrive enfin', 'Et si la capture n\'arrive jamais ?']],
+    queue: ['Messages & événements', ['Déposer un message et répondre', 'Un worker prend le message', 'Acquitter, ou réessayer', 'Le grand pic', 'Plus de workers', 'Les messages en échec']],
+    events: ['Messages & événements', ['Publier un fait, pas un appel', 'Le topic : un journal durable', 'Chaque consommateur à son rythme', 'Une panne ne bloque personne', 'Reprendre grâce à l\'offset', 'Ajouter un consommateur']],
+    cicd: ['Conteneurs & DevOps', ['Le push déclenche le pipeline', 'Build et tests', 'La quality gate', 'L\'image et son étiquette immuable', 'Staging et tests de fumée', 'Approbation et canari', 'Passage à 100 %']],
+    docker: ['Conteneurs & DevOps', ['Le Dockerfile, une recette', 'docker build et les couches', 'L\'image et son digest', 'Le registre', 'docker run : le conteneur', 'Un processus isolé, pas une VM', 'Volumes et redéploiement']],
+    k8s: ['Conteneurs & DevOps', ['Déclarer ce qu\'on veut', 'L\'API server et etcd', 'Le contrôleur compare', 'Le scheduler place les pods', 'Une panne', 'La réconciliation']],
+    eventloop: ['Runtime & IA', ['Un seul fil d\'exécution', 'Déléguer les entrées-sorties', 'Ne jamais attendre', 'Les files de callbacks et de microtâches', 'La boucle d\'événements', 'Le piège : bloquer la pile']],
+    rag: ['Runtime & IA', ['Préparer : découper et vectoriser', 'La question', 'La question devient un vecteur', 'Recherche par le sens', 'La consigne et la réponse', 'Sources et règles d\'or']]
+  };
+  (window.EXPLAINERS || []).forEach(x => {
+    const t = T[x.id]; if (!t) return;
+    x.cat = t[0];
+    x.steps.forEach((s, i) => { s.t = t[1][i] || ('Étape ' + (i + 1)); });
+  });
+})();

@@ -109,6 +109,8 @@
     // ---- simulateurs
     simState(id) { return (state.sims = state.sims || {})[id] || { ch: {} }; },
     setSimChapterDone(id, k) { const s = (state.sims = state.sims || {}); s[id] = s[id] || { ch: {} }; s[id].ch[k] = Date.now(); save(); },
+    setSimBuild(id) { const s = (state.sims = state.sims || {}); s[id] = s[id] || { ch: {} }; s[id].build = Date.now(); save(); },
+    setSimGraph(id, g) { const s = (state.sims = state.sims || {}); s[id] = s[id] || { ch: {} }; if (g) s[id].graph = g; else delete s[id].graph; save(); },
     setSimQuiz(id, pct) { const s = (state.sims = state.sims || {}); s[id] = s[id] || { ch: {} }; s[id].quiz = Math.max(s[id].quiz || 0, pct); save(); },
 
     // ---- réglages

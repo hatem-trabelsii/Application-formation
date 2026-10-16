@@ -30,7 +30,7 @@
 - **Durée de voix** : ≈ 78 s (186 mots à ~145 mots/min, hors animations)
 - **Éléments à l'écran** : 💻 Navigateur · ▭ Cache local (compteur, départ « vide ») · 🔁 Résolveur DNS · 🌍 Serveur racine · 🏷️ Serveur .fr · 📗 Serveur autoritaire · 🖥️ Serveur web *(apparaît plus tard)*
 
-### Étape 1
+### Étape 1 — Un nom, mais pas d'adresse
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -38,7 +38,7 @@
 | Problème : sur Internet, les machines ne se trouvent pas par leur nom… `[pause 0.2 s]` | *(plan inchangé)* |
 | mais par une adresse IP. Il faut donc traduire. `[pause 0.5 s]` | *(plan inchangé)* |
 
-### Étape 2
+### Étape 2 — Le cache, puis le résolveur
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -46,7 +46,7 @@
 | Il est vide. `[pause 0.4 s]` | *(plan inchangé)* |
 | Il demande alors au résolveur DNS, celui de votre box ou de votre opérateur. | jeton « exemple.fr ? » : Navigateur → Résolveur DNS |
 
-### Étape 3
+### Étape 3 — Le serveur racine
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -54,28 +54,28 @@
 | Il commence par le sommet : le serveur racine. | jeton « ? » : Résolveur DNS → Serveur racine |
 | La racine ne connaît que les extensions. Elle répond : demandez aux serveurs du point fr. | jeton « → .fr » : Serveur racine → Résolveur DNS |
 
-### Étape 4
+### Étape 4 — Le serveur du domaine de premier niveau
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
 | Le résolveur interroge donc le serveur du point fr. | jeton « ? » : Résolveur DNS → Serveur .fr |
 | Lui ne connaît pas l'adresse… mais il sait qui gère exemple point fr. | jeton « NS exemple.fr » : Serveur .fr → Résolveur DNS |
 
-### Étape 5
+### Étape 5 — Le serveur qui fait autorité
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
 | Dernière question, au serveur qui fait autorité sur ce domaine. | jeton « ? » : Résolveur DNS → Serveur autoritaire |
 | Cette fois, c'est la bonne réponse : l'enregistrement A. `[pause 0.5 s]` | Serveur autoritaire pulse (focus)<br>jeton « A 93.184.216.34 » : Serveur autoritaire → Résolveur DNS |
 
-### Étape 6
+### Étape 6 — Mémoriser la réponse : le TTL
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
 | Le résolveur garde cette réponse en mémoire, pendant une durée appelée le TTL. | étiquette sur Résolveur DNS : « cache TTL 300 s » (info) |
 | Puis il la renvoie au navigateur, qui la mémorise à son tour. | jeton « 93.184.216.34 » : Résolveur DNS → Navigateur<br>compteur « Cache local » = **93.184.216.34**<br>étiquette de Navigateur retirée |
 
-### Étape 7
+### Étape 7 — Enfin, la page
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -100,7 +100,7 @@
 - **Durée de voix** : ≈ 75 s (179 mots à ~145 mots/min, hors animations)
 - **Éléments à l'écran** : 🧑 Vous · 🏪 Boutique · ⚙️ Prestataire · 💳 Réseau carte · 🏦 Votre banque · ▭ Bloqué (votre compte) (compteur, départ « 0 € ») · 🏦 Banque du marchand · ▭ Reçu (marchand) (compteur, départ « 0 € »)
 
-### Étape 1
+### Étape 1 — Le clic sur « Payer »
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -108,14 +108,14 @@
 | Surprise : la boutique ne touche jamais à votre argent. `[pause 0.4 s]` | *(plan inchangé)* |
 | Elle transmet simplement la demande à son prestataire de paiement. | jeton « autoriser 60 € » : Boutique → Prestataire |
 
-### Étape 2
+### Étape 2 — Du prestataire au réseau de cartes
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
 | Le prestataire l'envoie au réseau de cartes… | jeton « autorisation » : Prestataire → Réseau carte |
 | qui la route jusqu'à votre banque. | jeton « autorisation » : Réseau carte → Votre banque |
 
-### Étape 3
+### Étape 3 — L'autorisation
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -123,7 +123,7 @@
 | Puis elle bloque 60 euros. `[pause 0.5 s]` | compteur « Bloqué (votre compte) » = **60 €** |
 | Bloqué, pas débité. C'est ce qu'on appelle l'autorisation. | *(plan inchangé)* |
 
-### Étape 4
+### Étape 4 — « Payé »… mais pas encore encaissé
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -131,28 +131,28 @@
 | La boutique affiche « Payé ». `[pause 0.4 s]` | étiquette sur Boutique : « PAYÉ ✓ » (ok) |
 | Elle a la garantie d'être payée… mais toujours pas l'argent. | *(plan inchangé)* |
 
-### Étape 5
+### Étape 5 — La capture
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
 | Quelques jours plus tard, la commande est expédiée. | étiquette sur Boutique : « EXPÉDIÉ 📦 » (info) |
 | Le marchand déclenche alors la capture : il confirme qu'il prend les 60 euros. | jeton « capture 60 € » : Boutique → Prestataire |
 
-### Étape 6
+### Étape 6 — Compensation et règlement
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
 | Les captures de la journée sont regroupées en lots… | jeton « lot de captures » : Prestataire → Réseau carte |
 | puis compensées entre les banques, souvent la nuit. C'est le règlement. | jeton « débiter » : Réseau carte → Votre banque |
 
-### Étape 7
+### Étape 7 — L'argent arrive enfin
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
 | Votre banque transforme le blocage en vrai débit. | compteur « Bloqué (votre compte) » = **0 €**<br>étiquette sur Votre banque : « débité 60 € » (warn) |
 | Et l'argent arrive enfin chez le marchand, un à trois jours après votre clic, moins les frais. | jeton « 60 € » : Votre banque → Réseau carte<br>jeton « 60 € » : Réseau carte → Banque du marchand (après 1.5 s)<br>compteur « Reçu (marchand) » = **59,10 €** |
 
-### Étape 8
+### Étape 8 — Et si la capture n'arrive jamais ?
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -176,7 +176,7 @@
 - **Durée de voix** : ≈ 69 s (165 mots à ~145 mots/min, hors animations)
 - **Éléments à l'écran** : 💻 Navigateur · 🖥️ Serveur · 🏛️ Autorité de certif. · 🕵️ Espion *(apparaît plus tard)*
 
-### Étape 1
+### Étape 1 — Le problème du Wi-Fi public
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -184,21 +184,21 @@
 | Mais sur ce Wi-Fi public, quelqu'un écoute peut-être tout ce qui passe. `[pause 0.5 s]` | apparition : Espion<br>étiquette sur Espion : « écoute tout 👂 » (bad) |
 | Il faut donc une clé secrète… sans jamais l'envoyer sur le réseau. | *(plan inchangé)* |
 
-### Étape 2
+### Étape 2 — Client Hello
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
 | Premier message : le Client Hello. | jeton « ClientHello + part publique A » : Navigateur → Serveur (durée 2 s) |
 | Le navigateur propose ses algorithmes, et donne sa moitié publique de l'échange de clés. | *(plan inchangé)* |
 
-### Étape 3
+### Étape 3 — Server Hello et certificat
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
 | Réponse du serveur : le Server Hello. | jeton « ServerHello + certificat + part B » : Serveur → Navigateur (durée 2 s) |
 | Il choisit l'algorithme, envoie sa propre moitié publique… et son certificat. | *(plan inchangé)* |
 
-### Étape 4
+### Étape 4 — Vérifier le certificat
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -206,7 +206,7 @@
 | Est-il signé par une autorité de confiance ? Pour ce domaine ? Encore valide ? `[pause 0.3 s]` | *(plan inchangé)* |
 | Oui. On sait maintenant à qui on parle vraiment. | jeton « de confiance ✓ » : Autorité de certif. → Navigateur<br>étiquette sur Navigateur : « certificat ✓ » (ok) |
 
-### Étape 5
+### Étape 5 — L'astuce de Diffie-Hellman
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -215,7 +215,7 @@
 | Résultat : la même clé secrète des deux côtés. Elle n'a jamais circulé. `[pause 0.3 s]` | *(plan inchangé)* |
 | L'espion a vu passer A et B… et ça ne lui sert à rien. | étiquette sur Espion : « A et B seuls : inutiles » (warn) |
 
-### Étape 6
+### Étape 6 — Tout est chiffré
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -239,7 +239,7 @@
 - **Durée de voix** : ≈ 52 s (125 mots à ~145 mots/min, hors animations)
 - **Éléments à l'écran** : 💻 Navigateur · 🌐 DNS · ⚡ CDN · ⚖️ Load balancer · 🟩 API #1 · 🟩 API #2 · 🗄️ Base
 
-### Étape 1
+### Étape 1 — Le DNS mène au CDN
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -247,14 +247,14 @@
 | D'abord, le DNS traduit le nom du site en adresse IP. | jeton « boutique.fr ? » : Navigateur → DNS |
 | Ici, l'adresse du point de présence CDN le plus proche de chez vous. | jeton « IP du CDN » : DNS → Navigateur |
 
-### Étape 2
+### Étape 2 — Connexion sécurisée et requête
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
 | Le navigateur ouvre une connexion sécurisée avec ce CDN… | CDN pulse (focus) |
 | et envoie sa requête. | jeton « GET /api/produits » : Navigateur → CDN |
 
-### Étape 3
+### Étape 3 — Ce que le CDN garde, et ce qu'il transmet
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -262,7 +262,7 @@
 | Mais une API, c'est des données fraîches : pas de cache. | étiquette sur CDN : « cache : /api → miss » (warn) |
 | La requête continue jusqu'au load balancer. | jeton « GET /api/produits » : CDN → Load balancer |
 
-### Étape 4
+### Étape 4 — Le load balancer choisit un serveur
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -270,14 +270,14 @@
 | L'API numéro 1 est saturée. `[pause 0.3 s]` | étiquette sur API #1 : « CPU 95 % » (bad) |
 | Il envoie donc la requête à l'API numéro 2. | API #2 pulse (focus)<br>jeton « requête » : Load balancer → API #2 |
 
-### Étape 5
+### Étape 5 — Logique métier et base de données
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
 | L'API exécute la logique métier… | API #2 pulse (focus) |
 | et interroge la base de données. | jeton « SELECT … » : API #2 → Base<br>jeton « 42 lignes » : Base → API #2 (après 1.6 s) |
 
-### Étape 6
+### Étape 6 — Le retour, en quelques centaines de millisecondes
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -302,7 +302,7 @@
 - **Durée de voix** : ≈ 59 s (141 mots à ~145 mots/min, hors animations)
 - **Éléments à l'écran** : 👥 Utilisateurs · ⚖️ Load balancer · 🖥️ Instance 1 · 🖥️ Instance 2 · 🖥️ Instance 3 *(apparaît plus tard)* · ▭ CPU moyen · alarme 70 % (compteur, départ « 40 % ») · ▭ Auto Scaling group (compteur, départ « 2 / max 4 »)
 
-### Étape 1
+### Étape 1 — Une journée calme
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -310,7 +310,7 @@
 | Le load balancer répartit les requêtes entre deux instances. | jeton « req » : Load balancer → Instance 1<br>jeton « req » : Load balancer → Instance 2 |
 | Le processeur tourne à 40 pour cent. Tout va bien. | CPU moyen · alarme 70 % pulse (focus) |
 
-### Étape 2
+### Étape 2 — Le pic de trafic
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -318,21 +318,21 @@
 | Le trafic est multiplié par cinq. | compteur « CPU moyen · alarme 70 % » = **85 %** |
 | Les deux instances saturent, les pages ralentissent. | étiquette sur Instance 1 : « surchargée » (bad)<br>étiquette sur Instance 2 : « surchargée » (bad) |
 
-### Étape 3
+### Étape 3 — L'alarme déclenche le scaling
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
 | L'alarme reste au-dessus du seuil plusieurs minutes de suite. | CPU moyen · alarme 70 % pulse (focus)<br>étiquette sur CPU moyen · alarme 70 % : « ALARME » (bad) |
 | Elle déclenche la politique de scaling. | jeton « scale out +1 » : CPU moyen · alarme 70 % → Auto Scaling group |
 
-### Étape 4
+### Étape 4 — Une nouvelle instance démarre
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
 | Le groupe lance une troisième instance, à partir d'un modèle. | apparition : Instance 3<br>compteur « Auto Scaling group » = **3 / max 4** |
 | Attention : tant que son contrôle de santé n'est pas vert, elle ne reçoit rien. | étiquette sur Instance 3 : « démarrage… » (warn) |
 
-### Étape 5
+### Étape 5 — Ajoutée à la rotation
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -340,7 +340,7 @@
 | Le load balancer l'ajoute à la rotation. | jeton « req » : Load balancer → Instance 3<br>jeton « req » : Load balancer → Instance 1<br>jeton « req » : Load balancer → Instance 2 |
 | La charge se répartit sur trois instances, et le processeur redescend. | compteur « CPU moyen · alarme 70 % » = **55 %**<br>étiquette de Instance 1 retirée<br>étiquette de Instance 2 retirée<br>étiquette de CPU moyen · alarme 70 % retirée |
 
-### Étape 6
+### Étape 6 — L'auto-réparation
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -348,7 +348,7 @@
 | Le load balancer arrête aussitôt de lui envoyer du trafic, et le groupe la remplace. | étiquette sur Auto Scaling group : « remplacement… » (warn) |
 | C'est l'auto-réparation. | *(plan inchangé)* |
 
-### Étape 7
+### Étape 7 — Le soir, on réduit
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -373,7 +373,7 @@
 - **Durée de voix** : ≈ 67 s (161 mots à ~145 mots/min, hors animations)
 - **Éléments à l'écran** : 🧑 Navigateur · 🛒 Application · 🔐 Fournisseur d'identité · 🗄️ API
 
-### Étape 1
+### Étape 1 — Redirection vers le fournisseur
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -381,7 +381,7 @@
 | L'application ne vous demande pas votre mot de passe. `[pause 0.3 s]` | *(plan inchangé)* |
 | Elle vous redirige vers le fournisseur d'identité, avec un petit défi secret, le PKCE. | jeton « 302 → IdP + PKCE » : Application → Navigateur<br>jeton « client_id, scope » : Navigateur → Fournisseur d'identité (après 1.5 s) |
 
-### Étape 2
+### Étape 2 — L'authentification chez lui seul
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -389,14 +389,14 @@
 | Mot de passe, double authentification, règles d'accès. | étiquette sur Fournisseur d'identité : « mot de passe + MFA ✓ » (ok) |
 | L'application ne voit rien de tout ça. | *(plan inchangé)* |
 
-### Étape 3
+### Étape 3 — Le code à usage unique
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
 | Le fournisseur vous renvoie vers l'application… | jeton « code=xyz » : Fournisseur d'identité → Navigateur |
 | avec un code à usage unique, valable quelques secondes. | jeton « code=xyz » : Navigateur → Application |
 
-### Étape 4
+### Étape 4 — Échanger le code contre des jetons
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -404,14 +404,14 @@
 | contre des jetons. `[pause 0.3 s]` | jeton « ID token + access token » : Fournisseur d'identité → Application |
 | Quelqu'un qui volerait le code seul n'en ferait rien. | *(plan inchangé)* |
 
-### Étape 5
+### Étape 5 — ID token et access token
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
 | L'ID token dit qui vous êtes : c'est OpenID Connect. | étiquette sur Application : « connecté : Ada ✓ » (ok) |
 | L'access token dit ce que l'application peut faire en votre nom : c'est OAuth. | *(plan inchangé)* |
 
-### Étape 6
+### Étape 6 — Appeler l'API avec le jeton
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -419,7 +419,7 @@
 | L'API vérifie la signature, l'émetteur, l'expiration et les droits… sans appeler personne. | API pulse (focus)<br>étiquette sur API : « JWT vérifié ✓ » (ok) |
 | Et elle répond. | jeton « 200 données » : API → Application |
 
-### Étape 7
+### Étape 7 — Rafraîchir sans retaper
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -444,7 +444,7 @@
 - **Durée de voix** : ≈ 60 s (145 mots à ~145 mots/min, hors animations)
 - **Éléments à l'écran** : 🛒 Site web · ▭ File SQS / Service Bus (compteur, départ « 0 message ») · ⚙️ Worker 1 · ⚙️ Worker 2 *(apparaît plus tard)* · ▭ Dead-letter queue (compteur, départ « 0 »)
 
-### Étape 1
+### Étape 1 — Déposer un message et répondre
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -452,7 +452,7 @@
 | Plutôt que de tout traiter tout de suite, le site dépose un message dans une file… | jeton « commande #1 » : Site web → File SQS / Service Bus<br>compteur « File SQS / Service Bus » = **1 message** |
 | et répond aussitôt : commande reçue. | étiquette sur Site web : « reçue ✓ (50 ms) » (ok) |
 
-### Étape 2
+### Étape 2 — Un worker prend le message
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -460,7 +460,7 @@
 | Il fait le travail : paiement, stock, e-mail. | étiquette sur Worker 1 : « traitement… » (warn) |
 | Pendant ce temps, le message est invisible pour les autres. | *(plan inchangé)* |
 
-### Étape 3
+### Étape 3 — Acquitter, ou réessayer
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -468,21 +468,21 @@
 | Et s'il plante avant ? Le message réapparaît, et sera retraité. `[pause 0.3 s]` | *(plan inchangé)* |
 | Rien n'est perdu. | *(plan inchangé)* |
 
-### Étape 4
+### Étape 4 — Le grand pic
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
 | Maintenant, le grand jeu : 500 commandes en une minute. | jeton « × 500 » : Site web → File SQS / Service Bus<br>compteur « File SQS / Service Bus » = **500 messages** |
 | Le site reste rapide. Les messages s'accumulent simplement dans la file. | étiquette sur Worker 1 : « débordé » (bad) |
 
-### Étape 5
+### Étape 5 — Plus de workers
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
 | La longueur de la file déclenche l'arrivée d'un deuxième worker. | apparition : Worker 2 |
 | La file se vide deux fois plus vite. | jeton « lot » : File SQS / Service Bus → Worker 1<br>jeton « lot » : File SQS / Service Bus → Worker 2<br>compteur « File SQS / Service Bus » = **120 messages**<br>étiquette de Worker 1 retirée |
 
-### Étape 6
+### Étape 6 — Les messages en échec
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -506,14 +506,14 @@
 - **Durée de voix** : ≈ 54 s (130 mots à ~145 mots/min, hors animations)
 - **Éléments à l'écran** : 👩‍💻 Développeuse · 🦊 GitLab · 🔨 Build + tests · 🔍 SonarQube · 📦 Registre · 🧪 Staging · 🏭 Production
 
-### Étape 1
+### Étape 1 — Le push déclenche le pipeline
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
 | La développeuse pousse son code, et ouvre une merge request. | jeton « git push » : Développeuse → GitLab |
 | Aussitôt, GitLab lance le pipeline. | GitLab pulse (focus)<br>étiquette sur GitLab : « pipeline #812 » (info) |
 
-### Étape 2
+### Étape 2 — Build et tests
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -521,21 +521,21 @@
 | et 312 tests unitaires tournent en parallèle. | Build + tests pulse (focus)<br>étiquette sur Build + tests : « 312 tests ✓ » (ok) |
 | Un seul test rouge, et tout s'arrête. | *(plan inchangé)* |
 
-### Étape 3
+### Étape 3 — La quality gate
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
 | En parallèle, SonarQube analyse le nouveau code : bugs, failles, couverture. | jeton « analyse » : GitLab → SonarQube |
 | La quality gate est verte. | étiquette sur SonarQube : « gate ✓ couverture 84 % » (ok) |
 
-### Étape 4
+### Étape 4 — L'image et son étiquette immuable
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
 | L'image Docker est construite, scannée… | jeton « image » : Build + tests → Registre<br>jeton « ✓ » : SonarQube → Registre |
 | puis rangée dans le registre, avec une étiquette qui ne changera jamais : l'identifiant du commit. | étiquette sur Registre : « api:a1b2c3 » (info) |
 
-### Étape 5
+### Étape 5 — Staging et tests de fumée
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -543,14 +543,14 @@
 | Des tests de fumée vérifient que l'essentiel fonctionne. `[pause 0.3 s]` | étiquette sur Staging : « smoke tests ✓ » (ok) |
 | Même image qu'en production. Seule la configuration change. | *(plan inchangé)* |
 
-### Étape 6
+### Étape 6 — Approbation et canari
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
 | Pour la production, un humain approuve. `[pause 0.3 s]` | étiquette sur Production : « approuvé 👍 » (info) |
 | Puis déploiement canari : dix pour cent du trafic d'abord, sous surveillance. | jeton « canary 10 % » : Registre → Production<br>étiquette sur Production : « canary 10 % … » (warn) |
 
-### Étape 7
+### Étape 7 — Passage à 100 %
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -574,21 +574,21 @@
 - **Durée de voix** : ≈ 51 s (122 mots à ~145 mots/min, hors animations)
 - **Éléments à l'écran** : ⌨️ kubectl apply · 🧠 API server · ▭ etcd : état souhaité (compteur, départ « — ») · 🔁 Controller · 📅 Scheduler · ▭ Nœud 1 (compteur, départ « 0 pod ») · ▭ Nœud 2 (compteur, départ « 0 pod »)
 
-### Étape 1
+### Étape 1 — Déclarer ce qu'on veut
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
 | Vous déclarez ce que vous voulez : trois copies de votre API. | jeton « Deployment ×3 » : kubectl apply → API server |
 | Vous ne dites pas comment. Seulement quoi. | *(plan inchangé)* |
 
-### Étape 2
+### Étape 2 — L'API server et etcd
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
 | L'API server valide la demande… | API server pulse (focus) |
 | et l'inscrit dans etcd, la mémoire du cluster. | jeton « désiré : 3 » : API server → etcd : état souhaité<br>compteur « etcd : état souhaité » = **3 répliques** |
 
-### Étape 3
+### Étape 3 — Le contrôleur compare
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -596,7 +596,7 @@
 | Voulu : trois. Réel : zéro. `[pause 0.3 s]` | étiquette sur Controller : « réel 0 / désiré 3 » (warn) |
 | Il demande trois pods. | jeton « +3 pods » : Controller → API server |
 
-### Étape 4
+### Étape 4 — Le scheduler place les pods
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -604,7 +604,7 @@
 | Deux ici, un là. | jeton « pod » : Scheduler → Nœud 1<br>jeton « pod » : Scheduler → Nœud 2<br>compteur « Nœud 1 » = **2 pods**<br>compteur « Nœud 2 » = **1 pod** |
 | Réel : trois. Tout est en ordre. | étiquette sur Controller : « réel 3 / désiré 3 ✓ » (ok) |
 
-### Étape 5
+### Étape 5 — Une panne
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -612,7 +612,7 @@
 | Le nœud 2 disparaît, et son pod avec lui. | compteur « Nœud 2 » = **HORS LIGNE**<br>étiquette sur Nœud 2 : « NotReady » (bad) |
 | Réel : deux sur trois. | étiquette sur Controller : « réel 2 / désiré 3 » (bad) |
 
-### Étape 6
+### Étape 6 — La réconciliation
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -638,7 +638,7 @@
 - **Durée de voix** : ≈ 53 s (128 mots à ~145 mots/min, hors animations)
 - **Éléments à l'écran** : 🛒 Service Commandes · ▭ Topic « commandes » (compteur, départ « offset 0 ») · 🧾 Facturation · 📦 Stock · ✉️ Notifications *(apparaît plus tard)*
 
-### Étape 1
+### Étape 1 — Publier un fait, pas un appel
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -646,14 +646,14 @@
 | Le service Commandes n'appelle personne. `[pause 0.3 s]` | *(plan inchangé)* |
 | Il publie un événement, un fait : « commande créée ». | jeton « CommandeCréée #42 » : Service Commandes → Topic « commandes »<br>compteur « Topic « commandes » » = **offset 1** |
 
-### Étape 2
+### Étape 2 — Le topic : un journal durable
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
 | Cet événement atterrit dans un topic Kafka. | Topic « commandes » pulse (focus) |
 | Un journal ordonné, et durable : les événements y restent, même après lecture. | étiquette sur Topic « commandes » : « rétention 7 jours » (info) |
 
-### Étape 3
+### Étape 3 — Chaque consommateur à son rythme
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -661,7 +661,7 @@
 | Le stock le lit aussi, de son côté. | jeton « #42 » : Topic « commandes » → Stock<br>étiquette sur Stock : « stock −1 ✓ » (ok) |
 | Chacun avance à son rythme, avec son propre marque-page : l'offset. | *(plan inchangé)* |
 
-### Étape 4
+### Étape 4 — Une panne ne bloque personne
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -669,7 +669,7 @@
 | Les commandes, elles, continuent d'arriver. | jeton « #43, #44, #45 » : Service Commandes → Topic « commandes »<br>compteur « Topic « commandes » » = **offset 4** |
 | La facturation suit normalement. Personne n'est bloqué. | jeton « #43–45 » : Topic « commandes » → Facturation |
 
-### Étape 5
+### Étape 5 — Reprendre grâce à l'offset
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -677,7 +677,7 @@
 | Il reprend exactement là où il s'était arrêté, grâce à son offset. | jeton « #43–45 » : Topic « commandes » → Stock<br>étiquette sur Stock : « rattrape 43→45 ✓ » (ok) |
 | Aucun événement perdu. | *(plan inchangé)* |
 
-### Étape 6
+### Étape 6 — Ajouter un consommateur
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -702,7 +702,7 @@
 - **Durée de voix** : ≈ 55 s (132 mots à ~145 mots/min, hors animations)
 - **Éléments à l'écran** : 📚 Documents · 🔢 Modèle d'embedding · ▭ Base vectorielle (compteur, départ « 0 vecteur ») · 🧑 Utilisateur · 🧩 Application RAG · 🧠 LLM
 
-### Étape 1
+### Étape 1 — Préparer : découper et vectoriser
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -710,35 +710,35 @@
 | Les documents sont découpés en petits passages. | jeton « 1 240 passages » : Documents → Modèle d'embedding |
 | Chacun devient un vecteur : une liste de nombres qui représente son sens. | jeton « [0.12, -0.83, …] » : Modèle d'embedding → Base vectorielle<br>compteur « Base vectorielle » = **1 240 vecteurs** |
 
-### Étape 2
+### Étape 2 — La question
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
 | Un utilisateur pose une question : `[pause 0.2 s]` | Utilisateur pulse (focus) |
 | « Que faire si je perds mon badge ? » | jeton « badge perdu ? » : Utilisateur → Application RAG |
 
-### Étape 3
+### Étape 3 — La question devient un vecteur
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
 | La question, elle aussi, est transformée en vecteur… | jeton « question » : Application RAG → Modèle d'embedding |
 | avec exactement le même modèle. | jeton « [0.10, -0.79, …] » : Modèle d'embedding → Application RAG |
 
-### Étape 4
+### Étape 4 — Recherche par le sens
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
 | La base vectorielle cherche les passages dont le sens est le plus proche. | jeton « top 3 similaires ? » : Application RAG → Base vectorielle |
 | Pas une recherche par mots-clés : une recherche par idées. | jeton « 3 passages » : Base vectorielle → Application RAG<br>étiquette sur Base vectorielle : « similarité 0,91 » (info) |
 
-### Étape 5
+### Étape 5 — La consigne et la réponse
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
 | L'application construit la consigne : les règles, les passages trouvés, et la question. | jeton « consignes + 3 passages + question » : Application RAG → LLM (durée 2 s) |
 | Le modèle rédige sa réponse en s'appuyant uniquement sur ces sources. | LLM pulse (focus)<br>jeton « réponse + sources » : LLM → Application RAG (après 1.2 s) |
 
-### Étape 6
+### Étape 6 — Sources et règles d'or
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -763,14 +763,14 @@
 - **Durée de voix** : ≈ 61 s (147 mots à ~145 mots/min, hors animations)
 - **Éléments à l'écran** : ▭ Pile d'appels (1 thread) (compteur, départ « vide ») · ⏱️ libuv / OS · ▭ File des microtâches (compteur, départ « — ») · ▭ File des callbacks (compteur, départ « — ») · 🔄 Boucle d'événements
 
-### Étape 1
+### Étape 1 — Un seul fil d'exécution
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
 | Une requête arrive sur votre serveur Node.js. | Pile d'appels (1 thread) pulse (focus) |
 | Son code s'exécute sur un seul et unique fil d'exécution : la pile d'appels. | compteur « Pile d'appels (1 thread) » = **handler()** |
 
-### Étape 2
+### Étape 2 — Déléguer les entrées-sorties
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -779,14 +779,14 @@
 | Il confie la lecture au système, via libuv… | jeton « db.query(…) » : Pile d'appels (1 thread) → libuv / OS<br>étiquette sur libuv / OS : « I/O en cours… » (warn) |
 | et libère aussitôt la pile. | compteur « Pile d'appels (1 thread) » = **vide** |
 
-### Étape 3
+### Étape 3 — Ne jamais attendre
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
 | Pendant que la base cherche, le fil sert d'autres requêtes. | Pile d'appels (1 thread) pulse (focus)<br>compteur « Pile d'appels (1 thread) » = **requête 2, 3, 4…** |
 | Voilà tout le secret : il n'attend jamais les entrées-sorties. | étiquette sur Pile d'appels (1 thread) : « jamais bloqué » (ok) |
 
-### Étape 4
+### Étape 4 — Les files de callbacks et de microtâches
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -794,7 +794,7 @@
 | libuv dépose le callback dans la file d'attente. | jeton « callback db » : libuv / OS → File des callbacks<br>compteur « File des callbacks » = **callback db** |
 | Une promesse résolue, elle, va dans une file prioritaire : celle des microtâches. | jeton « Promise.then » : Pile d'appels (1 thread) → File des microtâches<br>compteur « File des microtâches » = **Promise.then** |
 
-### Étape 5
+### Étape 5 — La boucle d'événements
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -802,7 +802,7 @@
 | D'abord, toutes les microtâches. | jeton « Promise.then » : File des microtâches → Boucle d'événements<br>jeton « microtâche » : Boucle d'événements → Pile d'appels (1 thread) (après 1.5 s)<br>compteur « File des microtâches » = **—** |
 | Ensuite seulement, le callback suivant. | jeton « callback » : File des callbacks → Boucle d'événements<br>jeton « callback db » : Boucle d'événements → Pile d'appels (1 thread) (après 1.5 s)<br>compteur « File des callbacks » = **—** |
 
-### Étape 6
+### Étape 6 — Le piège : bloquer la pile
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -828,14 +828,14 @@
 - **Durée de voix** : ≈ 79 s (190 mots à ~145 mots/min, hors animations)
 - **Éléments à l'écran** : 📄 Dockerfile · 🔨 docker build · ▭ Image (couches) (compteur, départ « 0 couche ») · 📦 Registre · 🖥️ Serveur · ▭ Conteneur (compteur, départ « aucun ») · 🐧 Noyau Linux
 
-### Étape 1
+### Étape 1 — Le Dockerfile, une recette
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
 | Tout commence par un Dockerfile. | Dockerfile pulse (focus) |
 | C'est une recette : une image de départ, des fichiers à copier, des commandes à lancer. | étiquette sur Dockerfile : « FROM · COPY · RUN » (info) |
 
-### Étape 2
+### Étape 2 — docker build et les couches
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -843,21 +843,21 @@
 | Chaque instruction produit une couche, en lecture seule. `[pause 0.3 s]` | docker build pulse (focus)<br>compteur « Image (couches) » = **4 couches** |
 | Au build suivant, les couches qui n'ont pas changé viennent du cache : quelques secondes au lieu de quelques minutes. | étiquette sur docker build : « cache ✓ » (ok) |
 
-### Étape 3
+### Étape 3 — L'image et son digest
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
 | Le résultat, c'est une image. | jeton « api:1.4.2 » : docker build → Image (couches) |
 | Un paquet figé, identifié par une empreinte unique : son digest. | étiquette sur Image (couches) : « sha256:9f2c… » (info) |
 
-### Étape 4
+### Étape 4 — Le registre
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
 | On pousse l'image dans un registre. | jeton « docker push » : Image (couches) → Registre |
 | Elle devient disponible pour tous les serveurs autorisés. | étiquette sur Registre : « api:1.4.2 ✓ » (ok) |
 
-### Étape 5
+### Étape 5 — docker run : le conteneur
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -865,7 +865,7 @@
 | Docker télécharge l'image… seulement les couches qui lui manquent. | jeton « docker pull » : Registre → Serveur |
 | Puis il démarre un conteneur : l'image, plus une fine couche d'écriture. | jeton « docker run » : Serveur → Conteneur<br>compteur « Conteneur » = **en marche** |
 
-### Étape 6
+### Étape 6 — Un processus isolé, pas une VM
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|
@@ -874,7 +874,7 @@
 | Les namespaces lui donnent sa propre vue : ses processus, son réseau, ses fichiers. | étiquette sur Noyau Linux : « namespaces : isolation » (info) |
 | Les cgroups limitent ce qu'il consomme : processeur et mémoire. | étiquette sur Noyau Linux : « cgroups : 1 CPU · 512 Mo » (info) |
 
-### Étape 7
+### Étape 7 — Volumes et redéploiement
 
 | Voix off (texte exact) | À l'écran, au même moment |
 |---|---|

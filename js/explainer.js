@@ -33,18 +33,38 @@
       <g class="xp-badge hidden"><rect rx="10" height="22" y="-71"/><text y="-55"></text></g>
     </g>`;
   }
+  // Style « canevas » (mode Concepts) : carte compacte, tuile d'icône, libellé, sous-titre
+  function nodeSVG2(id, n) {
+    const c = col(n.c);
+    if (n.kind === 'panel') {
+      return `<g class="xp-node xp-panel cx-node" data-id="${id}" transform="translate(${n.x},${n.y})" style="--c:${c}">
+        <rect class="xp-box" x="-84" y="-28" width="168" height="56" rx="9"/>
+        <text class="cx-plabel" x="-72" y="-8">${esc(n.label)}</text>
+        <text class="xp-value cx-value" x="-72" y="16">${esc(n.value || '')}</text>
+        <g class="xp-badge hidden"><rect rx="9" height="20" y="-52"/><text y="-38"></text></g>
+      </g>`;
+    }
+    return `<g class="xp-node cx-node" data-id="${id}" transform="translate(${n.x},${n.y})" style="--c:${c}">
+      <rect class="xp-box" x="-84" y="-26" width="168" height="52" rx="9"/>
+      <rect class="cx-tile" x="-75" y="-16" width="32" height="32" rx="8"/>
+      <text class="cx-emoji" x="-59" y="6">${n.icon || '⬚'}</text>
+      <text class="cx-label" x="-34" y="${n.sub ? -2 : 5}">${esc(n.label)}</text>
+      ${n.sub ? `<text class="cx-sub" x="-34" y="13">${esc(n.sub)}</text>` : ''}
+      <g class="xp-badge hidden"><rect rx="9" height="20" y="-50"/><text y="-36"></text></g>
+    </g>`;
+  }
   // portrait : on transpose le schéma (x ↔ y) pour les écrans de téléphone
-  function sceneSVG(ex, cls, portrait) {
+  function sceneSVG(ex, cls, portrait, modern) {
     const links = (ex.links || []).map(l => {
       const [a, b] = l.split('-');
       if (!ex.nodes[a] || !ex.nodes[b]) return '';
       const A = pt(ex.nodes[a], portrait), B = pt(ex.nodes[b], portrait);
       return `<line class="xp-link" data-l="${a}-${b}" x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}"/>`;
     }).join('');
-    const nodes = Object.entries(ex.nodes).map(([id, n]) => nodeSVG(id, n, portrait)).join('');
+    const nodes = Object.entries(ex.nodes).map(([id, n]) => (modern ? nodeSVG2(id, n) : nodeSVG(id, n, portrait))).join('');
     return `<svg class="${cls || 'xp-svg'}" viewBox="0 0 ${portrait ? H : W} ${portrait ? W : H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${esc(ex.title)}">
-      <defs><pattern id="xpdots" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.2" fill="#ffffff10"/></pattern></defs>
-      <rect width="100%" height="100%" fill="url(#xpdots)"/>
+      ${modern ? '' : `<defs><pattern id="xpdots" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.2" fill="#ffffff10"/></pattern></defs>
+      <rect width="100%" height="100%" fill="url(#xpdots)"/>`}
       <g class="xp-links">${links}</g><g class="xp-nodes">${nodes}</g><g class="xp-tokens"></g>
     </svg>`;
   }
@@ -82,10 +102,11 @@
     constructor(root, ex, opts = {}) {
       this.root = root; this.ex = ex; this.o = opts;
       this.steps = ex.steps.map(normStep);
-      this.portrait = root.clientWidth > 0 && root.clientWidth < 640;
+      this.stage = !!opts.stage;
+      this.portrait = !this.stage && root.clientWidth > 0 && root.clientWidth < 640;
       this.i = 0; this.playing = false; this.token = 0; this.timers = [];
       this.rate = Store.setting('rate') || 1;
-      this.muted = !synth || Store.setting('muted');
+      this.muted = !synth || Store.setting('muted') || (this.stage && !opts.voice);
       this.render();
       this.onKey = this.onKey.bind(this);
       document.addEventListener('keydown', this.onKey);
@@ -94,6 +115,22 @@
 
     render() {
       const ex = this.ex;
+      if (this.stage) {
+        this.root.innerHTML = `<div class="xp xp-stagemode"><div class="xp-stage">${sceneSVG(ex, 'xp-svg cx-svg', false, true)}</div><div class="xp-caption hidden"></div></div>`;
+        this.el = this.root.querySelector('.xp');
+        this.svg = this.el.querySelector('svg');
+        this.tokens = this.svg.querySelector('.xp-tokens');
+        this.cap = this.el.querySelector('.xp-caption');
+        // cadrage serré sur le schéma, au format du conteneur
+        this.fit = () => {
+          const r = this.svg.getBoundingClientRect();
+          if (!window.FlowCanvas || r.width < 10 || r.height < 10) return;
+          this.svg.setAttribute('viewBox', FlowCanvas.fitBox(Object.values(ex.nodes), 168, 56, r.width / r.height, 860, 60));
+        };
+        this.fit();
+        window.addEventListener('resize', this.fit);
+        return;
+      }
       this.root.innerHTML = `
         <div class="xp" tabindex="0">
           <div class="xp-head"><div class="xp-q">${esc(ex.question || '')}</div><div class="xp-title">${ex.icon || ''} ${esc(ex.title)}</div></div>
@@ -156,7 +193,8 @@
       const st = this.steps[this.i];
       this.cap.innerHTML = st.beats.map((b, j) => `<span class="${j === beat ? 'on' : j < beat ? 'past' : ''}">${esc(b.say)}</span>`).join(' ');
       this.el.querySelectorAll('.xp-dot').forEach((d, k) => { d.classList.toggle('on', k === this.i); d.classList.toggle('done', k < this.i); });
-      this.el.querySelector('.xp-count').textContent = `Étape ${this.i + 1}/${this.steps.length}`;
+      const cnt = this.el.querySelector('.xp-count'); if (cnt) cnt.textContent = `Étape ${this.i + 1}/${this.steps.length}`;
+      if (this.o.onBeat) this.o.onBeat(this.i, beat);
     }
 
     setBadge(id, text, kind) {
@@ -259,6 +297,7 @@
         const wait = Math.max(0, animUntil - performance.now()) + 650 / this.rate;
         this.timers.push(setTimeout(() => {
           if (tok !== this.token || !this.playing) return;
+          if (this.stage) { this.playing = false; this.ambient(this.i); if (this.o.onStepEnd) this.o.onStepEnd(this.i); return; }
           if (this.i + 1 < this.steps.length) { this.clearStepFx(); this.i++; this.runStep(); }
           else this.finish();
         }, wait));
@@ -322,8 +361,31 @@
     }
     updateVoiceLabel(t) { const e = this.el.querySelector('.xp-voice'); if (e && e.textContent !== t) e.textContent = t; }
 
+    // Mode scène (Concepts) : joue une section, puis laisse circuler du trafic en continu sur ses liens
+    showSection(k, voice) {
+      this.muted = !synth || !voice;
+      this.reset(k);
+      this.playing = true;
+      this.runStep();
+    }
+    ambient(k) {
+      const pairs = new Map();
+      this.stepActions(k).forEach(a => { if (a.move) { const [f, t] = a.move.split('>'); if (this.ex.nodes[f] && this.ex.nodes[t]) pairs.set(f + '>' + t, col(a.c || 'blue')); } });
+      let html = '';
+      pairs.forEach((c, key) => {
+        const [f, t] = key.split('>');
+        const A = this.ex.nodes[f], B = this.ex.nodes[t];
+        const dur = Math.max(1.1, Math.hypot(B.x - A.x, B.y - A.y) / 230);
+        for (let i = 0; i < 5; i++) html += `<circle r="2.8" fill="${c}" class="cx-dot"><animateMotion dur="${dur.toFixed(2)}s" begin="${(i * dur / 5).toFixed(2)}s" repeatCount="indefinite" path="M${A.x},${A.y} L${B.x},${B.y}"/></circle>`;
+      });
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      g.setAttribute('class', 'cx-ambient');
+      g.innerHTML = html;
+      this.tokens.prepend(g);
+    }
+
     play() {
-      this.el.querySelector('.xp-big').classList.add('hidden');
+      const big = this.el.querySelector('.xp-big'); if (big) big.classList.add('hidden');
       if (this.ended) { this.ended = false; this.reset(0); }
       else this.reset(this.i);
       this.playing = true; this.updateButtons();
@@ -333,7 +395,7 @@
     toggle() { this.playing ? this.pause() : this.play(); }
     go(k) {
       if (k < 0 || k >= this.steps.length) return;
-      this.el.querySelector('.xp-big').classList.add('hidden');
+      const big = this.el.querySelector('.xp-big'); if (big) big.classList.add('hidden');
       this.ended = false;
       this.reset(k);
       if (this.playing) this.runStep();
@@ -346,6 +408,7 @@
     }
     fullscreen() { if (document.fullscreenElement) document.exitFullscreen(); else if (this.el.requestFullscreen) this.el.requestFullscreen(); }
     updateButtons() {
+      if (this.stage) return;
       this.el.querySelector('[data-a="play"]').textContent = this.playing ? '⏸' : '▶';
       this.el.querySelector('[data-a="speed"]').textContent = this.rate + '×';
       this.el.querySelector('[data-a="mute"]').textContent = this.muted ? '🔇' : '🔊';
@@ -367,7 +430,7 @@
     }
 
     onKey(e) {
-      if (/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+      if (this.stage || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
       if (e.code === 'Space') { e.preventDefault(); this.toggle(); }
       else if (e.key === 'ArrowRight') this.go(this.i + 1);
       else if (e.key === 'ArrowLeft') this.go(this.i - 1);
@@ -380,10 +443,16 @@
       if (synth) synth.cancel();
       if (this.audio) { this.audio.pause(); this.audio = null; }
       document.removeEventListener('keydown', this.onKey);
+      if (this.fit) window.removeEventListener('resize', this.fit);
     }
   }
 
   ExplainerPlayer.sceneSVG = sceneSVG;
+  ExplainerPlayer.modernSVG = (ex, cls, fit) => {
+    const svg = sceneSVG(ex, cls || 'xp-svg cx-svg', false, true);
+    if (!fit || !window.FlowCanvas) return svg;
+    return svg.replace(/viewBox="[^"]*"/, `viewBox="${FlowCanvas.fitBox(Object.values(ex.nodes), 168, 56)}"`);
+  };
   ExplainerPlayer.stepText = stepText;
   ExplainerPlayer.spoken = spoken;
   ExplainerPlayer.normStep = normStep;

@@ -26,30 +26,29 @@
   });
   const phaseOf = c => A.phases[c.phase - 1];
   const XPS = window.EXPLAINERS || [];
-  const xpFor = cid => XPS.filter(x => (x.courses || []).includes(cid));
-  function xpCard(x) {
-    const rel = (x.courses || []).map(id => byId[id]).filter(Boolean);
-    return `<a class="xp-card" href="#/animation/${x.id}">
-      ${ExplainerPlayer.sceneSVG(x, 'xp-thumb')}
-      <div class="xp-card-body">
-        <h3>${x.icon} ${esc(x.title)}</h3>
-        <div class="q">${esc(x.question)}</div>
-        <div class="meta small"><span>🎞️ ${x.steps.length} étapes · ~${ExplainerPlayer.minutes(x)} min</span>${Store.explainerSeen(x.id) ? '<span class="seen">✓ vue</span>' : ''}</div>
-        ${rel.length ? `<div class="tags">${rel.slice(0, 3).map(c => `<span class="tag">${c.icon} ${esc(c.title)}</span>`).join('')}</div>` : ''}
-      </div></a>`;
+  // Concepts : les leçons interactives (data/concepts.js) + les animations, présentées en mode « Apprendre »
+  const CATS = ['Réseau & Web', 'Scalabilité', 'Cache & données', 'Messages & événements', 'Sécurité & identité', 'Conteneurs & DevOps', 'Runtime & IA'];
+  const ORDER = ['url', 'dns', 'cdn', 'lb', 'autoscaling', 'cache', 'mq', 'queue', 'events', 'https', 'oauth', 'paiement', 'docker', 'k8s', 'cicd', 'eventloop', 'rag'];
+  const CONCEPTS = (window.CONCEPTS_FLOW || []).map(f => Object.assign({ kind: 'flow' }, f))
+    .concat(XPS.map(x => ({ kind: 'xp', id: x.id, cat: x.cat || 'Runtime & IA', title: x.title, tagline: x.question, icon: x.icon, courses: x.courses, src: x,
+      sections: x.steps.map(st => ({ t: st.t || '', body: [ExplainerPlayer.stepText(st)] })) })))
+    .sort((a, b) => (CATS.indexOf(a.cat) - CATS.indexOf(b.cat)) || ((ORDER.indexOf(a.id) + 1 || 99) - (ORDER.indexOf(b.id) + 1 || 99)));
+  CONCEPTS.forEach((c, i) => { c.n = i + 1; c.short = c.title.split(/ ?[:«(]/)[0].slice(0, 28); });
+  const conceptsFor = cid => CONCEPTS.filter(c => (c.courses || []).includes(cid));
+  const conceptIcon = (c, size) => (c.kind === 'flow' ? `<span class="cx-icon" style="--c:${FlowCanvas.TYPES[c.icon] ? FlowCanvas.TYPES[c.icon].color : '#6b8afd'}">${FlowCanvas.iconSVG(c.icon, size)}</span>` : `<span class="cx-icon emoji" style="font-size:${size}px">${c.icon}</span>`);
+  function conceptThumb(c) {
+    if (c.kind === 'xp') return ExplainerPlayer.modernSVG(c.src, 'xp-svg cx-svg cx-thumbsvg', true);
+    const g = c.sections.reduce((best, s) => (s.graph.nodes.length > best.nodes.length ? s.graph : best), c.sections[0].graph);
+    return FlowCanvas.thumbSVG(g);
   }
-
-  const SIMS = window.SIMS || [];
-  const simFor = cid => SIMS.filter(x => (x.courses || []).includes(cid));
-  function simCard(s) {
-    const st = Store.simState(s.id), done = Object.keys(st.ch).length, n = s.chapters.length;
-    return `<a class="xp-card sim-tile" href="#/simulateur/${s.id}/apprendre">
-      <div class="sim-thumb"><span>${s.icon}</span><i></i><i></i><i></i></div>
-      <div class="xp-card-body">
-        <h3>${s.icon} ${esc(s.title)}</h3>
-        <div class="q">${esc(s.summary)}</div>
-        <div class="meta small"><span>🧪 ${n} chapitres interactifs · quiz</span>${done ? `<span class="seen">${done}/${n} ✓</span>` : ''}</div>
-      </div></a>`;
+  function conceptProgress(c) {
+    if (c.kind === 'xp') return Store.explainerSeen(c.id) ? { done: true, label: '✓ vu' } : { done: false };
+    const st = Store.simState(c.id), goals = c.sections.filter(s => s.try && s.try.goal).length, got = Object.keys(st.ch).length;
+    const parts = [];
+    if (got) parts.push(`${got}/${goals} objectifs`);
+    if (st.build) parts.push('défi ✓');
+    if (st.quiz != null) parts.push(`quiz ${st.quiz} %`);
+    return parts.length ? { done: true, label: parts.join(' · ') } : { done: false };
   }
 
   function currentPhase() {
@@ -213,11 +212,8 @@
         <div class="section-title"><h2>Formations de la phase ${cp.n}</h2><a href="#/catalogue?phase=${cp.n}">Tout voir ›</a></div>
         <div class="grid courses">${phaseCourses.map(courseCard).join('')}</div>
 
-        ${XPS.length ? `<div class="section-title"><h2>🎞️ Comprendre en 1 minute</h2><a href="#/animations">Toutes les animations ›</a></div>
-        <div class="grid courses">${XPS.filter(x => !Store.explainerSeen(x.id)).concat(XPS.filter(x => Store.explainerSeen(x.id))).slice(0, 4).map(xpCard).join('')}</div>` : ''}
-
-        ${SIMS.length ? `<div class="section-title"><h2>🧪 Apprendre en manipulant</h2><a href="#/simulateurs">Tous les simulateurs ›</a></div>
-        <div class="grid courses">${SIMS.map(simCard).join('')}</div>` : ''}
+        ${CONCEPTS.length ? `<div class="section-title"><h2>🧭 Concepts : lire, voir, construire</h2><a href="#/concepts">Tous les concepts ›</a></div>
+        <div class="grid courses">${CONCEPTS.filter(c => c.kind === 'flow').concat(CONCEPTS.filter(c => c.kind === 'xp' && !Store.explainerSeen(c.id))).slice(0, 4).map(conceptCard).join('')}</div>` : ''}
 
         <div class="section-title"><h2>Comment apprendre « par cœur » ici</h2></div>
         <div class="grid stats">
@@ -325,10 +321,8 @@
           ${c.labs.length ? `<div class="section-title"><h2>🧪 Travaux pratiques</h2></div>
           <div class="accordion">${c.labs.map(lab => `<a class="acc-row" href="#/lab/${c.id}/${lab.id}"><span>${Store.isLabDone(c.id, lab.id) ? '<span class="done">✔</span>' : '🧪'}</span><span><b>${esc(lab.title)}</b><br><span class="muted small">${esc(lab.goal)}</span></span><span class="dur">${lab.minutes || 30} min · ${lab.steps.length} étapes</span></a>`).join('')}</div>` : ''}
 
-          ${xpFor(c.id).length ? `<div class="section-title"><h2>🎞️ Animations pour comprendre</h2><a href="#/animations">Toutes ›</a></div>
-          <div class="grid courses">${xpFor(c.id).map(xpCard).join('')}</div>` : ''}
-          ${simFor(c.id).length ? `<div class="section-title"><h2>🧪 Simulateurs</h2><a href="#/simulateurs">Tous ›</a></div>
-          <div class="grid courses">${simFor(c.id).map(simCard).join('')}</div>` : ''}
+          ${conceptsFor(c.id).length ? `<div class="section-title"><h2>🧭 Concepts pour comprendre</h2><a href="#/concepts">Tous ›</a></div>
+          <div class="grid courses">${conceptsFor(c.id).map(conceptCard).join('')}</div>` : ''}
 
           <div class="section-title"><h2>Prérequis</h2></div>
           <ul>${(c.prerequisites || ['Aucun']).map(x => `<li>${md(x)}</li>`).join('')}</ul>
@@ -415,7 +409,7 @@
             ${c.labs.map(lab => `<a href="#/lab/${c.id}/${lab.id}">${Store.isLabDone(c.id, lab.id) ? '✔' : '🧪'} ${esc(lab.title)}</a>`).join('')}
             <a href="#/quiz/${c.id}">❓ Quiz du cours (${c.quiz.length} questions)</a>
             <a href="#/flashcards/${c.id}">🧠 Flashcards (${c.flashcards.length})</a>
-            ${xpFor(c.id).map(x => `<a href="#/animation/${x.id}">🎞️ ${esc(x.title)}${Store.explainerSeen(x.id) ? ' ✓' : ''}</a>`).join('')}
+            ${conceptsFor(c.id).map(x => `<a href="#/concept/${x.id}/apprendre">🧭 ${esc(x.title)}${conceptProgress(x).done ? ' ✓' : ''}</a>`).join('')}
           </div>
         </aside>
       </div>`);
@@ -862,8 +856,7 @@
       const i = nt.indexOf(nq);
       if (nq && i >= 0) lessons.push({ c, l, snippet: text.slice(Math.max(0, i - 60), i + 100) });
     }));
-    const sims = SIMS.filter(x => nq && U.normalize([x.title, x.summary, ...x.chapters.map(ch => ch.title + ' ' + ch.body.join(' '))].join(' ')).includes(nq));
-    const anims = XPS.filter(x => nq && U.normalize([x.title, x.question, ...x.steps.map(ExplainerPlayer.stepText), ...(x.recap || [])].join(' ')).includes(nq));
+    const anims = CONCEPTS.filter(x => nq && U.normalize([x.title, x.tagline, ...x.sections.map(s => s.t + ' ' + s.body.join(' ')), ...((x.src && x.src.recap) || [])].join(' ')).includes(nq));
     const cards = [];
     A.courses.forEach(c => c.flashcards.forEach(([f, b]) => { if (nq && U.normalize(f + ' ' + b).includes(nq)) cards.push({ c, f, b }); }));
     setView(`
@@ -871,10 +864,9 @@
         <h1>Résultats pour « ${esc(q)} »</h1>
         ${courses.length ? `<div class="section-title"><h2>Formations (${courses.length})</h2></div><div class="grid courses">${courses.map(courseCard).join('')}</div>` : ''}
         ${lessons.length ? `<div class="section-title"><h2>Leçons (${lessons.length})</h2></div>${lessons.slice(0, 60).map(x => `<a class="search-hit" href="#/apprendre/${x.c.id}/${x.l.id}"><div class="muted small">${x.c.icon} ${esc(x.c.title)}</div><b>${hl(x.l.title)}</b><div class="small muted">…${hl(U.plain(x.snippet))}…</div></a>`).join('')}` : ''}
-        ${anims.length ? `<div class="section-title"><h2>Animations (${anims.length})</h2></div><div class="grid courses">${anims.map(xpCard).join('')}</div>` : ''}
-        ${sims.length ? `<div class="section-title"><h2>Simulateurs (${sims.length})</h2></div><div class="grid courses">${sims.map(simCard).join('')}</div>` : ''}
+        ${anims.length ? `<div class="section-title"><h2>Concepts (${anims.length})</h2></div><div class="grid courses">${anims.map(conceptCard).join('')}</div>` : ''}
         ${cards.length ? `<div class="section-title"><h2>Flashcards (${cards.length})</h2></div>${cards.slice(0, 40).map(x => `<a class="search-hit" href="#/flashcards/${x.c.id}"><div class="muted small">${x.c.icon} ${esc(x.c.title)}</div><b>${hl(x.f)}</b><div class="small">${hl(x.b)}</div></a>`).join('')}` : ''}
-        ${!courses.length && !lessons.length && !cards.length && !anims.length && !sims.length ? `<div class="empty"><div class="e-icon">🔍</div>Aucun résultat. Essayez « VPC », « pipeline », « pod », « IAM »…</div>` : ''}
+        ${!courses.length && !lessons.length && !cards.length && !anims.length ? `<div class="empty"><div class="e-icon">🔍</div>Aucun résultat. Essayez « VPC », « pipeline », « pod », « IAM »…</div>` : ''}
       </div>`);
   }
 
@@ -944,115 +936,359 @@
     if (synth && !voices.length) synth.onvoiceschanged = () => { synth.onvoiceschanged = null; if (location.hash === '#/parametres') viewSettings(); };
   }
 
-  /* ---------- Animations ---------- */
-  function viewAnimations() {
-    const seen = XPS.filter(x => Store.explainerSeen(x.id)).length;
+  /* ---------- Concepts (dans l'esprit de freesystemdesign.com) ---------- */
+  function conceptCard(c) {
+    const st = conceptProgress(c);
+    return `<a class="cx-card" href="#/concept/${c.id}/apprendre">
+      <div class="cx-thumb">${conceptThumb(c)}</div>
+      <div class="cx-card-body">
+        <div class="cx-kicker">CONCEPT ${String(c.n).padStart(2, '0')} · ${esc(c.cat.toUpperCase())}</div>
+        <h3>${conceptIcon(c, 18)} ${esc(c.title)}</h3>
+        <div class="q">${esc(c.tagline)}</div>
+        <div class="cx-tags small"><span>📖 ${c.sections.length} sections</span>${c.build ? '<span>🛠️ Construire</span>' : ''}${c.quiz ? '<span>✅ Quiz</span>' : ''}${c.kind === 'xp' ? '<span>🎬 Vidéo</span>' : ''}${st.done ? `<span class="seen">${st.label}</span>` : ''}</div>
+      </div></a>`;
+  }
+
+  function viewConcepts() {
+    const groups = CATS.map(cat => [cat, CONCEPTS.filter(c => c.cat === cat)]).filter(([, l]) => l.length);
     setView(`
       <div class="container">
-        <h1>🎞️ Comprendre en 1 minute</h1>
-        <p class="muted">Des schémas animés et narrés pour comprendre les mécanismes clés de l'informatique : ce qui circule, dans quel ordre, et pourquoi. Chaque animation se termine par une fiche mémo. ${seen}/${XPS.length} vues.</p>
-        <div class="grid courses">${XPS.map(xpCard).join('')}</div>
-        ${SIMS.length ? `<div class="section-title"><h2>🧪 Passer à la pratique : les simulateurs</h2><a href="#/simulateurs">Tous ›</a></div>
-        <div class="grid courses">${SIMS.map(simCard).join('')}</div>` : ''}
+        <h1>🧭 Tous les concepts</h1>
+        <p class="muted">Chaque concept se lit à gauche pendant que le schéma vit à droite : les requêtes circulent, les composants saturent, tombent en panne, se multiplient. Les concepts marqués 🛠️ se terminent par un défi : <b>construire toi-même l'architecture</b> en glissant des composants, puis la tester sous trafic réel.</p>
+        ${groups.map(([cat, l]) => `<div class="section-title"><h2>${esc(cat)}</h2></div><div class="grid courses">${l.map(conceptCard).join('')}</div>`).join('')}
       </div>`);
   }
 
-  /* ---------- Simulateurs (apprendre en manipulant) ---------- */
-  function viewSims() {
-    setView(`
-      <div class="container">
-        <h1>🧪 Simulateurs</h1>
-        <p class="muted">Des architectures vivantes : les requêtes circulent, les serveurs saturent, tombent en panne, se multiplient. Chaque leçon alterne une courte théorie et un <b>objectif à atteindre dans la simulation</b>, en bougeant les curseurs, en cliquant sur les composants, en changeant d'algorithme. Puis un bac à sable libre et un quiz. Les métriques (débit, latence p95, erreurs) sont <b>mesurées</b> sur les requêtes simulées, pas écrites à l'avance.</p>
-        <div class="grid courses">${SIMS.map(simCard).join('')}</div>
-      </div>`);
+  function cxBar(c, mode, right) {
+    return `<div class="cx-bar">
+      <div class="cx-crumbs"><a href="#/concepts">← Tous les concepts</a><span class="sep">/</span>${conceptIcon(c, 16)}<b>${esc(c.title)}</b><span class="sep">/</span><span class="dim">${mode}</span></div>
+      <div class="cx-bar-r">${right || ''}</div>
+    </div>`;
+  }
+  function fitCx() {
+    const hd = document.querySelector('.topbar');
+    document.documentElement.style.setProperty('--hdr', (hd ? hd.offsetHeight : 64) + 'px');
   }
 
-  function viewSim(id, tab, num) {
-    const s = SIMS.find(x => x.id === id);
-    if (!s) return notFound();
-    tab = tab || 'apprendre';
-    const st = Store.simState(id), n = s.chapters.length;
-    const tabs = [['apprendre', '📖 Apprendre'], ['bac-a-sable', '🧪 Bac à sable'], ['quiz', '✅ Quiz']];
-    const head = `<div class="crumbs muted small"><a href="#/simulateurs">Simulateurs</a> › ${esc(s.title)}</div>
-      <div class="sim-head"><h1>${s.icon} ${esc(s.title)}</h1>
-        <nav class="sim-tabs">${tabs.map(([t, l]) => `<a href="#/simulateur/${id}/${t}" class="${t === tab ? 'active' : ''}">${l}${t === 'apprendre' ? ` <span class="muted">${Object.keys(st.ch).length}/${n}</span>` : t === 'quiz' && st.quiz != null ? ` <span class="muted">${st.quiz} %</span>` : ''}</a>`).join('')}</nav></div>`;
-    if (tab === 'quiz') return simQuiz(s, head);
-    if (tab === 'bac-a-sable') {
-      setView(`<div class="container sim-page">${head}
-        <p class="muted small">Tous les réglages sont disponibles. Clique sur les composants pour provoquer des pannes, déclenche des pics de trafic, et observe les métriques. <kbd>Espace</kbd> : pause.</p>
-        <div id="simRoot"></div></div>`);
-      const lab = new SimLab($('#simRoot'), s, {});
-      cleanup = () => lab.destroy();
-      return;
-    }
-    const k = Math.max(0, Math.min(n - 1, (parseInt(num, 10) || 1) - 1));
-    const ch = s.chapters[k];
-    const nextHref = k < n - 1 ? `#/simulateur/${id}/apprendre/${k + 2}` : `#/simulateur/${id}/quiz`;
-    setView(`<div class="container sim-page">${head}
-      <div class="sim-learn">
-        <article class="sim-lesson">
-          <div class="sim-chaps">${s.chapters.map((c, i) => `<a href="#/simulateur/${id}/apprendre/${i + 1}" class="${i === k ? 'on' : ''} ${st.ch[i] ? 'done' : ''}" title="${esc(c.title)}">${st.ch[i] ? '✓' : i + 1}</a>`).join('')}</div>
-          <div class="muted small">Chapitre ${k + 1} sur ${n}</div>
-          <h2>${esc(ch.title)}</h2>
-          ${ch.body.map(p => `<p>${md(p)}</p>`).join('')}
-          <div class="sim-objective ${st.ch[k] ? 'done' : ''}" id="simObj">
-            <b><span id="simObjIcon">${st.ch[k] ? '✅' : '🎯'}</span> Objectif</b>
-            <p>${md(ch.goal.text)}</p>
-            ${ch.hint ? `<details><summary>💡 Indice</summary><p>${md(ch.hint)}</p></details>` : ''}
-          </div>
-          <div class="sim-nav">
-            ${k > 0 ? `<a class="btn ghost small" href="#/simulateur/${id}/apprendre/${k}">‹ Précédent</a>` : '<span></span>'}
-            ${LessonPlayer.ttsAvailable ? '<button class="btn ghost small" id="simRead">🔊 Écouter</button>' : ''}
-            <a class="btn small ${st.ch[k] ? '' : 'ghost'}" id="simNext" href="${nextHref}">${k < n - 1 ? 'Suivant ›' : 'Quiz ›'}</a>
-          </div>
-        </article>
-        <div id="simRoot"></div>
+  function viewConceptLearn(id, num) {
+    const k0 = CONCEPTS.findIndex(c => c.id === id);
+    if (k0 < 0) return notFound();
+    const c = CONCEPTS[k0], prevC = CONCEPTS[k0 - 1], nextC = CONCEPTS[k0 + 1];
+    const n = c.sections.length;
+    let k = Math.max(0, Math.min(n - 1, (parseInt(num, 10) || 1) - 1));
+    const right = `${c.kind === 'xp' ? `<a class="cx-pill" href="#/animation/${c.id}/video" title="Version vidéo narrée, plein écran">🎬 Vidéo</a>` : ''}
+      ${prevC ? `<a class="cx-pill" href="#/concept/${prevC.id}/apprendre">← ${esc(prevC.short || prevC.title)}</a>` : ''}
+      ${nextC ? `<a class="cx-pill" href="#/concept/${nextC.id}/apprendre">${esc(nextC.short || nextC.title)} →</a>` : ''}
+      <span class="cx-pg" id="cxPg"></span>`;
+    setView(`<div class="cx">${cxBar(c, 'Apprendre', right)}
+      <div class="cx-main">
+        <aside class="cx-text" id="cxText"></aside>
+        <section class="cx-canvas">
+          <div id="cxStage" class="cx-stage"></div>
+          <div class="cx-tools" id="cxTools"></div>
+          <div class="cx-live" id="cxLive"></div>
+          <div class="cx-caption" id="cxCap"></div>
+        </section>
       </div></div>`);
-    const lab = new SimLab($('#simRoot'), s, {
-      setup: ch.setup, controls: ch.controls, goal: ch.goal,
-      onGoal: () => {
-        Store.setSimChapterDone(id, k);
-        $('#simObj').classList.add('done');
-        $('#simObjIcon').textContent = '✅';
-        $('#simNext').classList.remove('ghost');
-        const dot = $$('.sim-chaps a')[k]; if (dot) { dot.classList.add('done'); dot.textContent = '✓'; }
+    fitCx();
+    const st = Store.simState(c.id);
+    let fc = null, player = null, hold = 0, goalDone = false;
+    const voiceOn = () => !!Store.setting('cxVoice');
+
+    if (c.kind === 'flow') {
+      fc = new FlowCanvas($('#cxStage'), { label: c.title, fit: true, onMetrics: m => onMetrics(m) });
+    } else {
+      player = new ExplainerPlayer($('#cxStage'), c.src, { stage: true });
+      const tools = $('#cxTools');
+      tools.innerHTML = `<button class="cx-pill" id="cxReplay" title="Rejouer la section">↺ Rejouer</button>${LessonPlayer.ttsAvailable ? `<button class="cx-pill" id="cxVoice" title="Narration de la section">${voiceOn() ? '🔊 Voix activée' : '🔈 Voix coupée'}</button>` : ''}`;
+      $('#cxReplay').addEventListener('click', () => player.showSection(k, voiceOn()));
+      const vb = $('#cxVoice');
+      if (vb) vb.addEventListener('click', () => { Store.setSetting('cxVoice', !voiceOn()); vb.textContent = voiceOn() ? '🔊 Voix activée' : '🔈 Voix coupée'; player.showSection(k, voiceOn()); });
+    }
+
+    function liveHTML(m) {
+      const it = [[m.ok >= 0 ? Math.round(m.ok) + ' r/s' : '—', 'servies'], [Math.round(m.drop) + ' r/s', 'rejetées', m.drop > 0 ? 'bad' : ''], [m.lat + ' ms', 'latence moy.']];
+      if (m.hit != null) it.push([Math.round(m.hit * 100) + ' %', 'hit cache']);
+      if (m.stale > 0.0005) it.push([(m.stale * 100).toFixed(1) + ' %', 'lectures périmées', m.stale > 0.01 ? 'bad' : '']);
+      if (m.lost > 0.01) it.push([Math.round(m.lost) + ' /s', 'sessions perdues', 'bad']);
+      if (fc.byType('queue').length) it.push([Math.round(m.depth), 'en file', m.depth > 50 ? 'warn' : ''], [isFinite(m.age) ? m.age.toFixed(1) + ' s' : '∞', 'âge max']);
+      if (fc.byType('dlq').length) it.push([Math.round(m.dlq), 'en DLQ']);
+      return it.map(([v, l, cls]) => `<div class="${cls || ''}"><b>${v}</b><span>${l}</span></div>`).join('');
+    }
+    function onMetrics(m) {
+      $('#cxLive').innerHTML = liveHTML(m);
+      const sec = c.sections[k];
+      const goal = sec.try && sec.try.goal;
+      if (!goal || goalDone) return;
+      let ok = false;
+      try { ok = !!goal.test(m, fc); } catch (e) { ok = false; }
+      const need = Math.max(1, Math.round((goal.hold != null ? goal.hold : 3) / 0.25));
+      hold = ok ? hold + 1 : 0;
+      const bar = $('#cxGoalBar'); if (bar) bar.style.width = Math.min(100, hold / need * 100) + '%';
+      if (hold >= need) {
+        goalDone = true;
+        Store.setSimChapterDone(c.id, k);
+        const box = $('#cxTry'); if (box) box.classList.add('done');
+        const ic = $('#cxGoalIc'); if (ic) ic.textContent = '✅';
         toast('🎯 Objectif atteint !');
+        renderProgress();
       }
-    });
-    const synth = window.speechSynthesis;
-    const rd = $('#simRead');
-    if (rd) rd.addEventListener('click', () => {
-      if (synth.speaking) { synth.cancel(); rd.textContent = '🔊 Écouter'; return; }
-      const u = new SpeechSynthesisUtterance(U.plain([ch.title + '.', ...ch.body, 'Objectif : ' + ch.goal.text].join(' ')));
-      u.lang = 'fr-FR'; u.rate = (Store.setting('rate') || 1) * 0.95;
-      const v = LessonPlayer.pickVoice(Store.setting('voice')); if (v) u.voice = v;
-      u.onend = u.onerror = () => { if (rd.isConnected) rd.textContent = '🔊 Écouter'; };
-      synth.cancel(); synth.speak(u); rd.textContent = '⏹ Arrêter';
-    });
-    cleanup = () => { lab.destroy(); if (synth) synth.cancel(); };
+    }
+    function controlHTML(ct, i) {
+      const v = ct.get ? ct.get(fc) : null;
+      if (ct.k === 'range') return `<label class="cx-ctl"><span>${esc(ct.label)} <b data-out="${i}">${esc(ct.fmt ? ct.fmt(v) : v)}</b></span><input type="range" data-i="${i}" min="${ct.min}" max="${ct.max}" step="${ct.step || 1}" value="${v}"></label>`;
+      if (ct.k === 'toggle') return `<label class="cx-ctl cx-toggle"><input type="checkbox" data-i="${i}" ${v ? 'checked' : ''}><span>${esc(ct.label)}</span></label>`;
+      if (ct.k === 'select') return `<label class="cx-ctl"><span>${esc(ct.label)}</span><select data-i="${i}">${ct.options.map(([ov, ol]) => `<option value="${ov}" ${String(ov) === String(v) ? 'selected' : ''}>${esc(ol)}</option>`).join('')}</select></label>`;
+      if (ct.k === 'stepper') return `<div class="cx-ctl"><span>${esc(ct.label)}</span><div class="cx-stepper"><button data-i="${i}" data-d="-1">−</button><b data-out="${i}">${v}</b><button data-i="${i}" data-d="1">+</button></div></div>`;
+      if (ct.k === 'button') return `<button class="cx-pill cx-act" data-i="${i}">${esc(ct.label)}</button>`;
+      return '';
+    }
+    function bindControls(sec) {
+      const ctls = (sec.try && sec.try.controls) || [];
+      $$('#cxTry [data-i]').forEach(inp => {
+        const ct = ctls[+inp.dataset.i];
+        const out = () => { const o = $(`#cxTry [data-out="${inp.dataset.i}"]`); if (o && ct.get) { const v = ct.get(fc); o.textContent = ct.fmt ? ct.fmt(v) : v; } };
+        if (ct.k === 'range') inp.addEventListener('input', () => { ct.set(fc, +inp.value); out(); });
+        else if (ct.k === 'toggle') inp.addEventListener('change', () => { ct.set(fc, inp.checked); out(); });
+        else if (ct.k === 'select') inp.addEventListener('change', () => { ct.set(fc, inp.value); out(); });
+        else if (ct.k === 'stepper') inp.addEventListener('click', () => { const v = Math.max(ct.min, Math.min(ct.max, ct.get(fc) + (+inp.dataset.d))); ct.set(fc, v); out(); });
+        else if (ct.k === 'button') inp.addEventListener('click', () => ct.act(fc));
+      });
+    }
+    function renderProgress() {
+      const s2 = Store.simState(c.id);
+      $('#cxPg').textContent = `${k + 1} / ${n}`;
+      const p = $('#cxProg'); if (p) p.innerHTML = c.sections.map((_, i) => `<i class="${i === k ? 'on' : i < k ? 'past' : ''} ${s2.ch[i] ? 'done' : ''}"></i>`).join('');
+    }
+    function show(i, first) {
+      k = i; hold = 0;
+      const sec = c.sections[k], s2 = Store.simState(c.id);
+      goalDone = !!(sec.try && sec.try.goal && s2.ch[k]);
+      const last = k === n - 1;
+      if (fc) {
+        fc.setGraph(JSON.parse(JSON.stringify(sec.graph)), { instant: first });
+        if (sec.setup) sec.setup(fc);
+      }
+      const xpRecap = c.kind === 'xp' && last && c.src.recap ? `<div class="cx-recap"><div class="cx-lbl">📌 FICHE MÉMO</div><ol>${c.src.recap.map(r => `<li>${md(r)}</li>`).join('')}</ol></div>` : '';
+      const link = c.kind === 'xp' ? CONCEPTS.find(o => o.kind === 'flow' && o.explainer === c.id) : null;
+      const tryBox = sec.try ? `<div class="cx-try ${goalDone ? 'done' : ''}" id="cxTry">
+          <div class="cx-lbl">À TOI</div>
+          ${sec.try.goal ? `<p><span id="cxGoalIc">${goalDone ? '✅' : '🎯'}</span> ${md(sec.try.goal.text)}</p><div class="cx-goalbar"><i id="cxGoalBar" style="width:${goalDone ? 100 : 0}%"></i></div>` : '<p>Joue avec les réglages et observe le schéma.</p>'}
+          <div class="cx-ctls">${(sec.try.controls || []).map(controlHTML).join('')}</div>
+        </div>` : '';
+      const nextBtns = last
+        ? `${c.build ? `<a class="cx-btn white" href="#/concept/${c.id}/construire">Construis-le toi-même →</a>` : ''}${c.quiz ? `<a class="cx-btn" href="#/concept/${c.id}/quiz">Quiz →</a>` : ''}${link ? `<a class="cx-btn white" href="#/concept/${link.id}/apprendre">À toi de jouer : ${esc(link.title)} →</a>` : ''}`
+        : `<button class="cx-btn" id="cxNext">Suivant →</button>${c.build ? `<a class="cx-btn" href="#/concept/${c.id}/construire">Passer au défi →</a>` : ''}`;
+      $('#cxText').innerHTML = `
+        <div class="cx-hero ${k ? 'compact' : ''}">
+          <div class="cx-tile">${conceptIcon(c, 22)}</div>
+          <div class="cx-kicker">CONCEPT ${String(c.n).padStart(2, '0')} · ${esc(c.cat.toUpperCase())}</div>
+          <h1>${esc(c.title)}</h1>
+          <p class="cx-tagline">${esc(c.tagline)}</p>
+        </div>
+        <div class="cx-sec">
+          <div class="cx-num">${String(k + 1).padStart(2, '0')}</div>
+          <h2>${esc(sec.t)}</h2>
+          ${sec.body.map(p => `<p>${md(p)}</p>`).join('')}
+          ${tryBox}${xpRecap}
+          <div class="cx-nav"><button class="cx-btn ghost" id="cxPrev" ${k ? '' : 'disabled'}>← Précédent</button>${nextBtns}</div>
+          ${last && nextC ? `<div class="cx-lbl" style="margin-top:22px">OU PASSE DIRECTEMENT À</div><a class="cx-ahead" href="#/concept/${nextC.id}/apprendre"><b>${esc(nextC.title)}</b><span>${esc(nextC.tagline)}</span></a>` : ''}
+        </div>
+        <div class="cx-prog" id="cxProg"></div>`;
+      $('#cxText').scrollTop = 0;
+      $('#cxCap').textContent = sec.t;
+      $('#cxPrev').addEventListener('click', () => go(k - 1));
+      const nx = $('#cxNext'); if (nx) nx.addEventListener('click', () => go(k + 1));
+      if (fc) {
+        bindControls(sec);
+        $('#cxLive').classList.remove('hidden');
+      } else {
+        $('#cxLive').classList.add('hidden');
+        player.showSection(k, voiceOn());
+        if (last) Store.setExplainerSeen(c.id);
+      }
+      renderProgress();
+      history.replaceState(null, '', `#/concept/${c.id}/apprendre/${k + 1}`);
+    }
+    function go(i) { if (i >= 0 && i < n) show(i); }
+    const onKey = e => {
+      if (/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+      if (e.key === 'ArrowRight') go(k + 1);
+      if (e.key === 'ArrowLeft') go(k - 1);
+    };
+    document.addEventListener('keydown', onKey);
+    window.addEventListener('resize', fitCx);
+    show(k, true);
+    cleanup = () => {
+      if (fc) fc.destroy();
+      if (player) player.destroy();
+      document.removeEventListener('keydown', onKey);
+      window.removeEventListener('resize', fitCx);
+    };
   }
 
-  function simQuiz(s, head) {
-    setView(`<div class="container sim-page">${head}
+  function viewConceptBuild(id) {
+    const k0 = CONCEPTS.findIndex(c => c.id === id);
+    const c = CONCEPTS[k0];
+    if (!c || !c.build) return notFound();
+    const nextC = CONCEPTS.slice(k0 + 1).find(o => o.build) || CONCEPTS[k0 + 1];
+    const B = c.build, T = FlowCanvas.TYPES;
+    const right = `<a class="cx-pill" href="#/concept/${c.id}/apprendre">← Relire la leçon</a>${c.quiz ? `<a class="cx-pill" href="#/concept/${c.id}/quiz">Quiz</a>` : ''}${nextC ? `<a class="cx-pill blue" href="#/concept/${nextC.id}/apprendre">${esc(nextC.title)} →</a>` : ''}`;
+    setView(`<div class="cx cx-build">${cxBar(c, 'Construire', right)}
+      <div class="cb-main">
+        <aside class="cb-pal">
+          <div class="cx-lbl">GLISSER POUR PLACER</div>
+          ${B.palette.map(t => `<button class="cb-item" data-type="${t}" style="--c:${T[t].color}"><span class="cb-ic">${FlowCanvas.iconSVG(t, 20)}</span><span><b>${esc(T[t].label)}</b><small>${esc(T[t].desc)}</small></span></button>`).join('')}
+          <div class="cx-lbl" style="margin-top:18px">MODE D'EMPLOI</div>
+          <ul class="cb-how">
+            <li><b>Glisse</b> un composant de la palette vers le canevas (ou touche-le pour l'ajouter).</li>
+            <li><b>Déplace</b> un composant en le faisant glisser.</li>
+            <li><b>Relie</b> : survole un composant, puis tire sa poignée <b>+</b> jusqu'à la cible.</li>
+            <li><b>Supprime</b> un composant ou une flèche : <b>double-clic</b> ou <b>clic droit</b> (appui long sur mobile).</li>
+            <li>Pendant <b>Play</b> : la croix ✕ rouge met un composant en panne.</li>
+          </ul>
+        </aside>
+        <section class="cb-canvas">
+          <div class="cb-goal"><b>Objectif :</b> ${md(B.goal)}</div>
+          <div class="cb-actions"><button class="cx-pill" id="cbReset">Réinitialiser</button><button class="cx-pill blue" id="cbPlay">▶ Play</button><button class="cx-pill" id="cbRef">Solution</button></div>
+          <div id="cbStage" class="cx-stage"></div>
+          <div class="cb-hint">Survole un composant → tire la poignée <b>+</b> pour relier. Pendant <b>Play</b> : la croix <span class="x">✕</span> rouge met un composant en panne.</div>
+        </section>
+        <aside class="cb-side">
+          <div class="cx-lbl">MÉTRIQUES EN DIRECT</div>
+          <dl class="cb-metrics" id="cbMetrics"></dl>
+          <div class="cx-lbl" style="margin-top:18px">FEEDBACK</div>
+          <div class="cb-feedback" id="cbFeedback"></div>
+          <div class="cx-lbl" style="margin-top:18px">JOURNAL</div>
+          <ol class="cb-log" id="cbLog"></ol>
+        </aside>
+      </div></div>`);
+    fitCx();
+    const saved = Store.simState(c.id).graph;
+    let ctx = {}, okHold = 0, success = false, fc = null;
+    fc = new FlowCanvas($('#cbStage'), {
+      editable: true, label: 'Ton architecture', fit: true,
+      graph: JSON.parse(JSON.stringify(saved || B.start)),
+      onMetrics: m => tick(m),
+      onChange: () => { if (!fc) return; renderMetrics(fc.m); if (!fc.running) { Store.setSimGraph(c.id, fc.getGraph()); idleFeedback(); } },
+      onKill: (n, alive) => { if (!alive) { ctx.kills = (ctx.kills || 0) + 1; ctx.killAt = fc.t; } log(alive ? `🔧 ${n.label} redémarre.` : `💥 ${n.label} est en panne.`); },
+      onLog: t => log(t)
+    });
+    function log(t) { const li = document.createElement('li'); li.textContent = t; const l = $('#cbLog'); if (!l) return; l.prepend(li); while (l.children.length > 12) l.lastChild.remove(); }
+    function feedback(msg, tone) { const f = $('#cbFeedback'); f.className = 'cb-feedback ' + (tone || 'info'); f.innerHTML = msg; }
+    function idleFeedback() {
+      if (success) return;
+      feedback(fc.edges.length || fc.nodes.size > 1 ? '<b>Prêt ?</b> Lance <b>▶ Play</b> pour envoyer du trafic dans ton architecture.' : '<b>Glisse des composants sur le canevas</b><br>Construis un système qui atteint l\'objectif, puis lance Play.', 'idle');
+    }
+    function renderMetrics(m) {
+      const status = success ? '<span class="ok">Réussi ✓</span>' : fc.running ? 'En cours' : 'À l\'arrêt';
+      const rows = [['Statut', status], ['Composants', m.nodes], ['Liens', m.edges], ['Traitées', Math.round(m.processed || 0).toLocaleString('fr-FR')], ['Rejetées', `<span class="${m.dropped > 0 ? 'bad' : ''}">${Math.round(m.dropped || 0).toLocaleString('fr-FR')}</span>`], ['Surchargés', `<span class="${m.overloaded ? 'bad' : ''}">${fc.running ? m.overloaded : 0}</span>`]];
+      if (fc.running) {
+        rows.push(['Débit servi', Math.round(m.ok) + ' r/s'], ['Latence moy.', m.lat + ' ms']);
+        if (m.hit != null) rows.push(['Hit cache', Math.round(m.hit * 100) + ' %']);
+        if (fc.byType('queue').length) rows.push(['En file', Math.round(m.depth)]);
+      }
+      $('#cbMetrics').innerHTML = rows.map(([a, b]) => `<dt>${a}</dt><dd>${b}</dd>`).join('');
+    }
+    function tick(m) {
+      renderMetrics(m);
+      if (m.drop > 0) ctx.lastDrop = fc.t;
+      ctx.t = fc.t;
+      ctx.sinceDrop = fc.t - (ctx.lastDrop != null ? ctx.lastDrop : -1e9);
+      ctx.sinceKill = ctx.killAt != null ? fc.t - ctx.killAt : 0;
+      // profondeur minimale de la file sur les 10,5 dernières secondes (une période de vagues)
+      (ctx.depths = ctx.depths || []).push([fc.t, m.depth]);
+      ctx.depths = ctx.depths.filter(([t]) => t >= fc.t - 10.5);
+      ctx.minDepth = Math.min(...ctx.depths.map(d => d[1]));
+      if (success) return;
+      let r;
+      try { r = B.check(m, fc, ctx) || {}; } catch (e) { r = { msg: 'Vérification impossible : ' + e.message, tone: 'warn' }; }
+      if (r.ok) {
+        okHold++;
+        if (okHold >= 12) {
+          success = true;
+          Store.setSimBuild(c.id);
+          feedback(`<b>🎉 Objectif atteint</b><br>${md(r.msg)}`, 'ok');
+          toast('🎉 Défi réussi !');
+          renderMetrics(m);
+          return;
+        }
+        feedback(`<b>Ça tient…</b> encore ${Math.ceil((12 - okHold) / 4)} s<br>${md(r.msg)}`, 'info');
+      } else {
+        okHold = 0;
+        feedback(md(r.msg || ''), r.tone || 'info');
+      }
+    }
+    function setPlay(on) {
+      if (on) { ctx = {}; okHold = 0; success = false; fc.play(); log('▶ Trafic lancé.'); }
+      else { fc.stop(); log('⏸ Arrêt : tout est réparé, tu peux modifier ton architecture.'); idleFeedback(); }
+      $('#cbPlay').textContent = on ? '⏸ Stop' : '▶ Play';
+      $('#cbPlay').classList.toggle('blue', !on);
+      $('.cx-build').classList.toggle('playing', on);
+      renderMetrics(fc.m);
+    }
+    $('#cbPlay').addEventListener('click', () => setPlay(!fc.running));
+    $('#cbReset').addEventListener('click', () => { if (fc.running) setPlay(false); fc.setGraph(JSON.parse(JSON.stringify(B.start)), { instant: true }); success = false; Store.setSimGraph(c.id, null); idleFeedback(); });
+    $('#cbRef').addEventListener('click', () => {
+      if (fc.running) setPlay(false);
+      let g = JSON.parse(JSON.stringify(B.reference));
+      if (B.prepRef) g = B.prepRef(g);
+      fc.setGraph(g); success = false;
+      feedback('<b>Solution de référence chargée.</b> Lance Play pour la voir tenir la charge, puis essaie de faire mieux ou autrement.', 'info');
+    });
+    // palette : glisser-déposer (souris et tactile) ou simple toucher
+    $$('.cb-item').forEach(b => b.addEventListener('pointerdown', ev => {
+      if (fc.running) { toast('Arrête la simulation (Stop) pour modifier l\'architecture.'); return; }
+      ev.preventDefault();
+      const type = b.dataset.type;
+      const ghost = U.h(`<div class="cb-ghost" style="--c:${T[type].color}">${FlowCanvas.iconSVG(type, 18)}<b>${esc(T[type].label)}</b></div>`);
+      document.body.appendChild(ghost);
+      const sx = ev.clientX, sy = ev.clientY;
+      const mv = e => { ghost.style.left = e.clientX + 'px'; ghost.style.top = e.clientY + 'px'; };
+      const up = e => {
+        window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', up);
+        ghost.remove();
+        const tap = Math.hypot(e.clientX - sx, e.clientY - sy) < 6;
+        fc.addNodeAtClient(type, tap ? null : e.clientX, tap ? null : e.clientY);
+      };
+      mv(ev);
+      window.addEventListener('pointermove', mv);
+      window.addEventListener('pointerup', up);
+    }));
+    window.addEventListener('resize', fitCx);
+    renderMetrics(fc.m);
+    idleFeedback();
+    if (Store.simState(c.id).build) feedback('<b>Défi déjà réussi ✓</b> Tu peux le refaire ou explorer d\'autres architectures.', 'ok');
+    cleanup = () => { fc.destroy(); window.removeEventListener('resize', fitCx); };
+  }
+
+  function viewConceptQuiz(id) {
+    const c = CONCEPTS.find(o => o.id === id);
+    if (!c || !c.quiz) return notFound();
+    const st = Store.simState(c.id);
+    setView(`<div class="container">
+      <div class="crumbs muted small"><a href="#/concepts">Concepts</a> › <a href="#/concept/${c.id}/apprendre">${esc(c.title)}</a> › Quiz</div>
+      <h1>✅ Quiz : ${esc(c.title)}</h1>
+      ${st.quiz != null ? `<p class="muted">Meilleur score : ${st.quiz} %</p>` : ''}
       <div class="sim-quiz">
-        ${s.quiz.map((q, i) => `<div class="card sim-q" data-i="${i}"><b>${i + 1}. ${md(q.q)}</b>
+        ${c.quiz.map((q, i) => `<div class="card sim-q" data-i="${i}"><b>${i + 1}. ${md(q.q)}</b>
           ${q.options.map((o, j) => `<label class="sim-opt"><input type="radio" name="q${i}" value="${j}"> ${md(o)}</label>`).join('')}
           <div class="sim-why hidden"></div></div>`).join('')}
-        <div class="sim-nav"><a class="btn ghost small" href="#/simulateur/${s.id}/apprendre">‹ Revoir la leçon</a><button class="btn" id="simCheck">Valider mes réponses</button></div>
-        <div id="simScore"></div>
+        <div class="btn-row"><a class="btn ghost small" href="#/concept/${c.id}/apprendre">‹ Revoir la leçon</a><button class="btn" id="qCheck">Valider mes réponses</button></div>
+        <div id="qScore"></div>
       </div></div>`);
-    $('#simCheck').addEventListener('click', () => {
+    $('#qCheck').addEventListener('click', () => {
       let ok = 0;
-      s.quiz.forEach((q, i) => {
+      c.quiz.forEach((q, i) => {
         const box = $(`.sim-q[data-i="${i}"]`, app), sel = $('input:checked', box);
         const good = sel && +sel.value === q.answer;
         if (good) ok++;
         $$('.sim-opt', box).forEach((l, j) => { l.classList.toggle('right', j === q.answer); l.classList.toggle('wrong', !!sel && +sel.value === j && j !== q.answer); });
         const why = $('.sim-why', box); why.classList.remove('hidden'); why.innerHTML = `${good ? '✅' : '❌'} ${md(q.why)}`;
       });
-      const pct = Math.round(ok * 100 / s.quiz.length);
-      Store.setSimQuiz(s.id, pct);
-      $('#simScore').innerHTML = `<div class="card"><h3>Score : ${ok}/${s.quiz.length} (${pct} %)</h3><p class="muted">${pct === 100 ? 'Parfait.' : 'Relis les explications, puis retente le chapitre concerné dans la simulation.'}</p><a class="btn small" href="#/simulateur/${s.id}/bac-a-sable">🧪 Aller au bac à sable</a></div>`;
+      const pct = Math.round(ok * 100 / c.quiz.length);
+      Store.setSimQuiz(c.id, pct);
+      $('#qScore').innerHTML = `<div class="card"><h3>Score : ${ok}/${c.quiz.length} (${pct} %)</h3><p class="muted">${pct === 100 ? 'Parfait.' : 'Relis les explications, puis retourne voir la section concernée.'}</p>${c.build ? `<a class="btn small" href="#/concept/${c.id}/construire">🛠️ Passer au défi « Construire »</a>` : ''}</div>`;
     });
   }
 
@@ -1063,7 +1299,7 @@
     const rel = (x.courses || []).map(cid => byId[cid]).filter(Boolean);
     setView(`
       <div class="container">
-        <div class="crumbs muted small"><a href="#/animations">Animations</a> › ${esc(x.title)}</div>
+        <div class="crumbs muted small"><a href="#/concepts">Concepts</a> › <a href="#/concept/${x.id}/apprendre">${esc(x.title)}</a> › Vidéo narrée</div>
         <div class="xp-layout">
           <div>
             <div id="xpPlayer"></div>
@@ -1074,12 +1310,13 @@
             <ol class="xp-steps">${x.steps.map((st, i) => `<li data-k="${i}">${esc(ExplainerPlayer.stepText(st))}</li>`).join('')}</ol>
             <h3 style="margin-top:20px">📌 Fiche mémo</h3>
             <ul class="keypoints">${(x.recap || []).map(r => `<li>${md(r)}</li>`).join('')}</ul>
-            ${SIMS.filter(sm => sm.explainer === x.id).map(sm => `<a class="btn small" style="margin-top:16px" href="#/simulateur/${sm.id}/apprendre">🧪 À toi de jouer : ${esc(sm.title)}</a>`).join('')}
+            <a class="btn small" style="margin-top:16px" href="#/concept/${x.id}/apprendre">🧭 Version « Apprendre » (texte + schéma)</a>
+            ${CONCEPTS.filter(sm => sm.explainer === x.id).map(sm => `<a class="btn small" style="margin-top:8px" href="#/concept/${sm.id}/apprendre">🛠️ À toi de jouer : ${esc(sm.title)}</a>`).join('')}
             ${rel.length ? `<h3 style="margin-top:20px">Formations liées</h3><div class="side-extra" style="padding:0">${rel.map(c => `<a href="#/cours/${c.id}">${c.icon} ${esc(c.title)}</a>`).join('')}</div>` : ''}
           </aside>
         </div>
-        <div class="section-title"><h2>Autres animations</h2><a href="#/animations">Toutes ›</a></div>
-        <div class="grid courses">${XPS.filter(o => o.id !== x.id).slice(0, 4).map(xpCard).join('')}</div>
+        <div class="section-title"><h2>Autres concepts</h2><a href="#/concepts">Tous ›</a></div>
+        <div class="grid courses">${CONCEPTS.filter(o => o.id !== x.id).slice(0, 4).map(conceptCard).join('')}</div>
       </div>`);
     const player = new ExplainerPlayer($('#xpPlayer'), x, { next });
     cleanup = () => player.destroy();
@@ -1128,10 +1365,21 @@
       case 'roadmap': return viewRoadmap(seg[1]);
       case 'notes': return viewNotes();
       case 'parametres': return viewSettings();
-      case 'animations': return viewAnimations();
-      case 'animation': return viewAnimation(seg[1]);
-      case 'simulateurs': return viewSims();
-      case 'simulateur': return viewSim(seg[1], seg[2], seg[3]);
+      case 'concepts': return viewConcepts();
+      case 'concept':
+        if (seg[2] === 'construire') return viewConceptBuild(seg[1]);
+        if (seg[2] === 'quiz') return viewConceptQuiz(seg[1]);
+        return viewConceptLearn(seg[1], seg[3]);
+      // anciennes adresses (animations, simulateurs) → concepts
+      case 'animations': case 'simulateurs': location.replace('#/concepts'); return;
+      case 'animation':
+        if (seg[2] === 'video') return viewAnimation(seg[1]);
+        location.replace(`#/concept/${seg[1]}/apprendre`); return;
+      case 'simulateur': {
+        const id = { queue: 'mq' }[seg[1]] || seg[1];
+        const tab = { 'bac-a-sable': 'construire', quiz: 'quiz' }[seg[2]] || 'apprendre';
+        location.replace(`#/concept/${id}/${tab}`); return;
+      }
       case 'recherche': return viewSearch(params.get('q') || '');
       default: return notFound();
     }

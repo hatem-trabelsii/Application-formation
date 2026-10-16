@@ -126,3 +126,51 @@ Inspirées des reels pédagogiques (« Online Payments », « DNS Server »), o�
   - les métriques (débit, p95, taux d'erreur, hit ratio…) sont **calculées sur les requêtes simulées** d'une fenêtre glissante.
 - **Ralenti ×10, affiché à l'écran** : il permet de suivre chaque requête. Les chiffres sont reconvertis en temps réel équivalent. Les durées de démarrage des serveurs sont volontairement compressées, et la proportion de messages empoisonnés (10 %) volontairement exagérée. Le texte de la leçon le signale.
 - **Vérifié** : un script Playwright joue la solution de chacun des 16 chapitres et vérifie que l'objectif est atteignable. C'est ainsi que j'ai trouvé et corrigé un bug de particules perdues, une case à cocher initialisée à tort et un TTL qui rendait un objectif impossible. Aucune erreur JS ; pas de débordement horizontal sur mobile, où le canevas défile horizontalement. Non-régression : 298 pages, 13 animations.
+
+## 12. Refonte « Concepts » d'après les vidéos de freesystemdesign.com
+
+Les 5 vidéos fournies (environ 2 minutes au total) ont été analysées image par image (une image toutes les 2 s, plus des gros plans en pleine résolution). Ce que j'ai reproduit :
+
+- **Mode Apprendre** (`#/concept/<id>/apprendre/<n>`) :
+  - un fond quasi noir ;
+  - à gauche, la tuile d'icône, l'étiquette mono « CONCEPT 04 · SCALABILITÉ », le grand titre, la phrase d'accroche, puis des sections numérotées « 01, 02… » ;
+  - des boutons « ← Précédent », « Suivant → » et « Passer au défi → », et la pilule blanche « Construis-le toi-même → » à la dernière section ;
+  - l'encart « OU PASSE DIRECTEMENT À » vers le concept suivant, et une barre de progression segmentée ;
+  - en haut, le fil d'Ariane et les concepts précédent et suivant ;
+  - à droite, un **canevas vivant** dont le schéma change à chaque section, avec un glissement des composants communs, le titre de la section en légende mono, et une navigation au clavier ← →.
+- **Composants** :
+  - cartes compactes : tuile d'icône colorée par type, nom, sous-titre ou débit (« 150 r/s ») ;
+  - mini-barre et compteur « charge/capacité » (« 29/30 ») ;
+  - **croix rouge ✕** pour mettre en panne ou relancer ;
+  - bordure rose lumineuse quand le composant est surchargé ;
+  - flèches fines, et **points colorés** qui circulent en continu selon le débit.
+- **Mode Construire** (`#/concept/<id>/construire`) :
+  - palette « GLISSER POUR PLACER » et mode d'emploi ;
+  - objectif en haut à gauche, boutons Réinitialiser / ▶ Play / Solution ;
+  - « MÉTRIQUES EN DIRECT » (statut, composants, liens, traitées, rejetées, surchargés, débit, latence), encart **FEEDBACK** contextuel et journal ;
+  - glisser-déposer à la souris ou au doigt (toucher la palette ajoute aussi) ;
+  - connexion en tirant la poignée « + », suppression au double-clic, clic droit ou appui long ;
+  - architecture sauvegardée localement. Le défi est validé quand la condition tient 3 secondes sous trafic.
+- **Moteur** (`js/flow.js`) : un **modèle de flux** (requêtes/s propagées dans le graphe), qui remplace le simulateur à événements discrets de la section 11. Il est générique, donc il fonctionne sur n'importe quelle architecture construite par l'utilisateur, et il est déterministe : les objectifs ne dépendent plus du hasard. Il gère :
+  - la capacité de chaque composant, avec rejet de l'excédent ;
+  - les algorithmes de répartition et les health checks (détection en ~2 s) ;
+  - l'auto-scaling, avec démarrage puis contrôles de santé ;
+  - les sessions perdues, calculées comme 1 − Σ parts² ;
+  - le cache : taux de hit selon la loi de Zipf, le TTL (formule r·T/(1+r·T)), les données périmées et l'invalidation, le redémarrage à froid ;
+  - les files : profondeur, âge, workers, DLQ ;
+  - la latence estimée par une file M/M/1 plafonnée ;
+  - en mode « géographique » (CDN), la distance sur l'écran donne la latence.
+- **Contenu** :
+  - 4 concepts interactifs avec défi : **CDN** (nouveau, comme dans la vidéo), Load balancer, Cache (le défi reprend exactement celui de la vidéo : 150 r/s, base à 30 r/s), Files de messages (vagues 20/80 r/s) ;
+  - les **13 animations** deviennent des concepts « Apprendre » : titres de section ajoutés, schéma dans le nouveau style, lecture section par section, points continus et voix optionnelle. Leur **version vidéo narrée** reste accessible (`#/animation/<id>/video`, bouton 🎬) ;
+  - 17 concepts au total, classés en 7 catégories.
+- **Anciennes adresses** (`#/animations`, `#/animation/<id>`, `#/simulateurs`, `#/simulateur/...`) : elles redirigent vers les concepts.
+- **Choix assumés** :
+  - les libellés sont en français ;
+  - pas de police Google : le site doit tourner hors ligne, et la CSP l'interdit ;
+  - sur téléphone, le schéma passe au-dessus du texte et défile horizontalement à une taille lisible.
+- **Vérifications** :
+  - les 16 objectifs de section sont atteints par un script, et aucun n'est validé sans action ;
+  - les 4 défis échouent avec le graphe de départ et réussissent avec la solution. Pour les files, 3 workers sont refusés et 4 acceptés ;
+  - le parcours réel à la souris a été testé : glisser, relier, Play, réussite, suppression d'une flèche, persistance après rechargement ;
+  - mobile sans débordement, CSP sans violation sur 137 écrans, non-régression sur 298 pages sans erreur.
